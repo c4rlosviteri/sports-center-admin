@@ -1,13 +1,9 @@
 import { NextResponse } from 'next/server'
-import {
-  checkMigrationNeeded,
-  migratePlansToPackages,
-} from '~/actions/migrate-plans'
 import { runAllPendingMigrations } from '~/lib/migrations'
 
 /**
  * POST /api/admin/migrate
- * Run all pending database migrations and plan-to-package migration
+ * Run all pending database migrations
  * This should be called during deployment or initialization
  */
 export async function POST() {
@@ -15,30 +11,12 @@ export async function POST() {
     // Run database migrations
     const dbResult = await runAllPendingMigrations()
 
-    // Check and run plan migration if needed
-    let planResult = null
-    const migrationCheck = await checkMigrationNeeded()
-
-    if (migrationCheck.needsMigration) {
-      planResult = await migratePlansToPackages()
-    }
-
     return NextResponse.json({
-      success:
-        dbResult.success &&
-        (planResult ? planResult.errors.length === 0 : true),
+      success: dbResult.success,
       database: {
         migrationsRun: dbResult.migrationsRun,
         errors: dbResult.errors,
       },
-      plans: planResult
-        ? {
-            migrated: planResult.plansMigrated,
-            usersMigrated: planResult.usersMigrated,
-            errors: planResult.errors,
-          }
-        : null,
-      planMigrationNeeded: migrationCheck.needsMigration,
     })
   } catch (error) {
     console.error('Migration API error:', error)
@@ -58,12 +36,8 @@ export async function POST() {
  */
 export async function GET() {
   try {
-    const migrationCheck = await checkMigrationNeeded()
-
     return NextResponse.json({
-      planMigrationNeeded: migrationCheck.needsMigration,
-      plansCount: migrationCheck.plansCount,
-      usersCount: migrationCheck.usersCount,
+      databaseOnly: true,
     })
   } catch (error) {
     console.error('Migration status check error:', error)

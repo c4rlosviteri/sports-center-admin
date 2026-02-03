@@ -189,7 +189,18 @@ ORDER BY wo.expires_at ASC
 LIMIT :limit;
 
 /* @name GetNotificationPreferences */
-SELECT *
+SELECT
+  id,
+  user_id,
+  email_enabled,
+  sms_enabled,
+  push_enabled,
+  waitlist_notification_enabled,
+  booking_confirmation_enabled,
+  cancellation_notification_enabled,
+  reminder_notification_enabled,
+  created_at,
+  updated_at
 FROM notification_preferences
 WHERE user_id = :userId!;
 

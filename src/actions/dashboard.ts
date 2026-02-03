@@ -3,28 +3,8 @@
 import * as bookingsQueries from '~/db/queries/bookings.queries'
 import * as dashboard from '~/db/queries/dashboard.queries'
 import { pool } from '~/lib/db'
-import type { BookingWithDetails, UserMembership } from '~/types/database'
+import type { BookingWithDetails } from '~/types/database'
 import { getSession } from './auth'
-
-export async function getUserActiveMembership(): Promise<UserMembership | null> {
-  // Use packages instead of legacy memberships
-  const pkg = await getUserActivePackage()
-  if (!pkg) return null
-
-  return {
-    id: pkg.id,
-    userId: pkg.userId,
-    packageTemplateId: pkg.packageTemplateId,
-    startDate: new Date(),
-    endDate: pkg.expiresAt,
-    classesRemaining: pkg.classesRemaining,
-    isActive: pkg.status === 'active',
-    packageName: pkg.packageName,
-    packageDescription: pkg.packageDescription,
-    status: 'active' as const,
-    createdAt: new Date(),
-  }
-}
 
 export async function getUserActivePackage(): Promise<{
   id: string

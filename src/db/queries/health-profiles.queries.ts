@@ -179,12 +179,35 @@ export interface GetHealthProfileQuery {
   result: GetHealthProfileResult;
 }
 
-const getHealthProfileIR: any = {"usedParamSet":{"userId":true,"branchId":true},"params":[{"name":"userId","required":true,"transform":{"type":"scalar"},"locs":[{"a":53,"b":60}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":80,"b":89}]}],"statement":"SELECT *\nFROM client_health_profiles\nWHERE user_id = :userId!\n  AND branch_id = :branchId!"};
+const getHealthProfileIR: any = {"usedParamSet":{"userId":true,"branchId":true},"params":[{"name":"userId","required":true,"transform":{"type":"scalar"},"locs":[{"a":445,"b":452}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":472,"b":481}]}],"statement":"SELECT\n  id,\n  user_id,\n  branch_id,\n  medical_conditions,\n  current_injuries,\n  medications,\n  allergies,\n  fitness_level,\n  fitness_goals,\n  exercise_restrictions,\n  height_cm,\n  weight_kg,\n  previous_injuries,\n  surgery_history,\n  medical_release_signed,\n  medical_release_date,\n  liability_waiver_signed,\n  liability_waiver_date,\n  doctor_name,\n  doctor_phone,\n  notes,\n  created_at,\n  updated_at\nFROM client_health_profiles\nWHERE user_id = :userId!\n  AND branch_id = :branchId!"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT *
+ * SELECT
+ *   id,
+ *   user_id,
+ *   branch_id,
+ *   medical_conditions,
+ *   current_injuries,
+ *   medications,
+ *   allergies,
+ *   fitness_level,
+ *   fitness_goals,
+ *   exercise_restrictions,
+ *   height_cm,
+ *   weight_kg,
+ *   previous_injuries,
+ *   surgery_history,
+ *   medical_release_signed,
+ *   medical_release_date,
+ *   liability_waiver_signed,
+ *   liability_waiver_date,
+ *   doctor_name,
+ *   doctor_phone,
+ *   notes,
+ *   created_at,
+ *   updated_at
  * FROM client_health_profiles
  * WHERE user_id = :userId!
  *   AND branch_id = :branchId!
@@ -193,32 +216,62 @@ const getHealthProfileIR: any = {"usedParamSet":{"userId":true,"branchId":true},
 export const getHealthProfile = new PreparedQuery<GetHealthProfileParams,GetHealthProfileResult>(getHealthProfileIR);
 
 
-/** Query 'GetHealthSummaryForInstructor' is invalid, so its result is assigned type 'never'.
- *  */
-export type GetHealthSummaryForInstructorResult = never;
+/** 'GetHealthSummaryForInstructor' parameters type */
+export interface GetHealthSummaryForInstructorParams {
+  userId: string;
+}
 
-/** Query 'GetHealthSummaryForInstructor' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type GetHealthSummaryForInstructorParams = never;
+/** 'GetHealthSummaryForInstructor' return type */
+export interface GetHealthSummaryForInstructorResult {
+  emergency_contact_name: string | null;
+  emergency_contact_phone: string | null;
+  fitness_level: string | null;
+  has_current_injuries: boolean | null;
+  has_medical_conditions: boolean | null;
+  medical_clearance: boolean | null;
+  restrictions: string | null;
+}
 
-const getHealthSummaryForInstructorIR: any = {"usedParamSet":{"userId":true},"params":[{"name":"userId","required":true,"transform":{"type":"scalar"},"locs":[{"a":40,"b":47}]}],"statement":"SELECT * FROM get_client_health_summary(:userId!)"};
+/** 'GetHealthSummaryForInstructor' query type */
+export interface GetHealthSummaryForInstructorQuery {
+  params: GetHealthSummaryForInstructorParams;
+  result: GetHealthSummaryForInstructorResult;
+}
+
+const getHealthSummaryForInstructorIR: any = {"usedParamSet":{"userId":true},"params":[{"name":"userId","required":true,"transform":{"type":"scalar"},"locs":[{"a":194,"b":201}]}],"statement":"SELECT\n  has_medical_conditions,\n  has_current_injuries,\n  fitness_level,\n  restrictions,\n  medical_clearance,\n  emergency_contact_name,\n  emergency_contact_phone\nFROM get_client_health_summary(:userId!)"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT * FROM get_client_health_summary(:userId!)
+ * SELECT
+ *   has_medical_conditions,
+ *   has_current_injuries,
+ *   fitness_level,
+ *   restrictions,
+ *   medical_clearance,
+ *   emergency_contact_name,
+ *   emergency_contact_phone
+ * FROM get_client_health_summary(:userId!)
  * ```
  */
 export const getHealthSummaryForInstructor = new PreparedQuery<GetHealthSummaryForInstructorParams,GetHealthSummaryForInstructorResult>(getHealthSummaryForInstructorIR);
 
 
-/** Query 'CheckMedicalClearance' is invalid, so its result is assigned type 'never'.
- *  */
-export type CheckMedicalClearanceResult = never;
+/** 'CheckMedicalClearance' parameters type */
+export interface CheckMedicalClearanceParams {
+  userId: string;
+}
 
-/** Query 'CheckMedicalClearance' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type CheckMedicalClearanceParams = never;
+/** 'CheckMedicalClearance' return type */
+export interface CheckMedicalClearanceResult {
+  has_clearance: boolean | null;
+}
+
+/** 'CheckMedicalClearance' query type */
+export interface CheckMedicalClearanceQuery {
+  params: CheckMedicalClearanceParams;
+  result: CheckMedicalClearanceResult;
+}
 
 const checkMedicalClearanceIR: any = {"usedParamSet":{"userId":true},"params":[{"name":"userId","required":true,"transform":{"type":"scalar"},"locs":[{"a":29,"b":36}]}],"statement":"SELECT has_medical_clearance(:userId!) as has_clearance"};
 
@@ -326,12 +379,24 @@ export interface GetEmergencyContactsQuery {
   result: GetEmergencyContactsResult;
 }
 
-const getEmergencyContactsIR: any = {"usedParamSet":{"userId":true,"branchId":true},"params":[{"name":"userId","required":true,"transform":{"type":"scalar"},"locs":[{"a":49,"b":56}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":76,"b":85}]}],"statement":"SELECT *\nFROM emergency_contacts\nWHERE user_id = :userId!\n  AND branch_id = :branchId!\nORDER BY is_primary DESC, created_at"};
+const getEmergencyContactsIR: any = {"usedParamSet":{"userId":true,"branchId":true},"params":[{"name":"userId","required":true,"transform":{"type":"scalar"},"locs":[{"a":204,"b":211}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":231,"b":240}]}],"statement":"SELECT\n  id,\n  user_id,\n  branch_id,\n  contact_name,\n  relationship,\n  phone_primary,\n  phone_secondary,\n  email,\n  is_primary,\n  notes,\n  created_at,\n  updated_at\nFROM emergency_contacts\nWHERE user_id = :userId!\n  AND branch_id = :branchId!\nORDER BY is_primary DESC, created_at"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT *
+ * SELECT
+ *   id,
+ *   user_id,
+ *   branch_id,
+ *   contact_name,
+ *   relationship,
+ *   phone_primary,
+ *   phone_secondary,
+ *   email,
+ *   is_primary,
+ *   notes,
+ *   created_at,
+ *   updated_at
  * FROM emergency_contacts
  * WHERE user_id = :userId!
  *   AND branch_id = :branchId!
@@ -1013,13 +1078,53 @@ const updateInjuryReportIR: any = {"usedParamSet":{"followUpRequired":true,"foll
 export const updateInjuryReport = new PreparedQuery<UpdateInjuryReportParams,UpdateInjuryReportResult>(updateInjuryReportIR);
 
 
-/** Query 'CreateParqQuestionnaire' is invalid, so its result is assigned type 'never'.
- *  */
-export type CreateParqQuestionnaireResult = never;
+/** 'CreateParqQuestionnaire' parameters type */
+export interface CreateParqQuestionnaireParams {
+  bloodPressureMedication: boolean;
+  boneJointProblem: boolean;
+  branchId: string;
+  chestPainActivity: boolean;
+  chestPainRest: boolean;
+  clientSignatureData?: string | null | void;
+  dizzinessBalance: boolean;
+  heartCondition: boolean;
+  otherReason: boolean;
+  otherReasonDetails?: string | null | void;
+  physicianApprovalDate?: DateOrString | null | void;
+  physicianApprovalReceived: boolean;
+  physicianApprovalRequired: boolean;
+  staffSignatureData?: string | null | void;
+  submissionDate: DateOrString;
+  userId: string;
+}
 
-/** Query 'CreateParqQuestionnaire' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type CreateParqQuestionnaireParams = never;
+/** 'CreateParqQuestionnaire' return type */
+export interface CreateParqQuestionnaireResult {
+  blood_pressure_medication: boolean | null;
+  bone_joint_problem: boolean | null;
+  branch_id: string;
+  chest_pain_activity: boolean | null;
+  chest_pain_rest: boolean | null;
+  client_signature_data: string | null;
+  created_at: Date | null;
+  dizziness_balance: boolean | null;
+  heart_condition: boolean | null;
+  id: string;
+  other_reason: boolean | null;
+  other_reason_details: string | null;
+  physician_approval_date: Date | null;
+  physician_approval_received: boolean | null;
+  physician_approval_required: boolean | null;
+  staff_signature_data: string | null;
+  submission_date: Date;
+  user_id: string;
+}
+
+/** 'CreateParqQuestionnaire' query type */
+export interface CreateParqQuestionnaireQuery {
+  params: CreateParqQuestionnaireParams;
+  result: CreateParqQuestionnaireResult;
+}
 
 const createParqQuestionnaireIR: any = {"usedParamSet":{"userId":true,"branchId":true,"submissionDate":true,"heartCondition":true,"chestPainActivity":true,"chestPainRest":true,"dizzinessBalance":true,"boneJointProblem":true,"bloodPressureMedication":true,"otherReason":true,"otherReasonDetails":true,"physicianApprovalRequired":true,"physicianApprovalReceived":true,"physicianApprovalDate":true,"clientSignatureData":true,"staffSignatureData":true},"params":[{"name":"userId","required":true,"transform":{"type":"scalar"},"locs":[{"a":400,"b":407}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":412,"b":421}]},{"name":"submissionDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":426,"b":441}]},{"name":"heartCondition","required":true,"transform":{"type":"scalar"},"locs":[{"a":446,"b":461}]},{"name":"chestPainActivity","required":true,"transform":{"type":"scalar"},"locs":[{"a":466,"b":484}]},{"name":"chestPainRest","required":true,"transform":{"type":"scalar"},"locs":[{"a":489,"b":503}]},{"name":"dizzinessBalance","required":true,"transform":{"type":"scalar"},"locs":[{"a":508,"b":525}]},{"name":"boneJointProblem","required":true,"transform":{"type":"scalar"},"locs":[{"a":530,"b":547}]},{"name":"bloodPressureMedication","required":true,"transform":{"type":"scalar"},"locs":[{"a":552,"b":576}]},{"name":"otherReason","required":true,"transform":{"type":"scalar"},"locs":[{"a":581,"b":593}]},{"name":"otherReasonDetails","required":false,"transform":{"type":"scalar"},"locs":[{"a":598,"b":616}]},{"name":"physicianApprovalRequired","required":true,"transform":{"type":"scalar"},"locs":[{"a":621,"b":647}]},{"name":"physicianApprovalReceived","required":true,"transform":{"type":"scalar"},"locs":[{"a":652,"b":678}]},{"name":"physicianApprovalDate","required":false,"transform":{"type":"scalar"},"locs":[{"a":683,"b":704}]},{"name":"clientSignatureData","required":false,"transform":{"type":"scalar"},"locs":[{"a":709,"b":728}]},{"name":"staffSignatureData","required":false,"transform":{"type":"scalar"},"locs":[{"a":733,"b":751}]}],"statement":"INSERT INTO parq_questionnaires (\n  user_id,\n  branch_id,\n  submission_date,\n  heart_condition,\n  chest_pain_activity,\n  chest_pain_rest,\n  dizziness_balance,\n  bone_joint_problem,\n  blood_pressure_medication,\n  other_reason,\n  other_reason_details,\n  physician_approval_required,\n  physician_approval_received,\n  physician_approval_date,\n  client_signature_data,\n  staff_signature_data\n) VALUES (\n  :userId!,\n  :branchId!,\n  :submissionDate!,\n  :heartCondition!,\n  :chestPainActivity!,\n  :chestPainRest!,\n  :dizzinessBalance!,\n  :boneJointProblem!,\n  :bloodPressureMedication!,\n  :otherReason!,\n  :otherReasonDetails,\n  :physicianApprovalRequired!,\n  :physicianApprovalReceived!,\n  :physicianApprovalDate,\n  :clientSignatureData,\n  :staffSignatureData\n)\nRETURNING *"};
 
@@ -1067,20 +1172,64 @@ const createParqQuestionnaireIR: any = {"usedParamSet":{"userId":true,"branchId"
 export const createParqQuestionnaire = new PreparedQuery<CreateParqQuestionnaireParams,CreateParqQuestionnaireResult>(createParqQuestionnaireIR);
 
 
-/** Query 'GetLatestParq' is invalid, so its result is assigned type 'never'.
- *  */
-export type GetLatestParqResult = never;
+/** 'GetLatestParq' parameters type */
+export interface GetLatestParqParams {
+  branchId: string;
+  userId: string;
+}
 
-/** Query 'GetLatestParq' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type GetLatestParqParams = never;
+/** 'GetLatestParq' return type */
+export interface GetLatestParqResult {
+  blood_pressure_medication: boolean | null;
+  bone_joint_problem: boolean | null;
+  branch_id: string;
+  chest_pain_activity: boolean | null;
+  chest_pain_rest: boolean | null;
+  client_signature_data: string | null;
+  created_at: Date | null;
+  dizziness_balance: boolean | null;
+  heart_condition: boolean | null;
+  id: string;
+  other_reason: boolean | null;
+  other_reason_details: string | null;
+  physician_approval_date: Date | null;
+  physician_approval_received: boolean | null;
+  physician_approval_required: boolean | null;
+  staff_signature_data: string | null;
+  submission_date: Date;
+  user_id: string;
+}
 
-const getLatestParqIR: any = {"usedParamSet":{"userId":true,"branchId":true},"params":[{"name":"userId","required":true,"transform":{"type":"scalar"},"locs":[{"a":50,"b":57}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":77,"b":86}]}],"statement":"SELECT *\nFROM parq_questionnaires\nWHERE user_id = :userId!\n  AND branch_id = :branchId!\nORDER BY submission_date DESC\nLIMIT 1"};
+/** 'GetLatestParq' query type */
+export interface GetLatestParqQuery {
+  params: GetLatestParqParams;
+  result: GetLatestParqResult;
+}
+
+const getLatestParqIR: any = {"usedParamSet":{"userId":true,"branchId":true},"params":[{"name":"userId","required":true,"transform":{"type":"scalar"},"locs":[{"a":421,"b":428}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":448,"b":457}]}],"statement":"SELECT\n  id,\n  user_id,\n  branch_id,\n  submission_date,\n  heart_condition,\n  chest_pain_activity,\n  chest_pain_rest,\n  dizziness_balance,\n  bone_joint_problem,\n  blood_pressure_medication,\n  other_reason,\n  other_reason_details,\n  physician_approval_required,\n  physician_approval_received,\n  physician_approval_date,\n  client_signature_data,\n  staff_signature_data,\n  created_at\nFROM parq_questionnaires\nWHERE user_id = :userId!\n  AND branch_id = :branchId!\nORDER BY submission_date DESC\nLIMIT 1"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT *
+ * SELECT
+ *   id,
+ *   user_id,
+ *   branch_id,
+ *   submission_date,
+ *   heart_condition,
+ *   chest_pain_activity,
+ *   chest_pain_rest,
+ *   dizziness_balance,
+ *   bone_joint_problem,
+ *   blood_pressure_medication,
+ *   other_reason,
+ *   other_reason_details,
+ *   physician_approval_required,
+ *   physician_approval_received,
+ *   physician_approval_date,
+ *   client_signature_data,
+ *   staff_signature_data,
+ *   created_at
  * FROM parq_questionnaires
  * WHERE user_id = :userId!
  *   AND branch_id = :branchId!
@@ -1091,13 +1240,41 @@ const getLatestParqIR: any = {"usedParamSet":{"userId":true,"branchId":true},"pa
 export const getLatestParq = new PreparedQuery<GetLatestParqParams,GetLatestParqResult>(getLatestParqIR);
 
 
-/** Query 'UpdateParqApproval' is invalid, so its result is assigned type 'never'.
- *  */
-export type UpdateParqApprovalResult = never;
+/** 'UpdateParqApproval' parameters type */
+export interface UpdateParqApprovalParams {
+  branchId: string;
+  parqId: string;
+  physicianApprovalDate?: DateOrString | null | void;
+  physicianApprovalReceived: boolean;
+}
 
-/** Query 'UpdateParqApproval' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type UpdateParqApprovalParams = never;
+/** 'UpdateParqApproval' return type */
+export interface UpdateParqApprovalResult {
+  blood_pressure_medication: boolean | null;
+  bone_joint_problem: boolean | null;
+  branch_id: string;
+  chest_pain_activity: boolean | null;
+  chest_pain_rest: boolean | null;
+  client_signature_data: string | null;
+  created_at: Date | null;
+  dizziness_balance: boolean | null;
+  heart_condition: boolean | null;
+  id: string;
+  other_reason: boolean | null;
+  other_reason_details: string | null;
+  physician_approval_date: Date | null;
+  physician_approval_received: boolean | null;
+  physician_approval_required: boolean | null;
+  staff_signature_data: string | null;
+  submission_date: Date;
+  user_id: string;
+}
+
+/** 'UpdateParqApproval' query type */
+export interface UpdateParqApprovalQuery {
+  params: UpdateParqApprovalParams;
+  result: UpdateParqApprovalResult;
+}
 
 const updateParqApprovalIR: any = {"usedParamSet":{"physicianApprovalReceived":true,"physicianApprovalDate":true,"parqId":true,"branchId":true},"params":[{"name":"physicianApprovalReceived","required":true,"transform":{"type":"scalar"},"locs":[{"a":63,"b":89}]},{"name":"physicianApprovalDate","required":false,"transform":{"type":"scalar"},"locs":[{"a":120,"b":141}]},{"name":"parqId","required":true,"transform":{"type":"scalar"},"locs":[{"a":154,"b":161}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":181,"b":190}]}],"statement":"UPDATE parq_questionnaires\nSET\n  physician_approval_received = :physicianApprovalReceived!,\n  physician_approval_date = :physicianApprovalDate\nWHERE id = :parqId!\n  AND branch_id = :branchId!\nRETURNING *"};
 
@@ -1116,15 +1293,30 @@ const updateParqApprovalIR: any = {"usedParamSet":{"physicianApprovalReceived":t
 export const updateParqApproval = new PreparedQuery<UpdateParqApprovalParams,UpdateParqApprovalResult>(updateParqApprovalIR);
 
 
-/** Query 'GetClientsRequiringMedicalClearance' is invalid, so its result is assigned type 'never'.
- *  */
-export type GetClientsRequiringMedicalClearanceResult = never;
+/** 'GetClientsRequiringMedicalClearance' parameters type */
+export interface GetClientsRequiringMedicalClearanceParams {
+  branchId: string;
+}
 
-/** Query 'GetClientsRequiringMedicalClearance' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type GetClientsRequiringMedicalClearanceParams = never;
+/** 'GetClientsRequiringMedicalClearance' return type */
+export interface GetClientsRequiringMedicalClearanceResult {
+  email: string;
+  first_name: string | null;
+  last_name: string | null;
+  liability_waiver_signed: boolean | null;
+  medical_release_signed: boolean | null;
+  physician_approval_received: boolean | null;
+  physician_approval_required: boolean | null;
+  user_id: string;
+}
 
-const getClientsRequiringMedicalClearanceIR: any = {"usedParamSet":{"branchId":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":423,"b":432}]}],"statement":"SELECT\n  u.id as user_id,\n  u.first_name,\n  u.last_name,\n  u.email,\n  chp.medical_release_signed,\n  chp.liability_waiver_signed,\n  pq.physician_approval_required,\n  pq.physician_approval_received\nFROM \"user\" u\nLEFT JOIN client_health_profiles chp ON u.id = chp.user_id\nLEFT JOIN LATERAL (\n  SELECT * FROM parq_questionnaires\n  WHERE user_id = u.id\n  ORDER BY submission_date DESC\n  LIMIT 1\n) pq ON true\nWHERE u.branch_id = :branchId!\n  AND u.role = 'client'\n  AND (\n    chp.medical_release_signed = false\n    OR chp.liability_waiver_signed = false\n    OR (pq.physician_approval_required = true AND pq.physician_approval_received = false)\n  )\nORDER BY u.created_at DESC"};
+/** 'GetClientsRequiringMedicalClearance' query type */
+export interface GetClientsRequiringMedicalClearanceQuery {
+  params: GetClientsRequiringMedicalClearanceParams;
+  result: GetClientsRequiringMedicalClearanceResult;
+}
+
+const getClientsRequiringMedicalClearanceIR: any = {"usedParamSet":{"branchId":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":488,"b":497}]}],"statement":"SELECT\n  u.id as user_id,\n  u.first_name,\n  u.last_name,\n  u.email,\n  chp.medical_release_signed,\n  chp.liability_waiver_signed,\n  pq.physician_approval_required,\n  pq.physician_approval_received\nFROM \"user\" u\nLEFT JOIN client_health_profiles chp ON u.id = chp.user_id\nLEFT JOIN LATERAL (\n  SELECT\n    physician_approval_required,\n    physician_approval_received\n  FROM parq_questionnaires\n  WHERE user_id = u.id\n  ORDER BY submission_date DESC\n  LIMIT 1\n) pq ON true\nWHERE u.branch_id = :branchId!\n  AND u.role = 'client'\n  AND (\n    chp.medical_release_signed = false\n    OR chp.liability_waiver_signed = false\n    OR (pq.physician_approval_required = true AND pq.physician_approval_received = false)\n  )\nORDER BY u.\"createdAt\" DESC"};
 
 /**
  * Query generated from SQL:
@@ -1141,7 +1333,10 @@ const getClientsRequiringMedicalClearanceIR: any = {"usedParamSet":{"branchId":t
  * FROM "user" u
  * LEFT JOIN client_health_profiles chp ON u.id = chp.user_id
  * LEFT JOIN LATERAL (
- *   SELECT * FROM parq_questionnaires
+ *   SELECT
+ *     physician_approval_required,
+ *     physician_approval_received
+ *   FROM parq_questionnaires
  *   WHERE user_id = u.id
  *   ORDER BY submission_date DESC
  *   LIMIT 1
@@ -1153,7 +1348,7 @@ const getClientsRequiringMedicalClearanceIR: any = {"usedParamSet":{"branchId":t
  *     OR chp.liability_waiver_signed = false
  *     OR (pq.physician_approval_required = true AND pq.physician_approval_received = false)
  *   )
- * ORDER BY u.created_at DESC
+ * ORDER BY u."createdAt" DESC
  * ```
  */
 export const getClientsRequiringMedicalClearance = new PreparedQuery<GetClientsRequiringMedicalClearanceParams,GetClientsRequiringMedicalClearanceResult>(getClientsRequiringMedicalClearanceIR);

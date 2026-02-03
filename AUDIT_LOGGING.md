@@ -7,9 +7,9 @@ Comprehensive audit logging system to track all administrative actions in the Bi
 ```sql
 CREATE TABLE admin_action_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  admin_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  admin_id UUID NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
   action_type VARCHAR(20) NOT NULL,  -- 'create', 'update', 'delete'
-  entity_type VARCHAR(50) NOT NULL,  -- 'user', 'class', 'membership_plan', 'user_membership', 'booking'
+  entity_type VARCHAR(50) NOT NULL,  -- 'user', 'class', 'class_package_template', 'user_class_package', 'booking'
   entity_id UUID,  -- The ID of the affected entity
   description TEXT NOT NULL,
   metadata JSONB,  -- Additional context data
@@ -38,26 +38,26 @@ export async function logAdminAction(
 #### User Management
 - **updateUserRole**: Tracks role changes with previous and new role
 - **deleteUser**: Records user deletion with deleted user's role
-- **createAdminUser**: Logs creation of new admin users
+- **createAdminUser**: Logs creation of new admin user accounts
 
-#### Membership Plans
-- **createMembershipPlan**: Records new plan creation with name, frequency, and price
-- **updateMembershipPlan**: Tracks plan modifications
-- **togglePlanStatus**: Logs activation/deactivation of plans
+#### Package Templates
+- **createPackageTemplate**: Records new package creation with name, rules, and price
+- **updatePackageTemplate**: Tracks package modifications
+- **togglePackageStatus**: Logs activation/deactivation of packages
 
 #### Classes
 - **createClass**: Records class creation with name, instructor, schedule, and capacity
 - **updateClass**: Tracks class modifications
 - **deleteClass**: Logs class deletion
 
-#### User Memberships
-- **createClientMembership**: Records membership assignment to users
-- **extendMembership**: Logs membership extensions with additional days
-- **updateMembershipClasses**: Tracks changes to remaining class credits
-- **deactivateMembership**: Records membership deactivation
+#### User Packages
+- **createUserPackage**: Records package assignment to user accounts
+- **extendPackage**: Logs package extensions with additional days
+- **updatePackageClasses**: Tracks changes to remaining class credits
+- **deactivatePackage**: Records package deactivation
 
 #### Bookings
-- **adminRemoveBooking**: Logs admin removal of users from classes
+- **adminRemoveBooking**: Logs admin removal of user accounts from classes
 
 ## Metadata Examples
 
@@ -69,11 +69,13 @@ export async function logAdminAction(
 }
 ```
 
-### Plan Creation
+### Package Creation
 ```json
 {
-  "name": "Plan Mensual",
-  "frequency": "unlimited",
+  "name": "Paquete Mensual",
+  "classCount": 12,
+  "validityType": "months",
+  "validityPeriod": 1,
   "price": 100
 }
 ```
@@ -88,7 +90,7 @@ export async function logAdminAction(
 }
 ```
 
-### Membership Extension
+### Package Extension
 ```json
 {
   "additionalDays": 30

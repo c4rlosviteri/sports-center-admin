@@ -7,7 +7,7 @@
     }
   ],
   "srcDir": "./src/db/queries/",
-  "failOnError": false,
+  "failOnError": true,
   "camelCaseColumnNames": false,
   "hungarianNotation": false,
   "dbUrl": "postgres://localhost:5432/biciantro"

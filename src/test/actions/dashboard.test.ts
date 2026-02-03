@@ -28,11 +28,7 @@ vi.mock('~/db/queries/bookings.queries', () => ({
 }))
 
 import { getSession } from '~/actions/auth'
-import {
-  getDashboardStats,
-  getUserActiveMembership,
-  getUserBookings,
-} from '~/actions/dashboard'
+import { getDashboardStats, getUserActivePackage, getUserBookings } from '~/actions/dashboard'
 import * as bookingsQueries from '~/db/queries/bookings.queries'
 import * as dashboardQueries from '~/db/queries/dashboard.queries'
 import { pool } from '~/lib/db'
@@ -42,26 +38,26 @@ describe('dashboard actions', () => {
     vi.clearAllMocks()
   })
 
-  describe('getUserActiveMembership', () => {
+  describe('getUserActivePackage', () => {
     it('should throw error when user is not authenticated', async () => {
       vi.mocked(getSession).mockResolvedValue(null)
 
-      await expect(getUserActiveMembership()).rejects.toThrow('No autorizado')
+      await expect(getUserActivePackage()).rejects.toThrow('No autorizado')
     })
 
-    it('should return null when user has no active membership', async () => {
+    it('should return null when user has no active package', async () => {
       vi.mocked(getSession).mockResolvedValue({
         user: { id: 'user-1', role: 'client', branchId: 'branch-1' },
       } as any)
 
       vi.mocked(dashboardQueries.getUserActivePackage.run).mockResolvedValue([])
 
-      const result = await getUserActiveMembership()
+      const result = await getUserActivePackage()
 
       expect(result).toBeNull()
     })
 
-    it('should return active membership with plan details', async () => {
+    it('should return active package with template details', async () => {
       vi.mocked(getSession).mockResolvedValue({
         user: { id: 'user-1', role: 'client', branchId: 'branch-1' },
       } as any)
@@ -95,27 +91,28 @@ describe('dashboard actions', () => {
         refund_reason: null,
         refunded_at: null,
         shared_with_user_ids: null,
+        is_shareable: null,
       }
 
       vi.mocked(dashboardQueries.getUserActivePackage.run).mockResolvedValue([
         mockPackage,
       ])
 
-      const result = await getUserActiveMembership()
+      const result = await getUserActivePackage()
 
       expect(result).toMatchObject({
         id: 'package-1',
         userId: 'user-1',
         packageTemplateId: 'template-1',
+        totalClasses: 10,
         classesRemaining: 8,
-        isActive: true,
+        status: 'active',
         packageName: 'Monthly Package',
         packageDescription: 'Access to all classes',
-        status: 'active',
       })
     })
 
-    it('should handle unlimited membership (null classes_remaining)', async () => {
+    it('should handle unlimited package (null classes_remaining)', async () => {
       vi.mocked(getSession).mockResolvedValue({
         user: { id: 'user-1', role: 'client', branchId: 'branch-1' },
       } as any)
@@ -149,13 +146,14 @@ describe('dashboard actions', () => {
         refund_reason: null,
         refunded_at: null,
         shared_with_user_ids: null,
+        is_shareable: null,
       }
 
       vi.mocked(dashboardQueries.getUserActivePackage.run).mockResolvedValue([
         mockPackage,
       ])
 
-      const result = await getUserActiveMembership()
+      const result = await getUserActivePackage()
 
       expect(result?.classesRemaining).toBe(0)
       expect(result?.packageDescription).toBeUndefined()

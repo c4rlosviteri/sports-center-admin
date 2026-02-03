@@ -1,16 +1,16 @@
-# Plan to Packages Migration - COMPLETE ✅
+# Legacy to Packages Migration - COMPLETE ✅
 
 ## Migration Summary
 
 ### Database Changes
-- **Migration 009**: Added class_package_templates, user_class_packages, package_class_usage tables
-- **Migration 014**: Added package_invitations table
-- **Migration 016**: Dropped legacy tables (membership_plans, user_memberships, invite_links)
-- **Migration 017**: Backfilled package_id for existing bookings
+- **Schema**: Added class_package_templates, user_class_packages, package_class_usage tables
+- **Schema**: Added package_invitations table
+- **Migration 024**: Dropped legacy tables (membership_plans, user_memberships, invite_links)
+- **Data backfill**: Linked existing bookings to packages
 
 ### Data Migration Results
-- ✅ **4 Package Templates** created (from membership plans)
-- ✅ **4 User Packages** created (from user memberships)
+- ✅ **4 Package Templates** created (from legacy system)
+- ✅ **4 User Packages** created (from legacy system)
 - ✅ **9 of 13 Bookings** linked to packages (69%)
 - ✅ **4 Orphaned Bookings** (historical waitlisted/cancelled - expected)
 
@@ -28,8 +28,8 @@
 - `classes.ts`: Uses user_class_packages for credit checks
 - `bookings.ts`: Uses package_id for all booking operations
 - `booking-service.ts`: Full package credit management
-- `admin.ts`: All membership plan functions removed
-- `auth.ts`: No membership creation in registration
+- `admin.ts`: All legacy membership functions removed
+- `auth.ts`: No legacy membership creation in registration
 
 #### UI Components
 - All "Plan" text changed to "Paquete"
@@ -66,10 +66,8 @@ Tests       231 passed (231)
 ## Files Modified
 
 ### Database
-- `db/migrations/009_add_class_packages.sql`
-- `db/migrations/014_add_package_invitations.sql`
-- `db/migrations/016_remove_legacy_membership_tables.sql`
-- `db/migrations/017_backfill_booking_package_ids.sql`
+- `db/schema.sql`
+- `db/migrations/024_drop_legacy_membership_tables.sql`
 
 ### SQL Queries
 - `src/db/queries/dashboard.sql`
@@ -105,4 +103,4 @@ Tests       231 passed (231)
 
 ## Migration Complete! 🎉
 
-The system has been fully migrated from membership plans to flexible packages. All legacy data has been preserved and linked to the new package system.
+The system has been fully migrated from the legacy membership system to flexible packages. All legacy data has been preserved and linked to the new package system.

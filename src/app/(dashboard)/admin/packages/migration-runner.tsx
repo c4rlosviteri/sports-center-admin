@@ -35,26 +35,14 @@ export function MigrationRunner({ onMigrationComplete }: MigrationRunnerProps) {
             )
           }
 
-          if (result.plans?.migrated > 0 || result.plans?.usersMigrated > 0) {
-            toast.success(
-              `Migración completada: ${result.plans.migrated} planes y ${result.plans.usersMigrated} usuarios migrados`
-            )
-          }
-
           // Refresh the page to show updated data
-          if (
-            result.database?.migrationsRun > 0 ||
-            result.plans?.migrated > 0
-          ) {
+          if (result.database?.migrationsRun > 0) {
             onMigrationComplete?.()
           }
         } else {
           if (result.database?.errors?.length > 0) {
             console.error('Migration errors:', result.database.errors)
             toast.error('Algunas migraciones fallaron. Revisa la consola.')
-          }
-          if (result.plans?.errors?.length > 0) {
-            console.error('Plan migration errors:', result.plans.errors)
           }
         }
       } catch (error) {

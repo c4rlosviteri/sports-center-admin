@@ -36,8 +36,30 @@ fi
 echo -e "${GREEN}✓ Connected to database${NC}"
 echo ""
 
+# Ensure schema_migrations exists (bootstrap for older databases)
+SCHEMA_TABLE_EXISTS=$(psql "$DB_URL" -t -c "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'schema_migrations')" 2>/dev/null || echo "f")
+SCHEMA_TABLE_EXISTS=$(echo "$SCHEMA_TABLE_EXISTS" | tr -d ' ')
+
+if [ "$SCHEMA_TABLE_EXISTS" != "t" ]; then
+    BOOTSTRAP_MIGRATION="$MIGRATIONS_DIR/000_create_migrations_table.sql"
+    if [ -f "$BOOTSTRAP_MIGRATION" ]; then
+        echo "Initializing migration tracking..."
+        if psql "$DB_URL" -f "$BOOTSTRAP_MIGRATION" > /dev/null 2>&1; then
+            echo -e "${GREEN}✓ Migration tracking initialized${NC}"
+        else
+            echo -e "${RED}✗ Failed to initialize migration tracking${NC}"
+            exit 1
+        fi
+        echo ""
+    else
+        echo -e "${RED}Error: schema_migrations table missing and bootstrap file not found${NC}"
+        echo "Run db/schema.sql first or restore db/migrations/000_create_migrations_table.sql"
+        exit 1
+    fi
+fi
+
 # Get list of migration files
-MIGRATION_FILES=$(ls -1 "$MIGRATIONS_DIR"/*.sql 2>/dev/null | sort || echo "")
+MIGRATION_FILES=$(ls -1 "$MIGRATIONS_DIR"/*.sql 2>/dev/null | grep -v '/000_create_migrations_table.sql$' | grep -v '/TEMPLATE.sql$' | sort || echo "")
 
 if [ -z "$MIGRATION_FILES" ]; then
     echo -e "${YELLOW}No migration files found in $MIGRATIONS_DIR${NC}"

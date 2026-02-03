@@ -297,7 +297,7 @@ export async function updateBranchSettings(
 
 ## ✨ Benefits
 
-1. **Prevents Last-Minute Rush**: Users must plan ahead
+1. **Prevents Last-Minute Rush**: Users must prepare ahead
 2. **Better Class Management**: Instructors know attendee count in advance
 3. **Flexible Configuration**: Set globally or per-class
 4. **Clear Feedback**: Users get specific error messages

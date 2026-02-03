@@ -35,7 +35,19 @@ WHERE ip.id = :instructorId!
   AND ip.branch_id = :branchId!;
 
 /* @name GetInstructorProfileByUserId */
-SELECT *
+SELECT
+  id,
+  user_id,
+  branch_id,
+  bio,
+  specializations,
+  certifications,
+  hire_date,
+  hourly_rate,
+  is_active,
+  profile_image_url,
+  created_at,
+  updated_at
 FROM instructor_profiles
 WHERE user_id = :userId!
   AND branch_id = :branchId!;
@@ -96,7 +108,18 @@ INSERT INTO instructor_availability (
 RETURNING *;
 
 /* @name GetInstructorAvailability */
-SELECT *
+SELECT
+  id,
+  instructor_id,
+  branch_id,
+  day_of_week,
+  start_time,
+  end_time,
+  is_recurring,
+  effective_date,
+  notes,
+  created_at,
+  updated_at
 FROM instructor_availability
 WHERE instructor_id = :instructorId!
   AND branch_id = :branchId!
@@ -142,7 +165,19 @@ INSERT INTO instructor_time_off (
 RETURNING *;
 
 /* @name GetInstructorTimeOff */
-SELECT *
+SELECT
+  id,
+  instructor_id,
+  branch_id,
+  start_date,
+  end_date,
+  reason,
+  status,
+  notes,
+  requested_at,
+  approved_by,
+  approved_at,
+  created_at
 FROM instructor_time_off
 WHERE instructor_id = :instructorId!
   AND branch_id = :branchId!
@@ -257,7 +292,15 @@ ORDER BY icn.created_at DESC
 LIMIT :limit;
 
 /* @name GetInstructorStats */
-SELECT * FROM get_instructor_stats(:instructorId!, :startDate!, :endDate!);
+SELECT
+  total_classes,
+  completed_classes,
+  cancelled_classes,
+  no_show_classes,
+  total_students,
+  avg_attendance_rate,
+  total_earnings
+FROM get_instructor_stats(:instructorId!, :startDate!, :endDate!);
 
 /* @name CheckInstructorAvailability */
 SELECT is_instructor_available(:instructorId!, :date!, :startTime!, :endTime!) as is_available;

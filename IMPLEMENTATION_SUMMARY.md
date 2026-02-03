@@ -6,8 +6,8 @@
 - Created complete PostgreSQL schema (`db/schema.sql`) with 15 tables
 - Created seed data (`db/seed.sql`) with realistic test data:
   - 1 branch (Biciantro Norte)
-  - 5 users (1 superuser, 1 admin, 3 clients)
-  - 4 membership plans
+  - 5 user accounts (1 superuser, 1 admin, 3 clients)
+  - 4 package templates
   - 6 scheduled classes
   - 3 bookings
   - 2 payments
@@ -24,16 +24,16 @@
 - **Classes Server Functions** (`src/lib/classes.server.ts`):
   - `getClassesByDate()` - Get classes for a specific date
   - `getUserBookings()` - Get user's bookings
-  - `getUserActiveMembership()` - Get active membership
+  - `getUserActivePackage()` - Get active package
   - `createBooking()` - Book a class
   - `cancelBooking()` - Cancel booking
 
 - **Admin Server Functions** (`src/lib/admin.server.ts`):
   - `getBranchStats()` - Get dashboard statistics
-  - `getMembershipPlans()` - List all plans
-  - `createMembershipPlan()` - Create new plan
-  - `togglePlanStatus()` - Activate/deactivate plan
-  - `getBranchUsers()` - List all users
+  - `getPackageTemplates()` - List all packages
+  - `createPackageTemplate()` - Create new package
+  - `togglePackageStatus()` - Activate/deactivate package
+  - `getBranchUsers()` - List all user accounts
   - `createInviteLink()` - Generate invite link
   - `createClass()` - Schedule new class
   - `registerPayment()` - Record payment
@@ -54,5 +54,5 @@
   - Added route guard (`beforeLoad`)
   - Added loader to fetch real data
   - Removed all mock data
-  - Displays real user info, membership, and bookings
+  - Displays real user info, package, and bookings
   - Logout functionality

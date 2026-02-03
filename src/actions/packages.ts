@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import * as classPackagesQueries from '~/db/queries/class-packages.queries'
 import { logAdminAction } from '~/lib/audit'
 import { pool } from '~/lib/db'
 import { getSession } from './auth'
@@ -64,14 +65,12 @@ async function getAdminSession() {
 export async function getPackageTemplates() {
   const session = await getAdminSession()
 
-  const result = await pool.query(
-    `SELECT * FROM class_package_templates
-     WHERE branch_id = $1 AND is_active = true
-     ORDER BY display_order, class_count`,
-    [session.user.branchId]
+  const rows = await classPackagesQueries.getPackageTemplates.run(
+    { branchId: session.user.branchId },
+    pool
   )
 
-  return result.rows.map((row) => ({
+  return rows.map((row) => ({
     id: row.id,
     name: row.name,
     description: row.description,
@@ -97,14 +96,13 @@ export async function getAllPackageTemplates(): Promise<Package[]> {
 
   // For superusers, get packages from ALL branches
   if (session.user.role === 'superuser') {
-    const result = await pool.query(
-      `SELECT cpt.*, b.name as branch_name
-       FROM class_package_templates cpt
-       JOIN branches b ON cpt.branch_id = b.id
-       ORDER BY b.name, cpt.is_active DESC, cpt.display_order, cpt.class_count`
-    )
+    const rows =
+      await classPackagesQueries.getAllPackageTemplatesWithBranch.run(
+        undefined,
+        pool
+      )
 
-    return result.rows.map((row) => ({
+    return rows.map((row) => ({
       id: row.id,
       name: row.name,
       description: row.description,
@@ -122,14 +120,12 @@ export async function getAllPackageTemplates(): Promise<Package[]> {
   }
 
   // For admins, keep existing behavior - only their branch
-  const result = await pool.query(
-    `SELECT * FROM class_package_templates
-     WHERE branch_id = $1
-     ORDER BY is_active DESC, display_order, class_count`,
-    [session.user.branchId]
+  const rows = await classPackagesQueries.getAllPackageTemplatesByBranch.run(
+    { branchId: session.user.branchId },
+    pool
   )
 
-  return result.rows.map((row) => ({
+  return rows.map((row) => ({
     id: row.id,
     name: row.name,
     description: row.description,
@@ -152,56 +148,44 @@ export async function getAllPackageTemplates(): Promise<Package[]> {
 export async function createPackageTemplate(input: PackageTemplateInput) {
   const session = await getAdminSession()
 
-  const result = await pool.query(
-    `INSERT INTO class_package_templates (
-      branch_id,
-      name,
-      description,
-      class_count,
-      price,
-      validity_type,
-      validity_period,
-      max_classes_per_day,
-      max_classes_per_week,
-      is_gift_eligible,
-      is_shareable,
-      allows_waitlist,
-      priority_booking,
-      is_active,
-      display_order
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-    RETURNING *`,
-    [
-      session.user.branchId,
-      input.name,
-      input.description ?? null,
-      input.classCount,
-      input.price,
-      input.validityType,
-      input.validityType === 'unlimited' ? null : input.validityPeriod,
-      input.maxClassesPerDay ?? null,
-      input.maxClassesPerWeek ?? null,
-      input.isGiftEligible ?? false,
-      input.isShareable ?? false,
-      input.allowsWaitlist ?? true,
-      input.priorityBooking ?? false,
-      input.isActive,
-      input.displayOrder ?? 0,
-    ]
+  const result = await classPackagesQueries.createPackageTemplate.run(
+    {
+      branchId: session.user.branchId,
+      name: input.name,
+      description: input.description ?? null,
+      classCount: input.classCount,
+      price: input.price,
+      validityType: input.validityType,
+      validityPeriod:
+        input.validityType === 'unlimited'
+          ? null
+          : (input.validityPeriod ?? null),
+      maxClassesPerDay: input.maxClassesPerDay ?? null,
+      maxClassesPerWeek: input.maxClassesPerWeek ?? null,
+      isGiftEligible: input.isGiftEligible ?? false,
+      isShareable: input.isShareable ?? false,
+      allowsWaitlist: input.allowsWaitlist ?? true,
+      priorityBooking: input.priorityBooking ?? false,
+      isActive: input.isActive,
+      displayOrder: input.displayOrder ?? 0,
+      allowedClassTypes: null,
+      blackoutDates: null,
+    },
+    pool
   )
 
   await logAdminAction(
     session.user.id,
     'create',
     'class_package_template',
-    result.rows[0].id,
+    result[0].id,
     `Creó paquete ${input.name}`,
     { classCount: input.classCount, price: input.price }
   )
 
   revalidatePath('/admin/packages')
 
-  return result.rows[0]
+  return result[0]
 }
 
 /**
@@ -213,79 +197,56 @@ export async function updatePackageTemplate(
 ) {
   const session = await getAdminSession()
 
-  // Check if user has access to this package
-  const checkResult = await pool.query(
-    'SELECT branch_id FROM class_package_templates WHERE id = $1',
-    [packageId]
-  )
+  const existingResult =
+    await classPackagesQueries.getPackageTemplateByIdAny.run(
+      { templateId: packageId },
+      pool
+    )
 
-  if (checkResult.rows.length === 0) {
+  if (existingResult.length === 0) {
     throw new Error('Paquete no encontrado')
   }
+
+  const existing = existingResult[0]
 
   // For non-superusers, verify they own this package's branch
   if (
     session.user.role !== 'superuser' &&
-    checkResult.rows[0].branch_id !== session.user.branchId
+    existing.branch_id !== session.user.branchId
   ) {
     throw new Error('No tienes permiso para editar este paquete')
   }
 
-  const setClauses: string[] = []
-  const values: (string | number | boolean | null)[] = []
-  let paramIndex = 1
+  const nextValidityType = input.validityType ?? existing.validity_type
+  const nextValidityPeriod =
+    nextValidityType === 'unlimited'
+      ? null
+      : (input.validityPeriod ?? existing.validity_period)
 
-  if (input.name !== undefined) {
-    setClauses.push(`name = $${paramIndex++}`)
-    values.push(input.name)
-  }
-  if (input.description !== undefined) {
-    setClauses.push(`description = $${paramIndex++}`)
-    values.push(input.description ?? null)
-  }
-  if (input.classCount !== undefined) {
-    setClauses.push(`class_count = $${paramIndex++}`)
-    values.push(input.classCount)
-  }
-  if (input.price !== undefined) {
-    setClauses.push(`price = $${paramIndex++}`)
-    values.push(input.price)
-  }
-  if (input.validityType !== undefined) {
-    setClauses.push(`validity_type = $${paramIndex++}`)
-    values.push(input.validityType)
-  }
-  if (input.validityPeriod !== undefined) {
-    setClauses.push(`validity_period = $${paramIndex++}`)
-    values.push(
-      input.validityType === 'unlimited' ? null : input.validityPeriod
-    )
-  }
-  if (input.maxClassesPerDay !== undefined) {
-    setClauses.push(`max_classes_per_day = $${paramIndex++}`)
-    values.push(input.maxClassesPerDay)
-  }
-  if (input.maxClassesPerWeek !== undefined) {
-    setClauses.push(`max_classes_per_week = $${paramIndex++}`)
-    values.push(input.maxClassesPerWeek)
-  }
-  if (input.isActive !== undefined) {
-    setClauses.push(`is_active = $${paramIndex++}`)
-    values.push(input.isActive)
-  }
-
-  if (setClauses.length === 0) {
-    throw new Error('No hay campos para actualizar')
-  }
-
-  values.push(packageId)
-
-  const result = await pool.query(
-    `UPDATE class_package_templates
-     SET ${setClauses.join(', ')}, updated_at = CURRENT_TIMESTAMP
-     WHERE id = $${paramIndex}
-     RETURNING *`,
-    values
+  const result = await classPackagesQueries.updatePackageTemplate.run(
+    {
+      templateId: packageId,
+      branchId: existing.branch_id,
+      name: input.name ?? existing.name,
+      description: input.description ?? existing.description,
+      classCount: input.classCount ?? existing.class_count,
+      price: input.price ?? existing.price,
+      validityType: nextValidityType,
+      validityPeriod: nextValidityPeriod ?? null,
+      isGiftEligible: existing.is_gift_eligible ?? false,
+      isShareable: existing.is_shareable ?? false,
+      allowsWaitlist: existing.allows_waitlist ?? true,
+      priorityBooking: existing.priority_booking ?? false,
+      allowedClassTypes: existing.allowed_class_types ?? null,
+      blackoutDates: existing.blackout_dates ?? null,
+      maxClassesPerDay:
+        input.maxClassesPerDay ?? existing.max_classes_per_day ?? null,
+      maxClassesPerWeek:
+        input.maxClassesPerWeek ?? existing.max_classes_per_week ?? null,
+      isActive: input.isActive ?? existing.is_active ?? true,
+      displayOrder: existing.display_order ?? null,
+    },
+    pool
   )
 
   await logAdminAction(
@@ -299,7 +260,7 @@ export async function updatePackageTemplate(
 
   revalidatePath('/admin/packages')
 
-  return result.rows[0]
+  return result[0]
 }
 
 /**
@@ -312,29 +273,29 @@ export async function togglePackageStatus(
   const session = await getAdminSession()
 
   // Check if user has access to this package
-  const checkResult = await pool.query(
-    'SELECT branch_id, name FROM class_package_templates WHERE id = $1',
-    [packageId]
-  )
+  const existingResult =
+    await classPackagesQueries.getPackageTemplateByIdAny.run(
+      { templateId: packageId },
+      pool
+    )
 
-  if (checkResult.rows.length === 0) {
+  if (existingResult.length === 0) {
     throw new Error('Paquete no encontrado')
   }
+
+  const existing = existingResult[0]
 
   // For non-superusers, verify they own this package's branch
   if (
     session.user.role !== 'superuser' &&
-    checkResult.rows[0].branch_id !== session.user.branchId
+    existing.branch_id !== session.user.branchId
   ) {
     throw new Error('No tienes permiso para modificar este paquete')
   }
 
-  const result = await pool.query(
-    `UPDATE class_package_templates
-     SET is_active = $1, updated_at = CURRENT_TIMESTAMP
-     WHERE id = $2
-     RETURNING *`,
-    [isActive, packageId]
+  const result = await classPackagesQueries.updatePackageTemplateStatus.run(
+    { templateId: packageId, isActive },
+    pool
   )
 
   await logAdminAction(
@@ -342,13 +303,13 @@ export async function togglePackageStatus(
     'update',
     'class_package_template',
     packageId,
-    `${isActive ? 'Activó' : 'Desactivó'} paquete ${checkResult.rows[0].name}`,
+    `${isActive ? 'Activó' : 'Desactivó'} paquete ${existing.name}`,
     { isActive }
   )
 
   revalidatePath('/admin/packages')
 
-  return result.rows[0]
+  return result[0]
 }
 
 /**
@@ -358,43 +319,48 @@ export async function deletePackageTemplate(packageId: string) {
   const session = await getAdminSession()
 
   // Check if user has access to this package
-  const checkResult = await pool.query(
-    'SELECT branch_id, name FROM class_package_templates WHERE id = $1',
-    [packageId]
-  )
+  const existingResult =
+    await classPackagesQueries.getPackageTemplateByIdAny.run(
+      { templateId: packageId },
+      pool
+    )
 
-  if (checkResult.rows.length === 0) {
+  if (existingResult.length === 0) {
     throw new Error('Paquete no encontrado')
   }
+
+  const existing = existingResult[0]
 
   // For non-superusers, verify they own this package's branch
   if (
     session.user.role !== 'superuser' &&
-    checkResult.rows[0].branch_id !== session.user.branchId
+    existing.branch_id !== session.user.branchId
   ) {
     throw new Error('No tienes permiso para eliminar este paquete')
   }
 
   // Check if there are any purchases
-  const purchasesCheck = await pool.query(
-    'SELECT COUNT(*) as count FROM user_class_packages WHERE package_template_id = $1',
-    [packageId]
-  )
+  const purchasesCheck =
+    await classPackagesQueries.getPackagePurchasesCount.run(
+      { templateId: packageId },
+      pool
+    )
 
-  if (parseInt(purchasesCheck.rows[0].count, 10) > 0) {
+  if (purchasesCheck[0]?.count && purchasesCheck[0].count > 0) {
     throw new Error('No se puede eliminar un paquete con compras asociadas')
   }
 
-  await pool.query('DELETE FROM class_package_templates WHERE id = $1', [
-    packageId,
-  ])
+  await classPackagesQueries.deletePackageTemplateById.run(
+    { templateId: packageId },
+    pool
+  )
 
   await logAdminAction(
     session.user.id,
     'delete',
     'class_package_template',
     packageId,
-    `Eliminó paquete ${checkResult.rows[0].name}`,
+    `Eliminó paquete ${existing.name}`,
     {}
   )
 
@@ -414,17 +380,17 @@ export async function assignPackageToUser(
   const session = await getAdminSession()
 
   // Get template details
-  const templateResult = await pool.query(
-    `SELECT * FROM class_package_templates
-     WHERE id = $1 AND is_active = true`,
-    [packageTemplateId]
-  )
+  const templateResult =
+    await classPackagesQueries.getActivePackageTemplateById.run(
+      { templateId: packageTemplateId },
+      pool
+    )
 
-  if (templateResult.rows.length === 0) {
+  if (templateResult.length === 0) {
     throw new Error('Paquete no encontrado o inactivo')
   }
 
-  const template = templateResult.rows[0]
+  const template = templateResult[0]
 
   // For non-superusers, verify the package belongs to their branch
   if (
@@ -438,11 +404,14 @@ export async function assignPackageToUser(
   let finalExpiresAt: Date | null = expiresAt ?? null
   if (!finalExpiresAt && template.validity_type !== 'unlimited') {
     finalExpiresAt = new Date()
-    if (template.validity_type === 'days') {
+    if (template.validity_type === 'days' && template.validity_period) {
       finalExpiresAt.setDate(
         finalExpiresAt.getDate() + template.validity_period
       )
-    } else if (template.validity_type === 'months') {
+    } else if (
+      template.validity_type === 'months' &&
+      template.validity_period
+    ) {
       finalExpiresAt.setMonth(
         finalExpiresAt.getMonth() + template.validity_period
       )
@@ -450,39 +419,32 @@ export async function assignPackageToUser(
   }
 
   // Create user package
-  const result = await pool.query(
-    `INSERT INTO user_class_packages (
-      user_id,
-      branch_id,
-      package_template_id,
-      total_classes,
-      classes_remaining,
-      expires_at,
-      status,
-      is_gift,
-      purchased_at,
-      purchase_price
-    ) VALUES ($1, $2, $3, $4, $5, $6, 'active', false, CURRENT_TIMESTAMP, $7)
-    RETURNING *`,
-    [
+  const result = await classPackagesQueries.purchasePackage.run(
+    {
       userId,
-      template.branch_id,
+      branchId: template.branch_id,
       packageTemplateId,
-      template.class_count,
-      template.class_count,
-      finalExpiresAt?.toISOString() ?? null,
-      parseFloat(template.price),
-    ]
+      totalClasses: template.class_count,
+      classesRemaining: template.class_count,
+      expiresAt: finalExpiresAt?.toISOString() ?? null,
+      status: 'active',
+      isGift: false,
+      giftFromUserId: null,
+      giftMessage: null,
+      paymentId: null,
+      purchasePrice: template.price,
+    },
+    pool
   )
 
   await logAdminAction(
     session.user.id,
     'create',
     'user_class_package',
-    result.rows[0].id,
+    result[0].id,
     `Asignó paquete ${template.name} a usuario ${userId}`,
     { packageTemplateId, userId }
   )
 
-  return result.rows[0]
+  return result[0]
 }

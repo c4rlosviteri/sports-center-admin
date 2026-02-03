@@ -13,7 +13,7 @@
 #### 2. Seed Data ([db/seed.sql](db/seed.sql))
 - ✅ Added 3 branches: Biciantro Norte, Sur, and Valle
 - ✅ Created admin assignments (María manages Norte & Sur, Pedro manages Sur, Sofía manages Valle)
-- ✅ Added test data across all branches (plans, classes, clients, bookings)
+- ✅ Added test data across all branches (packages, classes, clients, bookings)
 - ✅ Created branch-specific invite links for testing
 
 ### Backend (Actions & Types)
@@ -152,7 +152,7 @@ Clients:
 ### If you want to add:
 1. **Branch logos/branding** - Add `logo_url` to branches table
 2. **Branch hours** - Extend branch_settings with opening/closing times
-3. **Branch-specific pricing** - Already supported via membership_plans.branch_id
+3. **Branch-specific pricing** - Already supported via class_package_templates.branch_id
 4. **Branch analytics** - Add reporting page with branch comparisons
 5. **Bulk admin assignments** - UI for managing admin-branch relationships
 6. **Branch transfer logs** - Audit trail for client transfers
@@ -187,7 +187,7 @@ ALTER TABLE branches ADD COLUMN is_active BOOLEAN DEFAULT true;
 -- Create admin_branch_assignments table
 CREATE TABLE admin_branch_assignments (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  admin_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  admin_id UUID NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
   branch_id UUID NOT NULL REFERENCES branches(id) ON DELETE CASCADE,
   is_primary BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -208,7 +208,7 @@ CREATE TRIGGER update_admin_branch_assignments_updated_at
 -- Assign existing admins to their current branches
 INSERT INTO admin_branch_assignments (admin_id, branch_id, is_primary)
 SELECT id, branch_id, true
-FROM users
+FROM "user"
 WHERE role = 'admin' AND branch_id IS NOT NULL;
 ```
 
@@ -218,7 +218,7 @@ WHERE role = 'admin' AND branch_id IS NOT NULL;
 - [x] Seed data has multiple branches
 - [x] Branch management actions implemented
 - [x] Admin context switching works
-- [x] Superuser can create users
+- [x] Superuser can create user accounts
 - [x] UI shows branch switcher
 - [x] All queries filter by branch
 - [x] Invite links are branch-specific

@@ -2,7 +2,21 @@
 
 ## Initial Setup (One Time)
 
-1. **Initialize migration tracking:**
+1. **Initialize the schema (fresh DB):**
+   ```bash
+   psql postgres://localhost:5432/biciantro -f db/schema.sql
+   ```
+
+   This creates the full schema and records version `001` in `schema_migrations`.
+
+2. **Initialize migration tracking (existing DB without schema_migrations):**
+   ```bash
+   psql postgres://localhost:5432/biciantro -f db/migrations/000_create_migrations_table.sql
+   ```
+
+   This only creates the tracking table and marks version `001` so future migrations can run.
+
+3. **Run incremental migrations (002+):**
    ```bash
    ./db/run-migrations.sh
    ```
@@ -30,15 +44,15 @@ cp db/migrations/TEMPLATE.sql db/migrations/003_your_migration_name.sql
 ```sql
 -- Migration: Add User Preferences
 -- Date: 2026-01-24
--- Description: Adds a preferences JSONB column to users table
+-- Description: Adds a preferences JSONB column to "user" table
 
 DO $$
 BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'users' AND column_name = 'preferences'
+    WHERE table_name = 'user' AND column_name = 'preferences'
   ) THEN
-    ALTER TABLE users ADD COLUMN preferences JSONB DEFAULT '{}'::jsonb;
+    ALTER TABLE "user" ADD COLUMN preferences JSONB DEFAULT '{}'::jsonb;
   END IF;
 END $$;
 
@@ -140,7 +154,7 @@ git diff src/db/queries/*.ts
 Create a new migration that reverses the changes:
 ```sql
 -- 004_rollback_user_preferences.sql
-ALTER TABLE users DROP COLUMN IF EXISTS preferences;
+ALTER TABLE "user" DROP COLUMN IF EXISTS preferences;
 ```
 
 ## Full Example: Adding a Feature
@@ -152,11 +166,11 @@ Let's add a "favorite classes" feature:
 cat > db/migrations/003_add_favorite_classes.sql << 'EOF'
 -- Migration: Add Favorite Classes
 -- Date: 2026-01-24
--- Description: Allows users to mark classes as favorites
+-- Description: Allows user accounts to mark classes as favorites
 
 CREATE TABLE IF NOT EXISTS favorite_classes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
   class_id UUID NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(user_id, class_id)

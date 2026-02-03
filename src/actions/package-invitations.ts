@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { logAdminAction } from '~/lib/audit'
+import * as packageInvitationsQueries from '~/db/queries/package-invitations.queries'
 import { pool } from '~/lib/db'
 import { getSession } from './auth'
 
@@ -35,32 +36,30 @@ export async function generatePackageInvitation(packageId: string): Promise<{
   const session = await getAdminSession()
 
   // Check if package exists and belongs to this branch
-  const packageCheck = await pool.query(
-    `SELECT id, name FROM class_package_templates 
-     WHERE id = $1 AND branch_id = $2`,
-    [packageId, session.user.branchId]
-  )
+  const packageCheck =
+    await packageInvitationsQueries.getPackageTemplateForInvitation.run(
+      { packageId, branchId: session.user.branchId },
+      pool
+    )
 
-  if (packageCheck.rows.length === 0) {
+  if (packageCheck.length === 0) {
     throw new Error('Paquete no encontrado')
   }
 
-  const pkg = packageCheck.rows[0]
+  const pkg = packageCheck[0]
 
   // Generate unique code
   const code = `PKG-${Math.random().toString(36).substring(2, 8).toUpperCase()}-${Date.now().toString(36).substring(4, 8).toUpperCase()}`
 
   // Store the invitation
-  await pool.query(
-    `INSERT INTO package_invitations (
-      package_id,
-      branch_id,
+  await packageInvitationsQueries.createPackageInvitation.run(
+    {
+      packageId,
+      branchId: session.user.branchId,
       code,
-      created_by,
-      is_active
-    ) VALUES ($1, $2, $3, $4, true)
-    ON CONFLICT (code) DO NOTHING`,
-    [packageId, session.user.branchId, code, session.user.id]
+      createdBy: session.user.id,
+    },
+    pool
   )
 
   await logAdminAction(
@@ -94,27 +93,21 @@ export async function getPackageInvitation(packageId: string): Promise<{
 } | null> {
   const session = await getAdminSession()
 
-  const result = await pool.query(
-    `SELECT code, created_at 
-     FROM package_invitations 
-     WHERE package_id = $1 
-       AND branch_id = $2 
-       AND is_active = true
-     ORDER BY created_at DESC
-     LIMIT 1`,
-    [packageId, session.user.branchId]
+  const result = await packageInvitationsQueries.getLatestPackageInvitation.run(
+    { packageId, branchId: session.user.branchId },
+    pool
   )
 
-  if (result.rows.length === 0) {
+  if (result.length === 0) {
     return null
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
   return {
-    code: result.rows[0].code,
-    invitationUrl: `${baseUrl}/registro?invitation=${result.rows[0].code}`,
-    createdAt: result.rows[0].created_at,
+    code: result[0].code,
+    invitationUrl: `${baseUrl}/registro?invitation=${result[0].code}`,
+    createdAt: result[0].created_at,
   }
 }
 
@@ -124,13 +117,9 @@ export async function getPackageInvitation(packageId: string): Promise<{
 export async function revokePackageInvitation(code: string): Promise<void> {
   const session = await getAdminSession()
 
-  await pool.query(
-    `UPDATE package_invitations 
-     SET is_active = false, 
-         updated_at = CURRENT_TIMESTAMP
-     WHERE code = $1 
-       AND branch_id = $2`,
-    [code, session.user.branchId]
+  await packageInvitationsQueries.revokePackageInvitation.run(
+    { code, branchId: session.user.branchId },
+    pool
   )
 
   await logAdminAction(
@@ -162,32 +151,19 @@ export async function validateInvitationCode(code: string): Promise<{
   branchId?: string
   error?: string
 }> {
-  const result = await pool.query(
-    `SELECT 
-      pi.package_id,
-      pi.branch_id,
-      cpt.name,
-      cpt.description,
-      cpt.class_count,
-      cpt.price,
-      cpt.validity_type,
-      cpt.validity_period
-    FROM package_invitations pi
-    JOIN class_package_templates cpt ON pi.package_id = cpt.id
-    WHERE pi.code = $1 
-      AND pi.is_active = true
-      AND cpt.is_active = true`,
-    [code]
+  const result = await packageInvitationsQueries.getInvitationWithPackageDetails.run(
+    { code },
+    pool
   )
 
-  if (result.rows.length === 0) {
+  if (result.length === 0) {
     return {
       valid: false,
       error: 'Código de invitación inválido o expirado',
     }
   }
 
-  const invitation = result.rows[0]
+  const invitation = result[0]
 
   return {
     valid: true,
@@ -217,30 +193,20 @@ export async function assignPackageViaInvitation(
     await client.query('BEGIN')
 
     // Get invitation details
-    const invitationResult = await client.query(
-      `SELECT 
-        pi.package_id,
-        pi.branch_id,
-        cpt.class_count,
-        cpt.validity_type,
-        cpt.validity_period,
-        cpt.price
-      FROM package_invitations pi
-      JOIN class_package_templates cpt ON pi.package_id = cpt.id
-      WHERE pi.code = $1 
-        AND pi.is_active = true
-        AND cpt.is_active = true`,
-      [invitationCode]
-    )
+    const invitationResult =
+      await packageInvitationsQueries.getInvitationWithPackageDetails.run(
+        { code: invitationCode },
+        client
+      )
 
-    if (invitationResult.rows.length === 0) {
+    if (invitationResult.length === 0) {
       return {
         success: false,
         error: 'Código de invitación inválido o expirado',
       }
     }
 
-    const invitation = invitationResult.rows[0]
+    const invitation = invitationResult[0]
 
     // Calculate expiration date
     let expiresAt: Date | null = null
@@ -257,27 +223,17 @@ export async function assignPackageViaInvitation(
     }
 
     // Create user package
-    await client.query(
-      `INSERT INTO user_class_packages (
-        user_id,
-        branch_id,
-        package_template_id,
-        total_classes,
-        classes_remaining,
-        expires_at,
-        status,
-        is_gift,
-        purchase_price
-      ) VALUES ($1, $2, $3, $4, $5, $6, 'active', false, $7)`,
-      [
+    await packageInvitationsQueries.createUserPackageFromInvitation.run(
+      {
         userId,
-        invitation.branch_id,
-        invitation.package_id,
-        invitation.class_count,
-        invitation.class_count,
-        expiresAt?.toISOString() ?? null,
-        parseFloat(invitation.price),
-      ]
+        branchId: invitation.branch_id,
+        packageTemplateId: invitation.package_id,
+        totalClasses: invitation.class_count,
+        classesRemaining: invitation.class_count,
+        expiresAt: expiresAt?.toISOString() ?? null,
+        purchasePrice: parseFloat(invitation.price),
+      },
+      client
     )
 
     await client.query('COMMIT')

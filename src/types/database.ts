@@ -141,8 +141,8 @@ export interface BranchSettings {
   updatedAt: Date
 }
 
-// User membership info from active package
-export interface UserMembership {
+// User package info from active package
+export interface UserPackage {
   id: string
   userId: string
   packageTemplateId: string

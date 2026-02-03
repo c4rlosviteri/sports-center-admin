@@ -214,13 +214,40 @@ const getNoShowStatsIR: any = {"usedParamSet":{"userId":true,"branchId":true},"p
 export const getNoShowStats = new PreparedQuery<GetNoShowStatsParams,GetNoShowStatsResult>(getNoShowStatsIR);
 
 
-/** Query 'CreateNoShowPenalty' is invalid, so its result is assigned type 'never'.
- *  */
-export type CreateNoShowPenaltyResult = never;
+/** 'CreateNoShowPenalty' parameters type */
+export interface CreateNoShowPenaltyParams {
+  appliedBy: string;
+  branchId: string;
+  noShowCount: number;
+  notes?: string | null | void;
+  penaltyEndDate: DateOrString;
+  penaltyStartDate: DateOrString;
+  penaltyType: string;
+  userId: string;
+}
 
-/** Query 'CreateNoShowPenalty' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type CreateNoShowPenaltyParams = never;
+/** 'CreateNoShowPenalty' return type */
+export interface CreateNoShowPenaltyResult {
+  applied_by: string | null;
+  branch_id: string;
+  created_at: Date | null;
+  created_by: string | null;
+  id: string;
+  is_active: boolean | null;
+  no_show_count: number | null;
+  notes: string | null;
+  penalty_end_date: Date | null;
+  penalty_start_date: Date | null;
+  penalty_type: string | null;
+  updated_at: Date | null;
+  user_id: string;
+}
+
+/** 'CreateNoShowPenalty' query type */
+export interface CreateNoShowPenaltyQuery {
+  params: CreateNoShowPenaltyParams;
+  result: CreateNoShowPenaltyResult;
+}
 
 const createNoShowPenaltyIR: any = {"usedParamSet":{"userId":true,"branchId":true,"noShowCount":true,"penaltyType":true,"penaltyStartDate":true,"penaltyEndDate":true,"appliedBy":true,"notes":true},"params":[{"name":"userId","required":true,"transform":{"type":"scalar"},"locs":[{"a":166,"b":173}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":178,"b":187}]},{"name":"noShowCount","required":true,"transform":{"type":"scalar"},"locs":[{"a":192,"b":204}]},{"name":"penaltyType","required":true,"transform":{"type":"scalar"},"locs":[{"a":209,"b":221}]},{"name":"penaltyStartDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":226,"b":243}]},{"name":"penaltyEndDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":248,"b":263}]},{"name":"appliedBy","required":true,"transform":{"type":"scalar"},"locs":[{"a":268,"b":278}]},{"name":"notes","required":false,"transform":{"type":"scalar"},"locs":[{"a":283,"b":288}]}],"statement":"INSERT INTO no_show_penalties (\n  user_id,\n  branch_id,\n  no_show_count,\n  penalty_type,\n  penalty_start_date,\n  penalty_end_date,\n  applied_by,\n  notes\n) VALUES (\n  :userId!,\n  :branchId!,\n  :noShowCount!,\n  :penaltyType!,\n  :penaltyStartDate!,\n  :penaltyEndDate!,\n  :appliedBy!,\n  :notes\n)\nRETURNING *"};
 
@@ -280,12 +307,24 @@ export interface GetActivePenaltiesQuery {
   result: GetActivePenaltiesResult;
 }
 
-const getActivePenaltiesIR: any = {"usedParamSet":{"userId":true,"branchId":true},"params":[{"name":"userId","required":true,"transform":{"type":"scalar"},"locs":[{"a":48,"b":55}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":75,"b":84}]}],"statement":"SELECT *\nFROM no_show_penalties\nWHERE user_id = :userId!\n  AND branch_id = :branchId!\n  AND is_active = true\n  AND penalty_end_date > CURRENT_TIMESTAMP\nORDER BY penalty_start_date DESC"};
+const getActivePenaltiesIR: any = {"usedParamSet":{"userId":true,"branchId":true},"params":[{"name":"userId","required":true,"transform":{"type":"scalar"},"locs":[{"a":214,"b":221}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":241,"b":250}]}],"statement":"SELECT\n  id,\n  user_id,\n  branch_id,\n  no_show_count,\n  penalty_start_date,\n  penalty_end_date,\n  is_active,\n  penalty_type,\n  created_at,\n  updated_at,\n  created_by,\n  notes\nFROM no_show_penalties\nWHERE user_id = :userId!\n  AND branch_id = :branchId!\n  AND is_active = true\n  AND penalty_end_date > CURRENT_TIMESTAMP\nORDER BY penalty_start_date DESC"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT *
+ * SELECT
+ *   id,
+ *   user_id,
+ *   branch_id,
+ *   no_show_count,
+ *   penalty_start_date,
+ *   penalty_end_date,
+ *   is_active,
+ *   penalty_type,
+ *   created_at,
+ *   updated_at,
+ *   created_by,
+ *   notes
  * FROM no_show_penalties
  * WHERE user_id = :userId!
  *   AND branch_id = :branchId!
@@ -305,6 +344,7 @@ export interface DeactivatePenaltyParams {
 
 /** 'DeactivatePenalty' return type */
 export interface DeactivatePenaltyResult {
+  applied_by: string | null;
   branch_id: string;
   created_at: Date | null;
   created_by: string | null;
@@ -340,13 +380,46 @@ const deactivatePenaltyIR: any = {"usedParamSet":{"penaltyId":true,"branchId":tr
 export const deactivatePenalty = new PreparedQuery<DeactivatePenaltyParams,DeactivatePenaltyResult>(deactivatePenaltyIR);
 
 
-/** Query 'CreateLateCancellationFee' is invalid, so its result is assigned type 'never'.
- *  */
-export type CreateLateCancellationFeeResult = never;
+/** 'CreateLateCancellationFee' parameters type */
+export interface CreateLateCancellationFeeParams {
+  bookingId: string;
+  branchId: string;
+  cancelledAt: DateOrString;
+  classId: string;
+  feeAmount: NumberOrString;
+  notes?: string | null | void;
+  paymentStatus: string;
+  userId: string;
+}
 
-/** Query 'CreateLateCancellationFee' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type CreateLateCancellationFeeParams = never;
+/** 'CreateLateCancellationFee' return type */
+export interface CreateLateCancellationFeeResult {
+  amount: string;
+  booking_id: string;
+  branch_id: string;
+  cancellation_time: Date;
+  cancelled_at: Date;
+  class_id: string;
+  class_time: Date;
+  created_at: Date | null;
+  fee_amount: string;
+  hours_before_class: string | null;
+  id: string;
+  notes: string | null;
+  paid_at: Date | null;
+  payment_status: string;
+  status: string | null;
+  updated_at: Date | null;
+  user_id: string;
+  waived_by: string | null;
+  waived_reason: string | null;
+}
+
+/** 'CreateLateCancellationFee' query type */
+export interface CreateLateCancellationFeeQuery {
+  params: CreateLateCancellationFeeParams;
+  result: CreateLateCancellationFeeResult;
+}
 
 const createLateCancellationFeeIR: any = {"usedParamSet":{"bookingId":true,"userId":true,"classId":true,"branchId":true,"feeAmount":true,"cancelledAt":true,"paymentStatus":true,"notes":true},"params":[{"name":"bookingId","required":true,"transform":{"type":"scalar"},"locs":[{"a":156,"b":166}]},{"name":"userId","required":true,"transform":{"type":"scalar"},"locs":[{"a":171,"b":178}]},{"name":"classId","required":true,"transform":{"type":"scalar"},"locs":[{"a":183,"b":191}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":196,"b":205}]},{"name":"feeAmount","required":true,"transform":{"type":"scalar"},"locs":[{"a":210,"b":220}]},{"name":"cancelledAt","required":true,"transform":{"type":"scalar"},"locs":[{"a":225,"b":237}]},{"name":"paymentStatus","required":true,"transform":{"type":"scalar"},"locs":[{"a":242,"b":256}]},{"name":"notes","required":false,"transform":{"type":"scalar"},"locs":[{"a":261,"b":266}]}],"statement":"INSERT INTO late_cancellation_fees (\n  booking_id,\n  user_id,\n  class_id,\n  branch_id,\n  fee_amount,\n  cancelled_at,\n  payment_status,\n  notes\n) VALUES (\n  :bookingId!,\n  :userId!,\n  :classId!,\n  :branchId!,\n  :feeAmount!,\n  :cancelledAt!,\n  :paymentStatus!,\n  :notes\n)\nRETURNING *"};
 
@@ -378,13 +451,42 @@ const createLateCancellationFeeIR: any = {"usedParamSet":{"bookingId":true,"user
 export const createLateCancellationFee = new PreparedQuery<CreateLateCancellationFeeParams,CreateLateCancellationFeeResult>(createLateCancellationFeeIR);
 
 
-/** Query 'GetOutstandingFees' is invalid, so its result is assigned type 'never'.
- *  */
-export type GetOutstandingFeesResult = never;
+/** 'GetOutstandingFees' parameters type */
+export interface GetOutstandingFeesParams {
+  branchId: string;
+  userId: string;
+}
 
-/** Query 'GetOutstandingFees' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type GetOutstandingFeesParams = never;
+/** 'GetOutstandingFees' return type */
+export interface GetOutstandingFeesResult {
+  amount: string;
+  booking_id: string;
+  branch_id: string;
+  cancellation_time: Date;
+  cancelled_at: Date;
+  class_id: string;
+  class_time: Date;
+  created_at: Date | null;
+  fee_amount: string;
+  hours_before_class: string | null;
+  id: string;
+  instructor: string | null;
+  notes: string | null;
+  paid_at: Date | null;
+  payment_status: string;
+  scheduled_at: Date;
+  status: string | null;
+  updated_at: Date | null;
+  user_id: string;
+  waived_by: string | null;
+  waived_reason: string | null;
+}
+
+/** 'GetOutstandingFees' query type */
+export interface GetOutstandingFeesQuery {
+  params: GetOutstandingFeesParams;
+  result: GetOutstandingFeesResult;
+}
 
 const getOutstandingFeesIR: any = {"usedParamSet":{"userId":true,"branchId":true},"params":[{"name":"userId","required":true,"transform":{"type":"scalar"},"locs":[{"a":139,"b":146}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":170,"b":179}]}],"statement":"SELECT\n  lcf.*,\n  c.scheduled_at,\n  c.instructor\nFROM late_cancellation_fees lcf\nJOIN classes c ON lcf.class_id = c.id\nWHERE lcf.user_id = :userId!\n  AND lcf.branch_id = :branchId!\n  AND lcf.payment_status = 'unpaid'\nORDER BY lcf.cancelled_at DESC"};
 
@@ -406,13 +508,40 @@ const getOutstandingFeesIR: any = {"usedParamSet":{"userId":true,"branchId":true
 export const getOutstandingFees = new PreparedQuery<GetOutstandingFeesParams,GetOutstandingFeesResult>(getOutstandingFeesIR);
 
 
-/** Query 'MarkFeeAsPaid' is invalid, so its result is assigned type 'never'.
- *  */
-export type MarkFeeAsPaidResult = never;
+/** 'MarkFeeAsPaid' parameters type */
+export interface MarkFeeAsPaidParams {
+  branchId: string;
+  feeId: string;
+}
 
-/** Query 'MarkFeeAsPaid' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type MarkFeeAsPaidParams = never;
+/** 'MarkFeeAsPaid' return type */
+export interface MarkFeeAsPaidResult {
+  amount: string;
+  booking_id: string;
+  branch_id: string;
+  cancellation_time: Date;
+  cancelled_at: Date;
+  class_id: string;
+  class_time: Date;
+  created_at: Date | null;
+  fee_amount: string;
+  hours_before_class: string | null;
+  id: string;
+  notes: string | null;
+  paid_at: Date | null;
+  payment_status: string;
+  status: string | null;
+  updated_at: Date | null;
+  user_id: string;
+  waived_by: string | null;
+  waived_reason: string | null;
+}
+
+/** 'MarkFeeAsPaid' query type */
+export interface MarkFeeAsPaidQuery {
+  params: MarkFeeAsPaidParams;
+  result: MarkFeeAsPaidResult;
+}
 
 const markFeeAsPaidIR: any = {"usedParamSet":{"feeId":true,"branchId":true},"params":[{"name":"feeId","required":true,"transform":{"type":"scalar"},"locs":[{"a":102,"b":108}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":128,"b":137}]}],"statement":"UPDATE late_cancellation_fees\nSET payment_status = 'paid',\n    paid_at = CURRENT_TIMESTAMP\nWHERE id = :feeId!\n  AND branch_id = :branchId!\nRETURNING *"};
 
@@ -487,13 +616,30 @@ const getClassAttendanceSummaryIR: any = {"usedParamSet":{"branchId":true,"start
 export const getClassAttendanceSummary = new PreparedQuery<GetClassAttendanceSummaryParams,GetClassAttendanceSummaryResult>(getClassAttendanceSummaryIR);
 
 
-/** Query 'GetUserAttendanceHistory' is invalid, so its result is assigned type 'never'.
- *  */
-export type GetUserAttendanceHistoryResult = never;
+/** 'GetUserAttendanceHistory' parameters type */
+export interface GetUserAttendanceHistoryParams {
+  branchId: string;
+  limit?: NumberOrString | null | void;
+  userId: string;
+}
 
-/** Query 'GetUserAttendanceHistory' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type GetUserAttendanceHistoryParams = never;
+/** 'GetUserAttendanceHistory' return type */
+export interface GetUserAttendanceHistoryResult {
+  attendance_status: string;
+  booking_id: string;
+  booking_status: booking_status;
+  class_id: string;
+  instructor: string | null;
+  marked_at: Date | null;
+  notes: string | null;
+  scheduled_at: Date;
+}
+
+/** 'GetUserAttendanceHistory' query type */
+export interface GetUserAttendanceHistoryQuery {
+  params: GetUserAttendanceHistoryParams;
+  result: GetUserAttendanceHistoryResult;
+}
 
 const getUserAttendanceHistoryIR: any = {"usedParamSet":{"userId":true,"branchId":true,"limit":true},"params":[{"name":"userId","required":true,"transform":{"type":"scalar"},"locs":[{"a":300,"b":307}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":329,"b":338}]},{"name":"limit","required":false,"transform":{"type":"scalar"},"locs":[{"a":416,"b":421}]}],"statement":"SELECT\n  c.id as class_id,\n  c.scheduled_at,\n  c.instructor,\n  b.id as booking_id,\n  b.status as booking_status,\n  ar.status as attendance_status,\n  ar.marked_at,\n  ar.notes\nFROM bookings b\nJOIN classes c ON b.class_id = c.id\nLEFT JOIN attendance_records ar ON b.id = ar.booking_id\nWHERE b.user_id = :userId!\n  AND b.branch_id = :branchId!\n  AND c.scheduled_at < CURRENT_TIMESTAMP\nORDER BY c.scheduled_at DESC\nLIMIT :limit"};
 

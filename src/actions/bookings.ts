@@ -14,11 +14,14 @@ export async function getClassBookings(classId: string) {
 
   // Verify class belongs to admin's branch
   if (['admin', 'superuser'].includes(session.user.role)) {
-    const classCheck = await pool.query(
-      'SELECT id FROM classes WHERE id = $1 AND branch_id = $2',
-      [classId, session.user.branchId]
+    if (!session.user.branchId) {
+      throw new Error('No se encontró la sucursal del usuario')
+    }
+    const classCheck = await bookingsQueries.getClassForBranch.run(
+      { classId, branchId: session.user.branchId },
+      pool
     )
-    if (classCheck.rows.length === 0) {
+    if (classCheck.length === 0) {
       throw new Error('Clase no encontrada en tu sucursal')
     }
   }

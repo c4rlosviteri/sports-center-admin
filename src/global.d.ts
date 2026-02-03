@@ -42,10 +42,6 @@ declare module '~/hooks/use-classes' {
   export * from '@/hooks/use-classes'
 }
 
-declare module '~/hooks/use-membership' {
-  export * from '@/hooks/use-membership'
-}
-
 declare module '~/hooks/use-session' {
   export * from '@/hooks/use-session'
 }

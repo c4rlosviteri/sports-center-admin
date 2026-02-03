@@ -1,31 +1,33 @@
--- NOTE: These materialized view queries are temporarily disabled because
--- the views were recreated in migration 012 with different schemas than
--- what these queries expect. The columns need to be aligned between:
--- - Migration 005 (original views with more columns)
--- - Migration 012 (recreated views with fewer columns)
--- TODO: Update these queries to match the actual column structure in migration 012
+/*
+NOTE: These materialized view queries are temporarily disabled because
+the views were recreated in migration 012 with different schemas than
+what these queries expect. The columns need to be aligned between:
+- Migration 005 (original views with more columns)
+- Migration 012 (recreated views with fewer columns)
+TODO: Update these queries to match the actual column structure in migration 012
 
--- /* @name GetDailyRevenue */
--- SELECT *
--- FROM mv_daily_revenue
--- WHERE branch_id = :branchId!
---   AND revenue_date >= :startDate!
---   AND revenue_date <= :endDate!
--- ORDER BY revenue_date DESC;
+@name GetDailyRevenue
+SELECT *
+FROM mv_daily_revenue
+WHERE branch_id = :branchId!
+  AND revenue_date >= :startDate!
+  AND revenue_date <= :endDate!
+ORDER BY revenue_date DESC;
 
--- /* @name GetClassPopularity */
--- SELECT *
--- FROM mv_class_popularity
--- WHERE branch_id = :branchId!
--- ORDER BY utilization_rate DESC
--- LIMIT :limit;
+@name GetClassPopularity
+SELECT *
+FROM mv_class_popularity
+WHERE branch_id = :branchId!
+ORDER BY utilization_rate DESC
+LIMIT :limit;
 
--- /* @name GetClientRetention */
--- SELECT *
--- FROM mv_client_retention
--- WHERE branch_id = :branchId!
--- ORDER BY cohort_month DESC
--- LIMIT :limit;
+@name GetClientRetention
+SELECT *
+FROM mv_client_retention
+WHERE branch_id = :branchId!
+ORDER BY cohort_month DESC
+LIMIT :limit;
+*/
 
 /* @name CreateAnalyticsCache */
 INSERT INTO analytics_cache (
@@ -45,7 +47,13 @@ ON CONFLICT (branch_id, metric_type, metric_date) DO UPDATE SET
 RETURNING *;
 
 /* @name GetAnalyticsCache */
-SELECT *
+SELECT
+  id,
+  branch_id,
+  metric_type,
+  metric_date,
+  metric_value,
+  calculated_at
 FROM analytics_cache
 WHERE branch_id = :branchId!
   AND metric_type = :metricType!
@@ -171,7 +179,7 @@ SELECT
   COUNT(DISTINCT b.id) FILTER (WHERE b.status = 'confirmed') as total_classes_attended,
   ROUND(
     SUM(p.amount) / NULLIF(
-      EXTRACT(EPOCH FROM (MAX(p.payment_date) - MIN(p.payment_date))) / 2592000,
+      EXTRACT(EPOCH FROM (MAX(p.payment_date)::timestamp - MIN(p.payment_date)::timestamp)) / 2592000,
       0
     ),
     2

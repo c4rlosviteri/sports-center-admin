@@ -1,4 +1,4 @@
-# Plan to Packages Migration - 100% COMPLETE ✅
+# Legacy to Packages Migration - 100% COMPLETE ✅
 
 ## Final Status: ALL ORPHANED BOOKINGS FIXED
 
@@ -7,9 +7,9 @@
 **Database Changes:**
 - Migration 009: Created package system tables ✅
 - Migration 014: Added package_invitations ✅  
-- Migration 016: Dropped legacy membership tables ✅
+- Migration 024: Dropped legacy pre‑package tables ✅
 - Migration 017: Backfilled package_ids for existing bookings ✅
-- Migration 018: Created packages for users with orphaned bookings ✅
+- Migration 018: Created packages for user accounts with orphaned bookings ✅
 - **Fixed FK Constraints:** Updated references from `users_backup` to `"user"` ✅
 
 ### Final Data Status
@@ -19,12 +19,12 @@
 - **After:** 0 orphaned bookings (100% linked)
 
 **New Packages Created:**
-- **2 packages** created for users without coverage
+- **2 packages** created for user accounts without coverage
 - User: picorico@gmail.com - 6 classes remaining
 - User: myrinoemi97@gmail.com - 7 classes remaining
 
 **Complete Data Overview:**
-- ✅ Package Templates: 4 (from membership plans)
+- ✅ Package Templates: 4 (from legacy system)
 - ✅ User Packages: 6 (4 migrated + 2 new)
 - ✅ Total Bookings: 13 (100% linked to packages)
 - ✅ Package Class Usage: 11 records
@@ -49,7 +49,7 @@ ALTER TABLE package_class_usage
 ```
 
 **Orphaned Bookings Solution:**
-- Identified 2 users with confirmed/waitlisted bookings but no packages
+- Identified 2 user accounts with confirmed/waitlisted bookings but no packages
 - Created appropriate packages for each user (smallest template: "1 Clase por Semana")
 - Deducted credits for their existing confirmed bookings
 - Linked all 4 orphaned bookings to their new packages
@@ -63,9 +63,9 @@ Tests       231 passed (231)
 
 ### Complete Migration Timeline
 
-1. ✅ SQL queries updated (membership_id → package_id)
+1. ✅ SQL queries updated (legacy membership_id → package_id)
 2. ✅ TypeScript actions updated to use packages
-3. ✅ UI components updated ("Plan" → "Paquete")
+3. ✅ UI components updated ("Paquete" everywhere)
 4. ✅ Database migrated (dropped legacy tables)
 5. ✅ Data backfilled (linked existing bookings)
 6. ✅ Orphaned bookings fixed (created missing packages)
@@ -74,4 +74,4 @@ Tests       231 passed (231)
 
 ## 🎉 MIGRATION 100% COMPLETE
 
-**Every booking now has a package. Every user with bookings has package coverage.**
+**Every booking now has a package. Every user account with bookings has package coverage.**

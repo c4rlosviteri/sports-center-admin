@@ -265,7 +265,7 @@ export async function verifyInviteToken(
 
 /**
  * Hash a password using bcrypt
- * Used by admin actions to create users with passwords
+ * Used by admin actions to create user accounts with passwords
  */
 export async function hashPassword(password: string): Promise<string> {
   const bcrypt = await import('bcryptjs')

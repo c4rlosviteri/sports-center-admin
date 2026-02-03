@@ -86,7 +86,19 @@ INSERT INTO no_show_penalties (
 RETURNING *;
 
 /* @name GetActivePenalties */
-SELECT *
+SELECT
+  id,
+  user_id,
+  branch_id,
+  no_show_count,
+  penalty_start_date,
+  penalty_end_date,
+  is_active,
+  penalty_type,
+  created_at,
+  updated_at,
+  created_by,
+  notes
 FROM no_show_penalties
 WHERE user_id = :userId!
   AND branch_id = :branchId!

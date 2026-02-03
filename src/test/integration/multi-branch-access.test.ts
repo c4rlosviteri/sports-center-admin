@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 /**
  * Integration tests for multi-branch access control
- * These tests verify that users can only access resources within their branch
+ * These tests verify that user accounts can only access resources within their branch
  * and that proper authorization is enforced across the application
  */
 
@@ -374,8 +374,8 @@ describe('Multi-Branch Access Control Integration Tests', () => {
 
   describe('Cross-Branch Data Leakage Prevention', () => {
     it('should not leak user data across branches', async () => {
-      // This test ensures that when an admin queries for users,
-      // they only see users from their branch
+      // This test ensures that when an admin queries for user accounts,
+      // they only see user accounts from their branch
       vi.mocked(getSession).mockResolvedValue({
         user: { id: 'admin-1', role: 'admin', branchId: 'branch-1' },
       } as any)

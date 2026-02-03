@@ -59,11 +59,11 @@ echo "🔍 Verifying installation..."
 TABLE_COUNT=$(psql biciantro -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public';")
 echo "   Tables created: $TABLE_COUNT"
 
-USER_COUNT=$(psql biciantro -t -c "SELECT COUNT(*) FROM users;")
-echo "   Users created: $USER_COUNT"
+USER_COUNT=$(psql biciantro -t -c "SELECT COUNT(*) FROM \"user\";")
+echo "   User accounts created: $USER_COUNT"
 
-PLAN_COUNT=$(psql biciantro -t -c "SELECT COUNT(*) FROM membership_plans;")
-echo "   Plans created: $PLAN_COUNT"
+PACKAGE_COUNT=$(psql biciantro -t -c "SELECT COUNT(*) FROM class_package_templates;")
+echo "   Packages created: $PACKAGE_COUNT"
 
 CLASS_COUNT=$(psql biciantro -t -c "SELECT COUNT(*) FROM classes;")
 echo "   Classes created: $CLASS_COUNT"

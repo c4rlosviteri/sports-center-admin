@@ -20,7 +20,7 @@
    - Select **External** (for public access) or **Internal** (for Google Workspace)
    - Fill in app name, user support email, and developer contact
    - Add required scopes: `openid`, `email`, `profile`
-   - Add test users if in testing mode
+   - Add test user accounts if in testing mode
 
 6. Create OAuth 2.0 Client ID:
    - Application type: **Web application**

@@ -13,7 +13,7 @@ INSERT INTO branch_settings (branch_id, cancellation_hours_before, booking_hours
 ('550e8400-e29b-41d4-a716-446655440001', 2, 0, 'America/Guayaquil'),
 ('550e8400-e29b-41d4-a716-446655440002', 3, 0, 'America/Guayaquil');
 
--- Insert users with passwords (password123 for all users)
+-- Insert user accounts with passwords (password123 for all user accounts)
 -- All passwords are bcrypt hashed with value: password123
 -- Generated with: node -e "require('bcryptjs').hash('password123', 10).then(h => console.log(h))"
 INSERT INTO "user" (id, email, name, first_name, last_name, date_of_birth, id_number, address, phone, role, branch_id, "emailVerified", terms_accepted_at) VALUES

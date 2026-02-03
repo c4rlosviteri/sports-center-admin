@@ -70,7 +70,7 @@ Implemented **8 major feature sets** for the Biciantro gym management system wit
 - Class popularity heatmaps (best times/days)
 - Client retention rates and churn analysis
 - Instructor performance metrics
-- Membership conversion funnel
+- Package conversion funnel
 - Client lifetime value analysis
 
 **Impact:** Data-driven decisions for pricing, scheduling, and marketing
@@ -83,7 +83,7 @@ Implemented **8 major feature sets** for the Biciantro gym management system wit
 - `mv_daily_revenue` - Fast revenue queries
 - `mv_class_popularity` - Utilization patterns
 - `mv_client_retention` - Cohort analysis
-- `mv_membership_funnel` - Conversion metrics
+- `mv_package_funnel` - Conversion metrics
 
 **Key Functions:**
 - `refresh_analytics_views()` - Daily refresh (cron job)
@@ -149,7 +149,7 @@ Implemented **8 major feature sets** for the Biciantro gym management system wit
 - `get_instructor_stats()` - Performance metrics (classes, earnings, attendance)
 
 **User Role Update:**
-- Added 'instructor' to users.role CHECK constraint
+- Added 'instructor' to "user".role CHECK constraint
 
 ---
 

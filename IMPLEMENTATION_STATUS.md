@@ -24,12 +24,12 @@
   - [/register](src/routes/register.tsx) - Full registration with invite token validation
 
 - **Client Routes**:
-  - [/client/](src/routes/client/index.tsx) - Dashboard with plan overview and bookings
+- [/client/](src/routes/client/index.tsx) - Dashboard with package overview and bookings
   - [/client/classes](src/routes/client/classes.tsx) - Class schedule with booking interface
 
 - **Admin Routes**:
   - [/admin/](src/routes/admin/index.tsx) - Admin dashboard with statistics
-  - [/admin/plans](src/routes/admin/plans.tsx) - Membership plan management
+- [/admin/packages](src/routes/admin/packages.tsx) - Package management
   - [/admin/users](src/routes/admin/users.tsx) - Client management and invite links
 
 ### 5. **Core Business Logic**
@@ -60,7 +60,7 @@
 - **Queries** (SQL files in src/db/queries/):
   - auth.sql - Authentication and session management
   - classes.sql - Class scheduling and bookings
-  - memberships.sql - Plans and user memberships
+- class-packages.sql - Package templates and user packages
   - admin.sql - Dashboard stats and admin operations
 
 - **Type-Safe Queries**:

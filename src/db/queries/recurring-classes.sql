@@ -29,14 +29,44 @@ INSERT INTO recurring_class_templates (
 RETURNING *;
 
 /* @name GetRecurringTemplates */
-SELECT *
+SELECT
+  id,
+  branch_id,
+  name,
+  instructor,
+  day_of_week,
+  start_time,
+  duration_minutes,
+  capacity,
+  waitlist_capacity,
+  is_active,
+  start_date,
+  end_date,
+  created_at,
+  updated_at,
+  created_by
 FROM recurring_class_templates
 WHERE branch_id = :branchId!
   AND is_active = true
 ORDER BY day_of_week ASC, start_time ASC;
 
 /* @name GetRecurringTemplateById */
-SELECT *
+SELECT
+  id,
+  branch_id,
+  name,
+  instructor,
+  day_of_week,
+  start_time,
+  duration_minutes,
+  capacity,
+  waitlist_capacity,
+  is_active,
+  start_date,
+  end_date,
+  created_at,
+  updated_at,
+  created_by
 FROM recurring_class_templates
 WHERE id = :templateId!
   AND branch_id = :branchId!;
@@ -90,7 +120,15 @@ INSERT INTO holiday_exceptions (
 RETURNING *;
 
 /* @name GetHolidayExceptions */
-SELECT *
+SELECT
+  id,
+  branch_id,
+  name,
+  exception_date,
+  is_closure,
+  notes,
+  created_at,
+  created_by
 FROM holiday_exceptions
 WHERE branch_id = :branchId!
   AND exception_date >= :startDate!
@@ -98,7 +136,15 @@ WHERE branch_id = :branchId!
 ORDER BY exception_date ASC;
 
 /* @name GetUpcomingHolidays */
-SELECT *
+SELECT
+  id,
+  branch_id,
+  name,
+  exception_date,
+  is_closure,
+  notes,
+  created_at,
+  created_by
 FROM holiday_exceptions
 WHERE branch_id = :branchId!
   AND exception_date >= CURRENT_DATE

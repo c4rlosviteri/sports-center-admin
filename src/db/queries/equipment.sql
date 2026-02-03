@@ -15,7 +15,14 @@ INSERT INTO equipment_types (
 RETURNING *;
 
 /* @name GetEquipmentTypes */
-SELECT *
+SELECT
+  id,
+  branch_id,
+  name,
+  description,
+  icon,
+  requires_assignment,
+  created_at
 FROM equipment_types
 WHERE branch_id = :branchId!
 ORDER BY name;
@@ -139,7 +146,13 @@ WHERE id = :equipmentId!
 RETURNING *;
 
 /* @name GetAvailableEquipmentForClass */
-SELECT * FROM get_available_equipment_for_class(:classId!, :equipmentTypeId!);
+SELECT
+  equipment_id,
+  equipment_number,
+  equipment_name,
+  condition,
+  is_preferred
+FROM get_available_equipment_for_class(:classId!, :equipmentTypeId!);
 
 /* @name CreateEquipmentAssignment */
 INSERT INTO equipment_assignments (
@@ -406,7 +419,15 @@ WHERE id = :issueId!
 RETURNING *;
 
 /* @name GetEquipmentUtilizationStats */
-SELECT * FROM get_equipment_utilization_stats(:branchId!, :startDate!, :endDate!);
+SELECT
+  equipment_id,
+  equipment_number,
+  equipment_type,
+  total_assignments,
+  total_usage_hours,
+  avg_usage_per_class,
+  utilization_rate
+FROM get_equipment_utilization_stats(:branchId!, :startDate!, :endDate!);
 
 /* @name GetEquipmentSummary */
 SELECT

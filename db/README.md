@@ -42,10 +42,10 @@ The seed script creates:
 - **Users**:
   - Superuser: `admin@biciantro.ec` / `password123`
   - Admin: `branch.admin@biciantro.ec` / `password123`
-  - Client 1: `juan.perez@example.com` / `password123` (active membership, 5 classes remaining)
-  - Client 2: `ana.torres@example.com` / `password123` (active membership, 3 classes remaining)
-  - Client 3: `carlos.ruiz@example.com` / `password123` (expired membership)
-- **Plans**: 4 membership plans (1, 2, 3 classes/week, unlimited)
+  - Client 1: `juan.perez@example.com` / `password123` (active package, 5 classes remaining)
+  - Client 2: `ana.torres@example.com` / `password123` (active package, 3 classes remaining)
+  - Client 3: `carlos.ruiz@example.com` / `password123` (expired package)
+- **Packages**: 4 class packages (1, 2, 3 classes/week, unlimited)
 - **Classes**: 6 scheduled classes over 3 days
 - **Bookings**: 3 confirmed bookings
 - **Payments**: 2 payment records

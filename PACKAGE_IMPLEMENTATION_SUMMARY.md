@@ -20,9 +20,9 @@
 - Removed gift/share/VIP/waitlist checkboxes from create/edit dialogs
 - Hardcoded values: `isGiftEligible: false`, `isShareable: false`, `priorityBooking: false`, `allowsWaitlist: true`
 - Removed "Opciones" column from packages table
-- Updated navigation: "Planes" now links to packages page (replaced old plans)
+- Updated navigation: "Planes" now links to packages page
 
-### 4. Migration System - SUPERUSER SUPPORT ✅
+### 4. Package Listing - SUPERUSER SUPPORT ✅
 
 #### **Major Changes Implemented:**
 
@@ -30,22 +30,12 @@
 - For superusers: Returns packages from **ALL branches** with branch names
 - For regular admins: Returns packages from their branch only (existing behavior)
 
-**B. `migratePlansToPackages()` - Now migrates ALL branches for superusers**
-- For superusers: Processes **ALL active branches** automatically
-- For admins: Only processes their current branch
-- Creates packages in their original branches (not all in one branch)
-- Detailed logging per branch
-
-**C. `checkMigrationNeeded()` - Now checks ALL branches for superusers**
-- Returns breakdown per branch showing which need migration
-- Shows count of plans and users per branch
-
-**D. Packages Table UI - Shows branch column for superusers**
+**B. Packages Table UI - Shows branch column for superusers**
 - Automatically detects if branch data is present
 - Shows "Sucursal" column with branch badges when viewing as superuser
 - Table header and cells adapt dynamically
 
-**E. Automatic Migration Runner**
+**C. Automatic Migration Runner**
 - Client-side component `MigrationRunner` runs migrations on page load
 - Calls `/api/admin/migrate` endpoint
 - Refreshes data automatically after migration completes
@@ -67,14 +57,8 @@
 
 ### Superuser Multi-Branch Support
 
-**Before:**
-- Only migrated plans from current branch
-- Only showed packages from current branch
-- No visibility into other branches
-
 **After:**
 - Superusers see packages from ALL branches
-- Superusers migrate plans from ALL branches at once
 - Branch column visible in table for superusers
 - Each package keeps its original branch association
 
@@ -83,16 +67,12 @@
 1. **Page loads** → Client component `MigrationRunner` triggers
 2. **API call** → POST to `/api/admin/migrate`
 3. **Database migrations** → Run pending schema migrations
-4. **Plan migration check** → Check all branches for plans to migrate
-5. **Migrate all branches** → Convert plans to packages per branch
-6. **User assignments** → Old client memberships become packages
-7. **Toast notification** → Show migration results
-8. **Data refresh** → Refresh packages table with new data
+4. **Toast notification** → Show migration results
+5. **Data refresh** → Refresh packages table with new data
 
 ## Files Created/Modified
 
 ### New Files
-- `src/actions/migrate-plans.ts` - Plan to package migration with multi-branch support
 - `src/actions/package-invitations.ts` - Invitation system server actions
 - `src/lib/migrations.ts` - Database migration runner
 - `src/app/(dashboard)/admin/packages/share-package-dialog.tsx` - Share UI
@@ -129,37 +109,19 @@
 4. No branch column shown (not needed)
 5. Can only manage their branch's packages
 
-## Migration from Plans to Packages
-
-**Class Count Mapping:**
-- Weekly plans → 2 classes
-- Monthly plans → 8 classes
-- Yearly plans → 96 classes
-- Unlimited plans → 9999 classes (marker for unlimited)
-
-**Branch Assignment:**
-- Packages created in the same branch as the original plan
-- User packages assigned to the same branch as their original membership
-- Superusers can see and manage all branches
-
-**Data Integrity:**
-- Old memberships marked as inactive after migration
-- New user_class_packages created with same validity periods
-- Orphaned memberships (missing users) are skipped with warnings
-
 ## Testing
 
 - Run `npx tsc --noEmit` - No TypeScript errors
 - Run `npx biome check src/app/(dashboard)/admin/packages` - No lint errors
 - Token validation logic tested and working
-- Migration scripts handle edge cases (missing users, transaction failures)
+- Migration scripts handle edge cases (missing user accounts, transaction failures)
 - Multi-branch support tested for superusers
 
 ## Next Steps
 
 1. **Visit `/admin/packages`** - Migrations run automatically on page load
 2. **Check toast notifications** - Will show migration status
-3. **Verify packages appear** - Should see all migrated plans as packages
+3. **Verify packages appear** - Should see packages for the current branch (or all branches for superusers)
 4. **For superusers** - Will see branch column showing which branch each package belongs to
 5. **Test creating new packages** - Should work for current branch (or all branches for superusers)
 
@@ -171,6 +133,5 @@
 - For superusers: packages should show from ALL branches with branch badges
 
 ### Migration errors?
-- Check console for detailed error messages per branch
-- Orphaned memberships are skipped (users not found)
+- Check console for detailed error messages
 - Failed migrations are logged but don't stop other branches from processing

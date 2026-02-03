@@ -114,3 +114,40 @@ WHERE id = :userId!;
 
 /* @name CheckUserRole */
 SELECT role FROM "user" WHERE id = :userId!;
+
+/* @name CheckAdminBranchAccess */
+SELECT 1 as has_access
+FROM admin_branch_assignments
+WHERE admin_id = :adminId! AND branch_id = :branchId!;
+
+/* @name CreateBranchSettings */
+INSERT INTO branch_settings (
+  branch_id,
+  cancellation_hours_before,
+  booking_hours_before,
+  timezone
+) VALUES (
+  :branchId!,
+  :cancellationHoursBefore!,
+  :bookingHoursBefore!,
+  :timezone!
+) RETURNING id, branch_id, cancellation_hours_before, booking_hours_before, timezone, created_at;
+
+/* @name UpdateBranchSettings */
+UPDATE branch_settings
+SET cancellation_hours_before = :cancellationHoursBefore!,
+    booking_hours_before = :bookingHoursBefore!,
+    updated_at = CURRENT_TIMESTAMP
+WHERE branch_id = :branchId!
+RETURNING id, branch_id, cancellation_hours_before, booking_hours_before, updated_at;
+
+/* @name CreateNotificationSetting */
+INSERT INTO notification_settings (
+  branch_id,
+  notification_type,
+  is_enabled
+) VALUES (
+  :branchId!,
+  :notificationType!,
+  :isEnabled!
+) RETURNING id, branch_id, notification_type, is_enabled, created_at;

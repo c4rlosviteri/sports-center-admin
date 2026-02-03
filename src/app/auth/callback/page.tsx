@@ -14,9 +14,9 @@ export default async function AuthCallbackPage() {
     redirect('/login')
   }
 
-  // For OAuth users without a branch, they may need to complete profile
+  // For OAuth user accounts without a branch, they may need to complete profile
   // This could redirect to a "complete profile" page if needed
-  // For now, we assume OAuth users are existing users
+  // For now, we assume OAuth user accounts already exist in the system
 
   // Redirect based on role
   if (session.user.role === 'client') {

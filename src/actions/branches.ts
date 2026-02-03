@@ -78,12 +78,11 @@ export async function getBranch(branchId: string) {
 
   // Check if admin has access to this branch
   if (session.user.role === 'admin') {
-    const accessCheck = await pool.query(
-      `SELECT 1 FROM admin_branch_assignments 
-       WHERE admin_id = $1 AND branch_id = $2`,
-      [session.user.id, branchId]
+    const accessCheck = await branches.checkAdminBranchAccess.run(
+      { adminId: session.user.id, branchId },
+      pool
     )
-    if (accessCheck.rows.length === 0) {
+    if (accessCheck.length === 0) {
       throw new Error('No tienes acceso a esta sucursal')
     }
   }
@@ -136,34 +135,47 @@ export async function createBranch(formData: FormData) {
     await client.query('BEGIN')
 
     // Create branch
-    const branchResult = await client.query(
-      `INSERT INTO branches (name, address, phone, email, is_active) 
-       VALUES ($1, $2, $3, $4, true) 
-       RETURNING id`,
-      [name, address, phone, email]
+    const branchResult = await branches.createBranch.run(
+      {
+        name,
+        address: address || null,
+        phone: phone || null,
+        email: email || null,
+      },
+      client
     )
 
-    const branchId = branchResult.rows[0].id
+    const branchId = branchResult[0]?.id
+    if (!branchId) {
+      throw new Error('No se pudo crear la sucursal')
+    }
 
     // Create default branch settings
-    await client.query(
-      `INSERT INTO branch_settings (branch_id, cancellation_hours_before, booking_hours_before, timezone)
-       VALUES ($1, 2, 0, 'America/Guayaquil')`,
-      [branchId]
+    await branches.createBranchSettings.run(
+      {
+        branchId,
+        cancellationHoursBefore: 2,
+        bookingHoursBefore: 0,
+        timezone: 'America/Guayaquil',
+      },
+      client
     )
 
     // Create default notification settings
-    const notificationTypes = [
+    const notificationTypes: branches.notification_type[] = [
       'booking_confirmation',
       'booking_cancellation',
       'package_expiration',
       'waitlist_promotion',
     ]
     for (const type of notificationTypes) {
-      await client.query(
-        `INSERT INTO notification_settings (branch_id, notification_type, is_enabled) 
-         VALUES ($1, $2, true)`,
-        [branchId, type]
+      await branches.createNotificationSetting.run(
+        {
+          branchId,
+          notificationType: type,
+          isEnabled: true,
+        },
+        client
       )
     }
 
@@ -206,11 +218,16 @@ export async function updateBranch(branchId: string, formData: FormData) {
     throw new Error('El nombre de la sucursal es requerido')
   }
 
-  await pool.query(
-    `UPDATE branches 
-     SET name = $1, address = $2, phone = $3, email = $4, is_active = $5, updated_at = CURRENT_TIMESTAMP 
-     WHERE id = $6`,
-    [name, address, phone, email, isActive, branchId]
+  await branches.updateBranch.run(
+    {
+      branchId,
+      name,
+      address: address || null,
+      phone: phone || null,
+      email: email || null,
+      isActive,
+    },
+    pool
   )
 
   await logAdminAction(
@@ -234,15 +251,9 @@ export async function toggleBranchStatus(branchId: string) {
     throw new Error('No autorizado')
   }
 
-  const result = await pool.query(
-    `UPDATE branches 
-     SET is_active = NOT is_active, updated_at = CURRENT_TIMESTAMP 
-     WHERE id = $1 
-     RETURNING is_active, name`,
-    [branchId]
-  )
+  const result = await branches.toggleBranchStatus.run({ branchId }, pool)
 
-  if (result.rows.length === 0) {
+  if (result.length === 0) {
     throw new Error('Sucursal no encontrada')
   }
 
@@ -251,11 +262,11 @@ export async function toggleBranchStatus(branchId: string) {
     'toggle_status',
     'branch',
     branchId,
-    `Sucursal ${result.rows[0].is_active ? 'activada' : 'desactivada'}: ${result.rows[0].name}`
+    `Sucursal ${result[0].is_active ? 'activada' : 'desactivada'}: ${result[0].name}`
   )
 
   revalidatePath('/admin')
-  return { success: true, isActive: result.rows[0].is_active }
+  return { success: true, isActive: result[0].is_active }
 }
 
 /**
@@ -272,32 +283,19 @@ export async function assignAdminToBranch(
   }
 
   // Verify user is an admin
-  const userCheck = await pool.query(`SELECT role FROM users WHERE id = $1`, [
-    adminId,
-  ])
+  const userCheck = await branches.checkUserRole.run({ userId: adminId }, pool)
 
-  if (userCheck.rows.length === 0 || userCheck.rows[0].role !== 'admin') {
+  if (userCheck.length === 0 || userCheck[0].role !== 'admin') {
     throw new Error('El usuario debe ser un administrador')
   }
 
   // If setting as primary, unset other primaries for this admin
   if (isPrimary) {
-    await pool.query(
-      `UPDATE admin_branch_assignments 
-       SET is_primary = false 
-       WHERE admin_id = $1`,
-      [adminId]
-    )
+    await branches.unsetOtherPrimaryBranches.run({ adminId }, pool)
   }
 
   // Insert or update assignment
-  await pool.query(
-    `INSERT INTO admin_branch_assignments (admin_id, branch_id, is_primary) 
-     VALUES ($1, $2, $3)
-     ON CONFLICT (admin_id, branch_id) 
-     DO UPDATE SET is_primary = $3, updated_at = CURRENT_TIMESTAMP`,
-    [adminId, branchId, isPrimary]
-  )
+  await branches.assignAdminToBranch.run({ adminId, branchId, isPrimary }, pool)
 
   await logAdminAction(
     session.user.id,
@@ -320,11 +318,7 @@ export async function removeAdminFromBranch(adminId: string, branchId: string) {
     throw new Error('No autorizado')
   }
 
-  await pool.query(
-    `DELETE FROM admin_branch_assignments 
-     WHERE admin_id = $1 AND branch_id = $2`,
-    [adminId, branchId]
-  )
+  await branches.removeAdminFromBranch.run({ adminId, branchId }, pool)
 
   await logAdminAction(
     session.user.id,
@@ -351,31 +345,23 @@ export async function transferClientToBranch(
   }
 
   // Verify user is a client
-  const userCheck = await pool.query(
-    `SELECT role, branch_id, first_name, last_name FROM users WHERE id = $1`,
-    [userId]
-  )
+  const userCheck = await branches.getUserForTransfer.run({ userId }, pool)
 
-  if (userCheck.rows.length === 0 || userCheck.rows[0].role !== 'client') {
+  if (userCheck.length === 0 || userCheck[0].role !== 'client') {
     throw new Error('El usuario debe ser un cliente')
   }
 
-  const oldBranchId = userCheck.rows[0].branch_id
+  const oldBranchId = userCheck[0].branch_id
 
   // Update user's branch
-  await pool.query(
-    `UPDATE users 
-     SET branch_id = $1, updated_at = CURRENT_TIMESTAMP 
-     WHERE id = $2`,
-    [newBranchId, userId]
-  )
+  await branches.transferClientToBranch.run({ userId, newBranchId }, pool)
 
   await logAdminAction(
     session.user.id,
     'transfer',
     'user',
     userId,
-    `Cliente ${userCheck.rows[0].first_name} ${userCheck.rows[0].last_name} transferido de sucursal ${oldBranchId} a ${newBranchId}`
+    `Cliente ${userCheck[0].first_name} ${userCheck[0].last_name} transferido de sucursal ${oldBranchId} a ${newBranchId}`
   )
 
   revalidatePath('/admin/users')
@@ -396,12 +382,11 @@ export async function updateBranchSettings(
 
   // Check if admin has access to this branch
   if (session.user.role === 'admin') {
-    const accessCheck = await pool.query(
-      `SELECT 1 FROM admin_branch_assignments
-       WHERE admin_id = $1 AND branch_id = $2`,
-      [session.user.id, branchId]
+    const accessCheck = await branches.checkAdminBranchAccess.run(
+      { adminId: session.user.id, branchId },
+      pool
     )
-    if (accessCheck.rows.length === 0) {
+    if (accessCheck.length === 0) {
       throw new Error('No tienes acceso a esta sucursal')
     }
   }
@@ -423,11 +408,9 @@ export async function updateBranchSettings(
     throw new Error('Horas de restricción de reserva inválidas')
   }
 
-  await pool.query(
-    `UPDATE branch_settings
-     SET cancellation_hours_before = $1, booking_hours_before = $2, updated_at = CURRENT_TIMESTAMP
-     WHERE branch_id = $3`,
-    [cancellationHoursBefore, bookingHoursBefore, branchId]
+  await branches.updateBranchSettings.run(
+    { branchId, cancellationHoursBefore, bookingHoursBefore },
+    pool
   )
 
   await logAdminAction(
@@ -457,17 +440,14 @@ export async function deleteBranch(
   }
 
   // Check if branch has any associated data
-  const checkResult = await pool.query(
-    `SELECT 
-      (SELECT COUNT(*) FROM users WHERE branch_id = $1) as users_count,
-      (SELECT COUNT(*) FROM classes WHERE branch_id = $1) as classes_count
-    `,
-    [branchId]
-  )
+  const checkResult = await branches.checkBranchData.run({ branchId }, pool)
 
-  const { users_count, classes_count } = checkResult.rows[0]
+  const { users_count, classes_count } = checkResult[0]
 
-  if (parseInt(users_count, 10) > 0 || parseInt(classes_count, 10) > 0) {
+  if (
+    parseInt(users_count ?? '0', 10) > 0 ||
+    parseInt(classes_count ?? '0', 10) > 0
+  ) {
     return {
       success: false,
       message: `No se puede eliminar la sucursal. Tiene ${users_count} usuarios y ${classes_count} clases asociadas.`,
@@ -475,12 +455,9 @@ export async function deleteBranch(
   }
 
   // Delete the branch
-  const result = await pool.query(
-    'DELETE FROM branches WHERE id = $1 RETURNING name',
-    [branchId]
-  )
+  const result = await branches.deleteBranch.run({ branchId }, pool)
 
-  if (result.rowCount === 0) {
+  if (result.length === 0) {
     return { success: false, message: 'Sucursal no encontrada' }
   }
 
@@ -489,7 +466,7 @@ export async function deleteBranch(
     'delete',
     'branch',
     branchId,
-    `Sucursal ${result.rows[0].name} eliminada`
+    `Sucursal ${result[0].name} eliminada`
   )
 
   revalidatePath('/admin/branches')

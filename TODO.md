@@ -9,8 +9,8 @@ N# Remaining Implementation Tasks
 
 ### Backend
 - [x] Authentication server functions (login, register, logout, getSession)
-- [x] Classes server functions (getClassesByDate, getUserBookings, getUserActiveMembership, createBooking, cancelBooking)
-- [x] Admin server functions (getBranchStats, getMembershipPlans, createMembershipPlan, togglePlanStatus, getBranchUsers, createInviteLink, createClass, registerPayment, getRecentBookings)
+- [x] Classes server functions (getClassesByDate, getUserBookings, getUserActivePackage, createBooking, cancelBooking)
+- [x] Admin server functions (getBranchStats, getPackageTemplates, createPackageTemplate, togglePackageStatus, getBranchUsers, createInviteLink, createClass, registerPayment, getRecentBookings)
 - [x] Booking service with business logic (10/10 tests passing)
 - [x] Email notification service
 - [x] Validation schemas
@@ -22,7 +22,7 @@ N# Remaining Implementation Tasks
 - [x] Client dashboard with real data loading
 - [x] Client classes page with calendar and booking
 - [x] Admin dashboard with stats and metrics
-- [x] Admin plans management
+- [x] Admin packages management
 - [x] Admin users management
 - [x] Admin classes calendar
 - [x] Admin payments page
@@ -43,14 +43,14 @@ N# Remaining Implementation Tasks
    - [x] Stats cards with real metrics
    - [x] Upcoming classes list
    - [x] Recent bookings list
-   - [x] Expiring memberships alerts
+- [x] Expiring package alerts
    - [x] Quick action links
 
-3. **Admin Plans Page** (`src/app/(dashboard)/admin/plans/`)
-   - [x] Using real data via `getAllPlans` action
-   - [x] Create plan dialog implemented
-   - [x] Edit plan dialog implemented
-   - [x] Plans table with toggle status
+3. **Admin Packages Page** (`src/app/(dashboard)/admin/packages/`)
+   - [x] Using real data via `getAllPackageTemplates` action
+   - [x] Create package dialog implemented
+   - [x] Edit package dialog implemented
+   - [x] Packages table with toggle status
 
 4. **Admin Users Page** (`src/app/(dashboard)/admin/users/`)
    - [x] Using real data via `getAllUsers` action
@@ -75,7 +75,7 @@ N# Remaining Implementation Tasks
 - [ ] Payment history view
 - [ ] Reports and analytics
 - [ ] Class history/attendance tracking
-- [ ] Membership renewal flow
+- [ ] Package renewal flow
 - [ ] Waitlist notification system
 - [ ] Branch settings management UI
 
@@ -146,7 +146,7 @@ N# Remaining Implementation Tasks
 - ✅ `src/app/(dashboard)/client/payments/page.tsx`
 - ✅ `src/app/(dashboard)/admin/page.tsx`
 - ✅ `src/app/(dashboard)/admin/classes/page.tsx`
-- ✅ `src/app/(dashboard)/admin/plans/page.tsx`
+- ✅ `src/app/(dashboard)/admin/packages/page.tsx`
 - ✅ `src/app/(dashboard)/admin/users/page.tsx`
 - ✅ `src/app/(dashboard)/admin/payments/page.tsx`
 - ✅ `src/app/(dashboard)/admin/branches/page.tsx`

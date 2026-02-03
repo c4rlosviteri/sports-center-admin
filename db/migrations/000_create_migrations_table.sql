@@ -1,6 +1,6 @@
--- Migration: Create Migrations Tracking Table
--- Date: 2026-01-24
--- Description: Adds a table to track which migrations have been applied
+-- Migration: Create schema_migrations table
+-- Date: 2026-02-03
+-- Description: Bootstraps migration tracking for databases that predate schema.sql
 
 CREATE TABLE IF NOT EXISTS schema_migrations (
   id SERIAL PRIMARY KEY,
@@ -12,11 +12,10 @@ CREATE TABLE IF NOT EXISTS schema_migrations (
   success BOOLEAN DEFAULT true
 );
 
--- Create index for faster version lookups
 CREATE INDEX IF NOT EXISTS idx_schema_migrations_version ON schema_migrations(version);
 CREATE INDEX IF NOT EXISTS idx_schema_migrations_applied_at ON schema_migrations(applied_at DESC);
 
--- Insert this migration itself
+-- Mark baseline schema as initialized (schema.sql uses version 001)
 INSERT INTO schema_migrations (version, name, checksum, success)
-VALUES ('000', 'create_migrations_table', MD5('create_migrations_table'), true)
+VALUES ('001', 'initial_schema_consolidated', MD5('schema_consolidated_2026_02_03'), true)
 ON CONFLICT (version) DO NOTHING;

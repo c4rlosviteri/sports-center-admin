@@ -1,6 +1,8 @@
 /** Types generated for queries found in "src/db/queries/branches.sql" */
 import { PreparedQuery } from '@pgtyped/runtime';
 
+export type notification_type = 'booking_cancellation' | 'booking_confirmation' | 'package_expiration' | 'waitlist_promotion';
+
 export type user_role = 'admin' | 'client' | 'superuser';
 
 /** 'GetAllBranches' parameters type */
@@ -515,5 +517,161 @@ const checkUserRoleIR: any = {"usedParamSet":{"userId":true},"params":[{"name":"
  * ```
  */
 export const checkUserRole = new PreparedQuery<CheckUserRoleParams,CheckUserRoleResult>(checkUserRoleIR);
+
+
+/** 'CheckAdminBranchAccess' parameters type */
+export interface CheckAdminBranchAccessParams {
+  adminId: string;
+  branchId: string;
+}
+
+/** 'CheckAdminBranchAccess' return type */
+export interface CheckAdminBranchAccessResult {
+  has_access: number | null;
+}
+
+/** 'CheckAdminBranchAccess' query type */
+export interface CheckAdminBranchAccessQuery {
+  params: CheckAdminBranchAccessParams;
+  result: CheckAdminBranchAccessResult;
+}
+
+const checkAdminBranchAccessIR: any = {"usedParamSet":{"adminId":true,"branchId":true},"params":[{"name":"adminId","required":true,"transform":{"type":"scalar"},"locs":[{"a":70,"b":78}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":96,"b":105}]}],"statement":"SELECT 1 as has_access\nFROM admin_branch_assignments\nWHERE admin_id = :adminId! AND branch_id = :branchId!"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * SELECT 1 as has_access
+ * FROM admin_branch_assignments
+ * WHERE admin_id = :adminId! AND branch_id = :branchId!
+ * ```
+ */
+export const checkAdminBranchAccess = new PreparedQuery<CheckAdminBranchAccessParams,CheckAdminBranchAccessResult>(checkAdminBranchAccessIR);
+
+
+/** 'CreateBranchSettings' parameters type */
+export interface CreateBranchSettingsParams {
+  bookingHoursBefore: number;
+  branchId: string;
+  cancellationHoursBefore: number;
+  timezone: string;
+}
+
+/** 'CreateBranchSettings' return type */
+export interface CreateBranchSettingsResult {
+  /** Minimum hours before class start time that users can book (0 = no restriction) */
+  booking_hours_before: number;
+  branch_id: string;
+  cancellation_hours_before: number;
+  created_at: Date | null;
+  id: string;
+  timezone: string;
+}
+
+/** 'CreateBranchSettings' query type */
+export interface CreateBranchSettingsQuery {
+  params: CreateBranchSettingsParams;
+  result: CreateBranchSettingsResult;
+}
+
+const createBranchSettingsIR: any = {"usedParamSet":{"branchId":true,"cancellationHoursBefore":true,"bookingHoursBefore":true,"timezone":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":120,"b":129}]},{"name":"cancellationHoursBefore","required":true,"transform":{"type":"scalar"},"locs":[{"a":134,"b":158}]},{"name":"bookingHoursBefore","required":true,"transform":{"type":"scalar"},"locs":[{"a":163,"b":182}]},{"name":"timezone","required":true,"transform":{"type":"scalar"},"locs":[{"a":187,"b":196}]}],"statement":"INSERT INTO branch_settings (\n  branch_id,\n  cancellation_hours_before,\n  booking_hours_before,\n  timezone\n) VALUES (\n  :branchId!,\n  :cancellationHoursBefore!,\n  :bookingHoursBefore!,\n  :timezone!\n) RETURNING id, branch_id, cancellation_hours_before, booking_hours_before, timezone, created_at"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * INSERT INTO branch_settings (
+ *   branch_id,
+ *   cancellation_hours_before,
+ *   booking_hours_before,
+ *   timezone
+ * ) VALUES (
+ *   :branchId!,
+ *   :cancellationHoursBefore!,
+ *   :bookingHoursBefore!,
+ *   :timezone!
+ * ) RETURNING id, branch_id, cancellation_hours_before, booking_hours_before, timezone, created_at
+ * ```
+ */
+export const createBranchSettings = new PreparedQuery<CreateBranchSettingsParams,CreateBranchSettingsResult>(createBranchSettingsIR);
+
+
+/** 'UpdateBranchSettings' parameters type */
+export interface UpdateBranchSettingsParams {
+  bookingHoursBefore: number;
+  branchId: string;
+  cancellationHoursBefore: number;
+}
+
+/** 'UpdateBranchSettings' return type */
+export interface UpdateBranchSettingsResult {
+  /** Minimum hours before class start time that users can book (0 = no restriction) */
+  booking_hours_before: number;
+  branch_id: string;
+  cancellation_hours_before: number;
+  id: string;
+  updated_at: Date | null;
+}
+
+/** 'UpdateBranchSettings' query type */
+export interface UpdateBranchSettingsQuery {
+  params: UpdateBranchSettingsParams;
+  result: UpdateBranchSettingsResult;
+}
+
+const updateBranchSettingsIR: any = {"usedParamSet":{"cancellationHoursBefore":true,"bookingHoursBefore":true,"branchId":true},"params":[{"name":"cancellationHoursBefore","required":true,"transform":{"type":"scalar"},"locs":[{"a":55,"b":79}]},{"name":"bookingHoursBefore","required":true,"transform":{"type":"scalar"},"locs":[{"a":109,"b":128}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":184,"b":193}]}],"statement":"UPDATE branch_settings\nSET cancellation_hours_before = :cancellationHoursBefore!,\n    booking_hours_before = :bookingHoursBefore!,\n    updated_at = CURRENT_TIMESTAMP\nWHERE branch_id = :branchId!\nRETURNING id, branch_id, cancellation_hours_before, booking_hours_before, updated_at"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * UPDATE branch_settings
+ * SET cancellation_hours_before = :cancellationHoursBefore!,
+ *     booking_hours_before = :bookingHoursBefore!,
+ *     updated_at = CURRENT_TIMESTAMP
+ * WHERE branch_id = :branchId!
+ * RETURNING id, branch_id, cancellation_hours_before, booking_hours_before, updated_at
+ * ```
+ */
+export const updateBranchSettings = new PreparedQuery<UpdateBranchSettingsParams,UpdateBranchSettingsResult>(updateBranchSettingsIR);
+
+
+/** 'CreateNotificationSetting' parameters type */
+export interface CreateNotificationSettingParams {
+  branchId: string;
+  isEnabled: boolean;
+  notificationType: notification_type;
+}
+
+/** 'CreateNotificationSetting' return type */
+export interface CreateNotificationSettingResult {
+  branch_id: string;
+  created_at: Date | null;
+  id: string;
+  is_enabled: boolean | null;
+  notification_type: notification_type;
+}
+
+/** 'CreateNotificationSetting' query type */
+export interface CreateNotificationSettingQuery {
+  params: CreateNotificationSettingParams;
+  result: CreateNotificationSettingResult;
+}
+
+const createNotificationSettingIR: any = {"usedParamSet":{"branchId":true,"notificationType":true,"isEnabled":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":96,"b":105}]},{"name":"notificationType","required":true,"transform":{"type":"scalar"},"locs":[{"a":110,"b":127}]},{"name":"isEnabled","required":true,"transform":{"type":"scalar"},"locs":[{"a":132,"b":142}]}],"statement":"INSERT INTO notification_settings (\n  branch_id,\n  notification_type,\n  is_enabled\n) VALUES (\n  :branchId!,\n  :notificationType!,\n  :isEnabled!\n) RETURNING id, branch_id, notification_type, is_enabled, created_at"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * INSERT INTO notification_settings (
+ *   branch_id,
+ *   notification_type,
+ *   is_enabled
+ * ) VALUES (
+ *   :branchId!,
+ *   :notificationType!,
+ *   :isEnabled!
+ * ) RETURNING id, branch_id, notification_type, is_enabled, created_at
+ * ```
+ */
+export const createNotificationSetting = new PreparedQuery<CreateNotificationSettingParams,CreateNotificationSettingResult>(createNotificationSettingIR);
 
 

@@ -65,13 +65,44 @@ ON CONFLICT (user_id) DO UPDATE SET
 RETURNING *;
 
 /* @name GetHealthProfile */
-SELECT *
+SELECT
+  id,
+  user_id,
+  branch_id,
+  medical_conditions,
+  current_injuries,
+  medications,
+  allergies,
+  fitness_level,
+  fitness_goals,
+  exercise_restrictions,
+  height_cm,
+  weight_kg,
+  previous_injuries,
+  surgery_history,
+  medical_release_signed,
+  medical_release_date,
+  liability_waiver_signed,
+  liability_waiver_date,
+  doctor_name,
+  doctor_phone,
+  notes,
+  created_at,
+  updated_at
 FROM client_health_profiles
 WHERE user_id = :userId!
   AND branch_id = :branchId!;
 
 /* @name GetHealthSummaryForInstructor */
-SELECT * FROM get_client_health_summary(:userId!);
+SELECT
+  has_medical_conditions,
+  has_current_injuries,
+  fitness_level,
+  restrictions,
+  medical_clearance,
+  emergency_contact_name,
+  emergency_contact_phone
+FROM get_client_health_summary(:userId!);
 
 /* @name CheckMedicalClearance */
 SELECT has_medical_clearance(:userId!) as has_clearance;
@@ -101,7 +132,19 @@ INSERT INTO emergency_contacts (
 RETURNING *;
 
 /* @name GetEmergencyContacts */
-SELECT *
+SELECT
+  id,
+  user_id,
+  branch_id,
+  contact_name,
+  relationship,
+  phone_primary,
+  phone_secondary,
+  email,
+  is_primary,
+  notes,
+  created_at,
+  updated_at
 FROM emergency_contacts
 WHERE user_id = :userId!
   AND branch_id = :branchId!
@@ -324,7 +367,25 @@ INSERT INTO parq_questionnaires (
 RETURNING *;
 
 /* @name GetLatestParq */
-SELECT *
+SELECT
+  id,
+  user_id,
+  branch_id,
+  submission_date,
+  heart_condition,
+  chest_pain_activity,
+  chest_pain_rest,
+  dizziness_balance,
+  bone_joint_problem,
+  blood_pressure_medication,
+  other_reason,
+  other_reason_details,
+  physician_approval_required,
+  physician_approval_received,
+  physician_approval_date,
+  client_signature_data,
+  staff_signature_data,
+  created_at
 FROM parq_questionnaires
 WHERE user_id = :userId!
   AND branch_id = :branchId!
@@ -353,7 +414,10 @@ SELECT
 FROM "user" u
 LEFT JOIN client_health_profiles chp ON u.id = chp.user_id
 LEFT JOIN LATERAL (
-  SELECT * FROM parq_questionnaires
+  SELECT
+    physician_approval_required,
+    physician_approval_received
+  FROM parq_questionnaires
   WHERE user_id = u.id
   ORDER BY submission_date DESC
   LIMIT 1
@@ -365,4 +429,4 @@ WHERE u.branch_id = :branchId!
     OR chp.liability_waiver_signed = false
     OR (pq.physician_approval_required = true AND pq.physician_approval_received = false)
   )
-ORDER BY u.created_at DESC;
+ORDER BY u."createdAt" DESC;

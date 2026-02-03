@@ -48,6 +48,31 @@ LEFT JOIN "user" u ON p.recorded_by = u.id
 WHERE p.user_id = :userId!
 ORDER BY p.payment_date DESC;
 
+/* @name GetPaymentForAdmin */
+SELECT
+  p.id,
+  p.user_id,
+  p.amount,
+  u.branch_id
+FROM payments p
+JOIN "user" u ON p.user_id = u.id
+WHERE p.id = :paymentId!
+  AND u.branch_id = :branchId!;
+
+/* @name UpdatePayment */
+UPDATE payments
+SET amount = :amount!,
+    payment_date = :paymentDate!,
+    notes = :notes,
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = :paymentId!
+RETURNING id;
+
+/* @name DeletePayment */
+DELETE FROM payments
+WHERE id = :paymentId!
+RETURNING id;
+
 /* @name LogAdminAction */
 INSERT INTO admin_action_logs (
   admin_id,
@@ -171,6 +196,79 @@ SELECT
   updated_at
 FROM branches
 ORDER BY created_at DESC;
+
+/* @name CheckAdminBranchAccess */
+SELECT 1 as has_access
+FROM admin_branch_assignments
+WHERE admin_id = :adminId! AND branch_id = :branchId!;
+
+/* @name UpdateUserBranch */
+UPDATE "user"
+SET branch_id = :branchId!,
+    "updatedAt" = CURRENT_TIMESTAMP
+WHERE id = :userId!
+RETURNING id, branch_id;
+
+/* @name GetUserRoleById */
+SELECT role
+FROM "user"
+WHERE id = :userId!;
+
+/* @name GetUserIdByEmail */
+SELECT id
+FROM "user"
+WHERE email = :email!;
+
+/* @name UpdateUserRoleInBranch */
+UPDATE "user"
+SET role = :role!,
+    "updatedAt" = CURRENT_TIMESTAMP
+WHERE id = :userId!
+  AND branch_id = :branchId!
+RETURNING id, role;
+
+/* @name DeleteAdminBranchAssignments */
+DELETE FROM admin_branch_assignments
+WHERE admin_id = :adminId!;
+
+/* @name CreateAdminBranchAssignment */
+INSERT INTO admin_branch_assignments (admin_id, branch_id, is_primary)
+VALUES (:adminId!, :branchId!, :isPrimary!)
+RETURNING admin_id, branch_id, is_primary;
+
+/* @name CountPaymentsRecordedBy */
+SELECT COUNT(*)::int as count
+FROM payments
+WHERE recorded_by = :userId!;
+
+/* @name DeleteUserInBranch */
+DELETE FROM "user"
+WHERE id = :userId!
+  AND branch_id = :branchId!
+RETURNING id;
+
+/* @name CreateUserWithRole */
+INSERT INTO "user" (
+  email,
+  first_name,
+  last_name,
+  phone,
+  role,
+  branch_id
+) VALUES (
+  :email!,
+  :firstName!,
+  :lastName!,
+  :phone,
+  :role!,
+  :branchId!
+)
+RETURNING id;
+
+/* @name CreateAccountCredential */
+INSERT INTO "account" ("userId", "accountId", "providerId", password)
+VALUES (:userId!, :accountId!, 'credential', :password!)
+RETURNING id;
 
 /* @name DeleteUser */
 DELETE FROM "user"
@@ -326,6 +424,49 @@ SELECT
   "createdAt" as created_at
 FROM "user"
 WHERE id = :userId! AND branch_id = :branchId!;
+
+/* @name CreateAdminClass */
+INSERT INTO classes (
+  branch_id,
+  name,
+  instructor,
+  scheduled_at,
+  duration_minutes,
+  capacity,
+  waitlist_capacity,
+  booking_hours_before
+) VALUES (
+  :branchId!,
+  :name!,
+  :instructor!,
+  :scheduledAt!,
+  :durationMinutes!,
+  :capacity!,
+  :waitlistCapacity!,
+  :bookingHoursBefore
+)
+RETURNING id, name, instructor, scheduled_at, duration_minutes, capacity, waitlist_capacity, booking_hours_before;
+
+/* @name UpdateAdminClass */
+UPDATE classes
+SET
+  name = :name!,
+  instructor = :instructor!,
+  scheduled_at = :scheduledAt!,
+  duration_minutes = :durationMinutes!,
+  capacity = :capacity!,
+  waitlist_capacity = :waitlistCapacity!,
+  booking_hours_before = :bookingHoursBefore,
+  updated_at = CURRENT_TIMESTAMP
+WHERE id = :classId!
+  AND branch_id = :branchId!
+RETURNING id;
+
+/* @name DeleteAdminClass */
+DELETE FROM classes
+WHERE id = :classId!
+  AND branch_id = :branchId!
+RETURNING id;
 
 /* @name GetAdminClassesByMonth */
 SELECT

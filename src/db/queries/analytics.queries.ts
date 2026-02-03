@@ -7,127 +7,6 @@ export type Json = null | boolean | number | string | Json[] | { [key: string]: 
 
 export type NumberOrString = number | string;
 
-/** 'GetDailyRevenue' parameters type */
-export interface GetDailyRevenueParams {
-  branchId: string;
-  endDate: DateOrString;
-  startDate: DateOrString;
-}
-
-/** 'GetDailyRevenue' return type */
-export interface GetDailyRevenueResult {
-  avg_transaction: string | null;
-  branch_id: string | null;
-  revenue_date: Date | null;
-  total_revenue: string | null;
-  transaction_count: string | null;
-  unique_customers: string | null;
-}
-
-/** 'GetDailyRevenue' query type */
-export interface GetDailyRevenueQuery {
-  params: GetDailyRevenueParams;
-  result: GetDailyRevenueResult;
-}
-
-const getDailyRevenueIR: any = {"usedParamSet":{"branchId":true,"startDate":true,"endDate":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":49,"b":58}]},{"name":"startDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":82,"b":92}]},{"name":"endDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":116,"b":124}]}],"statement":"SELECT *\nFROM mv_daily_revenue\nWHERE branch_id = :branchId!\n  AND revenue_date >= :startDate!\n  AND revenue_date <= :endDate!\nORDER BY revenue_date DESC"};
-
-/**
- * Query generated from SQL:
- * ```
- * SELECT *
- * FROM mv_daily_revenue
- * WHERE branch_id = :branchId!
- *   AND revenue_date >= :startDate!
- *   AND revenue_date <= :endDate!
- * ORDER BY revenue_date DESC
- * ```
- */
-export const getDailyRevenue = new PreparedQuery<GetDailyRevenueParams,GetDailyRevenueResult>(getDailyRevenueIR);
-
-
-/** 'GetClassPopularity' parameters type */
-export interface GetClassPopularityParams {
-  branchId: string;
-  limit?: NumberOrString | null | void;
-}
-
-/** 'GetClassPopularity' return type */
-export interface GetClassPopularityResult {
-  avg_bookings_per_class: string | null;
-  avg_capacity: string | null;
-  branch_id: string | null;
-  class_name: string | null;
-  day_of_week: string | null;
-  hour_of_day: string | null;
-  instructor: string | null;
-  total_bookings: string | null;
-  total_classes: string | null;
-  total_waitlisted: string | null;
-  utilization_rate: string | null;
-}
-
-/** 'GetClassPopularity' query type */
-export interface GetClassPopularityQuery {
-  params: GetClassPopularityParams;
-  result: GetClassPopularityResult;
-}
-
-const getClassPopularityIR: any = {"usedParamSet":{"branchId":true,"limit":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":52,"b":61}]},{"name":"limit","required":false,"transform":{"type":"scalar"},"locs":[{"a":100,"b":105}]}],"statement":"SELECT *\nFROM mv_class_popularity\nWHERE branch_id = :branchId!\nORDER BY utilization_rate DESC\nLIMIT :limit"};
-
-/**
- * Query generated from SQL:
- * ```
- * SELECT *
- * FROM mv_class_popularity
- * WHERE branch_id = :branchId!
- * ORDER BY utilization_rate DESC
- * LIMIT :limit
- * ```
- */
-export const getClassPopularity = new PreparedQuery<GetClassPopularityParams,GetClassPopularityResult>(getClassPopularityIR);
-
-
-/** 'GetClientRetention' parameters type */
-export interface GetClientRetentionParams {
-  branchId: string;
-  limit?: NumberOrString | null | void;
-}
-
-/** 'GetClientRetention' return type */
-export interface GetClientRetentionResult {
-  active_last_30_days: string | null;
-  active_last_90_days: string | null;
-  avg_lifetime_bookings: string | null;
-  branch_id: string | null;
-  churned_users: string | null;
-  cohort_month: Date | null;
-  retention_rate_30d: string | null;
-  retention_rate_90d: string | null;
-  total_users: string | null;
-}
-
-/** 'GetClientRetention' query type */
-export interface GetClientRetentionQuery {
-  params: GetClientRetentionParams;
-  result: GetClientRetentionResult;
-}
-
-const getClientRetentionIR: any = {"usedParamSet":{"branchId":true,"limit":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":52,"b":61}]},{"name":"limit","required":false,"transform":{"type":"scalar"},"locs":[{"a":96,"b":101}]}],"statement":"SELECT *\nFROM mv_client_retention\nWHERE branch_id = :branchId!\nORDER BY cohort_month DESC\nLIMIT :limit"};
-
-/**
- * Query generated from SQL:
- * ```
- * SELECT *
- * FROM mv_client_retention
- * WHERE branch_id = :branchId!
- * ORDER BY cohort_month DESC
- * LIMIT :limit
- * ```
- */
-export const getClientRetention = new PreparedQuery<GetClientRetentionParams,GetClientRetentionResult>(getClientRetentionIR);
-
-
 /** 'CreateAnalyticsCache' parameters type */
 export interface CreateAnalyticsCacheParams {
   branchId: string;
@@ -200,12 +79,18 @@ export interface GetAnalyticsCacheQuery {
   result: GetAnalyticsCacheResult;
 }
 
-const getAnalyticsCacheIR: any = {"usedParamSet":{"branchId":true,"metricType":true,"metricDate":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":48,"b":57}]},{"name":"metricType","required":true,"transform":{"type":"scalar"},"locs":[{"a":79,"b":90}]},{"name":"metricDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":112,"b":123}]}],"statement":"SELECT *\nFROM analytics_cache\nWHERE branch_id = :branchId!\n  AND metric_type = :metricType!\n  AND metric_date = :metricDate!"};
+const getAnalyticsCacheIR: any = {"usedParamSet":{"branchId":true,"metricType":true,"metricDate":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":127,"b":136}]},{"name":"metricType","required":true,"transform":{"type":"scalar"},"locs":[{"a":158,"b":169}]},{"name":"metricDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":191,"b":202}]}],"statement":"SELECT\n  id,\n  branch_id,\n  metric_type,\n  metric_date,\n  metric_value,\n  calculated_at\nFROM analytics_cache\nWHERE branch_id = :branchId!\n  AND metric_type = :metricType!\n  AND metric_date = :metricDate!"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT *
+ * SELECT
+ *   id,
+ *   branch_id,
+ *   metric_type,
+ *   metric_date,
+ *   metric_value,
+ *   calculated_at
  * FROM analytics_cache
  * WHERE branch_id = :branchId!
  *   AND metric_type = :metricType!
@@ -310,13 +195,27 @@ const getRecentClientActivityIR: any = {"usedParamSet":{"branchId":true,"startDa
 export const getRecentClientActivity = new PreparedQuery<GetRecentClientActivityParams,GetRecentClientActivityResult>(getRecentClientActivityIR);
 
 
-/** Query 'GetRevenueTrend' is invalid, so its result is assigned type 'never'.
- *  */
-export type GetRevenueTrendResult = never;
+/** 'GetRevenueTrend' parameters type */
+export interface GetRevenueTrendParams {
+  branchId: string;
+  daysBack: number;
+  period: string;
+}
 
-/** Query 'GetRevenueTrend' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type GetRevenueTrendParams = never;
+/** 'GetRevenueTrend' return type */
+export interface GetRevenueTrendResult {
+  avg_transaction_value: string | null;
+  period_start: Date | null;
+  total_revenue: string | null;
+  transaction_count: string | null;
+  unique_customers: string | null;
+}
+
+/** 'GetRevenueTrend' query type */
+export interface GetRevenueTrendQuery {
+  params: GetRevenueTrendParams;
+  result: GetRevenueTrendResult;
+}
 
 const getRevenueTrendIR: any = {"usedParamSet":{"period":true,"branchId":true,"daysBack":true},"params":[{"name":"period","required":true,"transform":{"type":"scalar"},"locs":[{"a":20,"b":27},{"a":388,"b":395}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":259,"b":268}]},{"name":"daysBack","required":true,"transform":{"type":"scalar"},"locs":[{"a":309,"b":318}]}],"statement":"SELECT\n  DATE_TRUNC(:period!, p.payment_date) as period_start,\n  COUNT(DISTINCT p.user_id) as unique_customers,\n  COUNT(p.id) as transaction_count,\n  SUM(p.amount) as total_revenue,\n  AVG(p.amount) as avg_transaction_value\nFROM payments p\nWHERE p.branch_id = :branchId!\n  AND p.payment_date >= CURRENT_DATE - :daysBack! * INTERVAL '1 day'\n  AND p.status = 'completed'\nGROUP BY DATE_TRUNC(:period!, p.payment_date)\nORDER BY period_start DESC"};
 
@@ -493,15 +392,34 @@ const getPeakHoursAnalysisIR: any = {"usedParamSet":{"branchId":true,"daysBack":
 export const getPeakHoursAnalysis = new PreparedQuery<GetPeakHoursAnalysisParams,GetPeakHoursAnalysisResult>(getPeakHoursAnalysisIR);
 
 
-/** Query 'GetClientLifetimeValue' is invalid, so its result is assigned type 'never'.
- *  */
-export type GetClientLifetimeValueResult = never;
+/** 'GetClientLifetimeValue' parameters type */
+export interface GetClientLifetimeValueParams {
+  branchId: string;
+  limit?: NumberOrString | null | void;
+}
 
-/** Query 'GetClientLifetimeValue' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type GetClientLifetimeValueParams = never;
+/** 'GetClientLifetimeValue' return type */
+export interface GetClientLifetimeValueResult {
+  avg_transaction_value: string | null;
+  email: string;
+  first_name: string | null;
+  first_payment_date: Date | null;
+  last_name: string | null;
+  last_payment_date: Date | null;
+  lifetime_value: string | null;
+  monthly_value: string | null;
+  total_classes_attended: string | null;
+  total_transactions: string | null;
+  user_id: string;
+}
 
-const getClientLifetimeValueIR: any = {"usedParamSet":{"branchId":true,"limit":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":671,"b":680}]},{"name":"limit","required":false,"transform":{"type":"scalar"},"locs":[{"a":849,"b":854}]}],"statement":"SELECT\n  u.id as user_id,\n  u.first_name,\n  u.last_name,\n  u.email,\n  MIN(p.payment_date) as first_payment_date,\n  MAX(p.payment_date) as last_payment_date,\n  COUNT(DISTINCT p.id) as total_transactions,\n  SUM(p.amount) as lifetime_value,\n  AVG(p.amount) as avg_transaction_value,\n  COUNT(DISTINCT b.id) FILTER (WHERE b.status = 'confirmed') as total_classes_attended,\n  ROUND(\n    SUM(p.amount) / NULLIF(\n      EXTRACT(EPOCH FROM (MAX(p.payment_date) - MIN(p.payment_date))) / 2592000,\n      0\n    ),\n    2\n  ) as monthly_value\nFROM \"user\" u\nLEFT JOIN payments p ON u.id = p.user_id AND p.status = 'completed'\nLEFT JOIN bookings b ON u.id = b.user_id\nWHERE u.branch_id = :branchId!\n  AND u.role = 'client'\n  AND p.payment_date IS NOT NULL\nGROUP BY u.id, u.first_name, u.last_name, u.email\nHAVING SUM(p.amount) > 0\nORDER BY lifetime_value DESC\nLIMIT :limit"};
+/** 'GetClientLifetimeValue' query type */
+export interface GetClientLifetimeValueQuery {
+  params: GetClientLifetimeValueParams;
+  result: GetClientLifetimeValueResult;
+}
+
+const getClientLifetimeValueIR: any = {"usedParamSet":{"branchId":true,"limit":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":693,"b":702}]},{"name":"limit","required":false,"transform":{"type":"scalar"},"locs":[{"a":871,"b":876}]}],"statement":"SELECT\n  u.id as user_id,\n  u.first_name,\n  u.last_name,\n  u.email,\n  MIN(p.payment_date) as first_payment_date,\n  MAX(p.payment_date) as last_payment_date,\n  COUNT(DISTINCT p.id) as total_transactions,\n  SUM(p.amount) as lifetime_value,\n  AVG(p.amount) as avg_transaction_value,\n  COUNT(DISTINCT b.id) FILTER (WHERE b.status = 'confirmed') as total_classes_attended,\n  ROUND(\n    SUM(p.amount) / NULLIF(\n      EXTRACT(EPOCH FROM (MAX(p.payment_date)::timestamp - MIN(p.payment_date)::timestamp)) / 2592000,\n      0\n    ),\n    2\n  ) as monthly_value\nFROM \"user\" u\nLEFT JOIN payments p ON u.id = p.user_id AND p.status = 'completed'\nLEFT JOIN bookings b ON u.id = b.user_id\nWHERE u.branch_id = :branchId!\n  AND u.role = 'client'\n  AND p.payment_date IS NOT NULL\nGROUP BY u.id, u.first_name, u.last_name, u.email\nHAVING SUM(p.amount) > 0\nORDER BY lifetime_value DESC\nLIMIT :limit"};
 
 /**
  * Query generated from SQL:
@@ -519,7 +437,7 @@ const getClientLifetimeValueIR: any = {"usedParamSet":{"branchId":true,"limit":t
  *   COUNT(DISTINCT b.id) FILTER (WHERE b.status = 'confirmed') as total_classes_attended,
  *   ROUND(
  *     SUM(p.amount) / NULLIF(
- *       EXTRACT(EPOCH FROM (MAX(p.payment_date) - MIN(p.payment_date))) / 2592000,
+ *       EXTRACT(EPOCH FROM (MAX(p.payment_date)::timestamp - MIN(p.payment_date)::timestamp)) / 2592000,
  *       0
  *     ),
  *     2

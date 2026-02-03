@@ -156,12 +156,24 @@ export interface GetInstructorProfileByUserIdQuery {
   result: GetInstructorProfileByUserIdResult;
 }
 
-const getInstructorProfileByUserIdIR: any = {"usedParamSet":{"userId":true,"branchId":true},"params":[{"name":"userId","required":true,"transform":{"type":"scalar"},"locs":[{"a":50,"b":57}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":77,"b":86}]}],"statement":"SELECT *\nFROM instructor_profiles\nWHERE user_id = :userId!\n  AND branch_id = :branchId!"};
+const getInstructorProfileByUserIdIR: any = {"usedParamSet":{"userId":true,"branchId":true},"params":[{"name":"userId","required":true,"transform":{"type":"scalar"},"locs":[{"a":211,"b":218}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":238,"b":247}]}],"statement":"SELECT\n  id,\n  user_id,\n  branch_id,\n  bio,\n  specializations,\n  certifications,\n  hire_date,\n  hourly_rate,\n  is_active,\n  profile_image_url,\n  created_at,\n  updated_at\nFROM instructor_profiles\nWHERE user_id = :userId!\n  AND branch_id = :branchId!"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT *
+ * SELECT
+ *   id,
+ *   user_id,
+ *   branch_id,
+ *   bio,
+ *   specializations,
+ *   certifications,
+ *   hire_date,
+ *   hourly_rate,
+ *   is_active,
+ *   profile_image_url,
+ *   created_at,
+ *   updated_at
  * FROM instructor_profiles
  * WHERE user_id = :userId!
  *   AND branch_id = :branchId!
@@ -410,12 +422,23 @@ export interface GetInstructorAvailabilityQuery {
   result: GetInstructorAvailabilityResult;
 }
 
-const getInstructorAvailabilityIR: any = {"usedParamSet":{"instructorId":true,"branchId":true},"params":[{"name":"instructorId","required":true,"transform":{"type":"scalar"},"locs":[{"a":60,"b":73}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":93,"b":102}]}],"statement":"SELECT *\nFROM instructor_availability\nWHERE instructor_id = :instructorId!\n  AND branch_id = :branchId!\nORDER BY day_of_week, start_time"};
+const getInstructorAvailabilityIR: any = {"usedParamSet":{"instructorId":true,"branchId":true},"params":[{"name":"instructorId","required":true,"transform":{"type":"scalar"},"locs":[{"a":205,"b":218}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":238,"b":247}]}],"statement":"SELECT\n  id,\n  instructor_id,\n  branch_id,\n  day_of_week,\n  start_time,\n  end_time,\n  is_recurring,\n  effective_date,\n  notes,\n  created_at,\n  updated_at\nFROM instructor_availability\nWHERE instructor_id = :instructorId!\n  AND branch_id = :branchId!\nORDER BY day_of_week, start_time"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT *
+ * SELECT
+ *   id,
+ *   instructor_id,
+ *   branch_id,
+ *   day_of_week,
+ *   start_time,
+ *   end_time,
+ *   is_recurring,
+ *   effective_date,
+ *   notes,
+ *   created_at,
+ *   updated_at
  * FROM instructor_availability
  * WHERE instructor_id = :instructorId!
  *   AND branch_id = :branchId!
@@ -610,12 +633,24 @@ export interface GetInstructorTimeOffQuery {
   result: GetInstructorTimeOffResult;
 }
 
-const getInstructorTimeOffIR: any = {"usedParamSet":{"instructorId":true,"branchId":true,"startDate":true},"params":[{"name":"instructorId","required":true,"transform":{"type":"scalar"},"locs":[{"a":56,"b":69}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":89,"b":98}]},{"name":"startDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":118,"b":128}]}],"statement":"SELECT *\nFROM instructor_time_off\nWHERE instructor_id = :instructorId!\n  AND branch_id = :branchId!\n  AND end_date >= :startDate!\nORDER BY start_date"};
+const getInstructorTimeOffIR: any = {"usedParamSet":{"instructorId":true,"branchId":true,"startDate":true},"params":[{"name":"instructorId","required":true,"transform":{"type":"scalar"},"locs":[{"a":204,"b":217}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":237,"b":246}]},{"name":"startDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":266,"b":276}]}],"statement":"SELECT\n  id,\n  instructor_id,\n  branch_id,\n  start_date,\n  end_date,\n  reason,\n  status,\n  notes,\n  requested_at,\n  approved_by,\n  approved_at,\n  created_at\nFROM instructor_time_off\nWHERE instructor_id = :instructorId!\n  AND branch_id = :branchId!\n  AND end_date >= :startDate!\nORDER BY start_date"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT *
+ * SELECT
+ *   id,
+ *   instructor_id,
+ *   branch_id,
+ *   start_date,
+ *   end_date,
+ *   reason,
+ *   status,
+ *   notes,
+ *   requested_at,
+ *   approved_by,
+ *   approved_at,
+ *   created_at
  * FROM instructor_time_off
  * WHERE instructor_id = :instructorId!
  *   AND branch_id = :branchId!
@@ -930,13 +965,34 @@ const updateAssignmentPaymentIR: any = {"usedParamSet":{"paymentAmount":true,"pa
 export const updateAssignmentPayment = new PreparedQuery<UpdateAssignmentPaymentParams,UpdateAssignmentPaymentResult>(updateAssignmentPaymentIR);
 
 
-/** Query 'CreateInstructorClientNote' is invalid, so its result is assigned type 'never'.
- *  */
-export type CreateInstructorClientNoteResult = never;
+/** 'CreateInstructorClientNote' parameters type */
+export interface CreateInstructorClientNoteParams {
+  branchId: string;
+  clientId: string;
+  instructorId: string;
+  isPrivate: boolean;
+  noteText: string;
+  noteType?: string | null | void;
+}
 
-/** Query 'CreateInstructorClientNote' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type CreateInstructorClientNoteParams = never;
+/** 'CreateInstructorClientNote' return type */
+export interface CreateInstructorClientNoteResult {
+  branch_id: string;
+  client_id: string;
+  created_at: Date | null;
+  id: string;
+  instructor_id: string;
+  is_private: boolean | null;
+  note_text: string;
+  note_type: string | null;
+  updated_at: Date | null;
+}
+
+/** 'CreateInstructorClientNote' query type */
+export interface CreateInstructorClientNoteQuery {
+  params: CreateInstructorClientNoteParams;
+  result: CreateInstructorClientNoteResult;
+}
 
 const createInstructorClientNoteIR: any = {"usedParamSet":{"instructorId":true,"clientId":true,"branchId":true,"noteText":true,"noteType":true,"isPrivate":true},"params":[{"name":"instructorId","required":true,"transform":{"type":"scalar"},"locs":[{"a":133,"b":146}]},{"name":"clientId","required":true,"transform":{"type":"scalar"},"locs":[{"a":151,"b":160}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":165,"b":174}]},{"name":"noteText","required":true,"transform":{"type":"scalar"},"locs":[{"a":179,"b":188}]},{"name":"noteType","required":false,"transform":{"type":"scalar"},"locs":[{"a":193,"b":201}]},{"name":"isPrivate","required":true,"transform":{"type":"scalar"},"locs":[{"a":206,"b":216}]}],"statement":"INSERT INTO instructor_client_notes (\n  instructor_id,\n  client_id,\n  branch_id,\n  note_text,\n  note_type,\n  is_private\n) VALUES (\n  :instructorId!,\n  :clientId!,\n  :branchId!,\n  :noteText!,\n  :noteType,\n  :isPrivate!\n)\nRETURNING *"};
 
@@ -964,13 +1020,34 @@ const createInstructorClientNoteIR: any = {"usedParamSet":{"instructorId":true,"
 export const createInstructorClientNote = new PreparedQuery<CreateInstructorClientNoteParams,CreateInstructorClientNoteResult>(createInstructorClientNoteIR);
 
 
-/** Query 'GetInstructorNotesForClient' is invalid, so its result is assigned type 'never'.
- *  */
-export type GetInstructorNotesForClientResult = never;
+/** 'GetInstructorNotesForClient' parameters type */
+export interface GetInstructorNotesForClientParams {
+  branchId: string;
+  clientId: string;
+  limit?: NumberOrString | null | void;
+}
 
-/** Query 'GetInstructorNotesForClient' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type GetInstructorNotesForClientParams = never;
+/** 'GetInstructorNotesForClient' return type */
+export interface GetInstructorNotesForClientResult {
+  branch_id: string;
+  client_id: string;
+  created_at: Date | null;
+  id: string;
+  instructor_first_name: string | null;
+  instructor_id: string;
+  instructor_last_name: string | null;
+  instructor_user_id: string;
+  is_private: boolean | null;
+  note_text: string;
+  note_type: string | null;
+  updated_at: Date | null;
+}
+
+/** 'GetInstructorNotesForClient' query type */
+export interface GetInstructorNotesForClientQuery {
+  params: GetInstructorNotesForClientParams;
+  result: GetInstructorNotesForClientResult;
+}
 
 const getInstructorNotesForClientIR: any = {"usedParamSet":{"clientId":true,"branchId":true,"limit":true},"params":[{"name":"clientId","required":true,"transform":{"type":"scalar"},"locs":[{"a":278,"b":287}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":311,"b":320}]},{"name":"limit","required":false,"transform":{"type":"scalar"},"locs":[{"a":357,"b":362}]}],"statement":"SELECT\n  icn.*,\n  ip.user_id as instructor_user_id,\n  u.first_name as instructor_first_name,\n  u.last_name as instructor_last_name\nFROM instructor_client_notes icn\nJOIN instructor_profiles ip ON icn.instructor_id = ip.id\nJOIN \"user\" u ON ip.user_id = u.id\nWHERE icn.client_id = :clientId!\n  AND icn.branch_id = :branchId!\nORDER BY icn.created_at DESC\nLIMIT :limit"};
 
@@ -994,32 +1071,67 @@ const getInstructorNotesForClientIR: any = {"usedParamSet":{"clientId":true,"bra
 export const getInstructorNotesForClient = new PreparedQuery<GetInstructorNotesForClientParams,GetInstructorNotesForClientResult>(getInstructorNotesForClientIR);
 
 
-/** Query 'GetInstructorStats' is invalid, so its result is assigned type 'never'.
- *  */
-export type GetInstructorStatsResult = never;
+/** 'GetInstructorStats' parameters type */
+export interface GetInstructorStatsParams {
+  endDate: DateOrString;
+  instructorId: string;
+  startDate: DateOrString;
+}
 
-/** Query 'GetInstructorStats' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type GetInstructorStatsParams = never;
+/** 'GetInstructorStats' return type */
+export interface GetInstructorStatsResult {
+  avg_attendance_rate: string | null;
+  cancelled_classes: string | null;
+  completed_classes: string | null;
+  no_show_classes: string | null;
+  total_classes: string | null;
+  total_earnings: string | null;
+  total_students: string | null;
+}
 
-const getInstructorStatsIR: any = {"usedParamSet":{"instructorId":true,"startDate":true,"endDate":true},"params":[{"name":"instructorId","required":true,"transform":{"type":"scalar"},"locs":[{"a":35,"b":48}]},{"name":"startDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":51,"b":61}]},{"name":"endDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":64,"b":72}]}],"statement":"SELECT * FROM get_instructor_stats(:instructorId!, :startDate!, :endDate!)"};
+/** 'GetInstructorStats' query type */
+export interface GetInstructorStatsQuery {
+  params: GetInstructorStatsParams;
+  result: GetInstructorStatsResult;
+}
+
+const getInstructorStatsIR: any = {"usedParamSet":{"instructorId":true,"startDate":true,"endDate":true},"params":[{"name":"instructorId","required":true,"transform":{"type":"scalar"},"locs":[{"a":169,"b":182}]},{"name":"startDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":185,"b":195}]},{"name":"endDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":198,"b":206}]}],"statement":"SELECT\n  total_classes,\n  completed_classes,\n  cancelled_classes,\n  no_show_classes,\n  total_students,\n  avg_attendance_rate,\n  total_earnings\nFROM get_instructor_stats(:instructorId!, :startDate!, :endDate!)"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT * FROM get_instructor_stats(:instructorId!, :startDate!, :endDate!)
+ * SELECT
+ *   total_classes,
+ *   completed_classes,
+ *   cancelled_classes,
+ *   no_show_classes,
+ *   total_students,
+ *   avg_attendance_rate,
+ *   total_earnings
+ * FROM get_instructor_stats(:instructorId!, :startDate!, :endDate!)
  * ```
  */
 export const getInstructorStats = new PreparedQuery<GetInstructorStatsParams,GetInstructorStatsResult>(getInstructorStatsIR);
 
 
-/** Query 'CheckInstructorAvailability' is invalid, so its result is assigned type 'never'.
- *  */
-export type CheckInstructorAvailabilityResult = never;
+/** 'CheckInstructorAvailability' parameters type */
+export interface CheckInstructorAvailabilityParams {
+  date: DateOrString;
+  endTime: DateOrString;
+  instructorId: string;
+  startTime: DateOrString;
+}
 
-/** Query 'CheckInstructorAvailability' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type CheckInstructorAvailabilityParams = never;
+/** 'CheckInstructorAvailability' return type */
+export interface CheckInstructorAvailabilityResult {
+  is_available: boolean | null;
+}
+
+/** 'CheckInstructorAvailability' query type */
+export interface CheckInstructorAvailabilityQuery {
+  params: CheckInstructorAvailabilityParams;
+  result: CheckInstructorAvailabilityResult;
+}
 
 const checkInstructorAvailabilityIR: any = {"usedParamSet":{"instructorId":true,"date":true,"startTime":true,"endTime":true},"params":[{"name":"instructorId","required":true,"transform":{"type":"scalar"},"locs":[{"a":31,"b":44}]},{"name":"date","required":true,"transform":{"type":"scalar"},"locs":[{"a":47,"b":52}]},{"name":"startTime","required":true,"transform":{"type":"scalar"},"locs":[{"a":55,"b":65}]},{"name":"endTime","required":true,"transform":{"type":"scalar"},"locs":[{"a":68,"b":76}]}],"statement":"SELECT is_instructor_available(:instructorId!, :date!, :startTime!, :endTime!) as is_available"};
 

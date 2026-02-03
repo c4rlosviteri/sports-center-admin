@@ -185,7 +185,7 @@ Update these pages to use the new header:
 - ✅ `/admin/classes/page.tsx` - **DONE**
 - ✅ `/admin/users/page.tsx` - **DONE**
 - ✅ `/admin/users/[userId]/page.tsx` - **DONE**
-- ✅ `/admin/plans/page.tsx` - **DONE**
+- ✅ `/admin/packages/page.tsx` - **DONE**
 - ✅ `/admin/payments/page.tsx` - **DONE** (client component separated)
 - ✅ `/admin/branches/page.tsx` - **DONE**
 

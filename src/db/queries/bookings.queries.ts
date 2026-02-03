@@ -3,6 +3,37 @@ import { PreparedQuery } from '@pgtyped/runtime';
 
 export type booking_status = 'cancelled' | 'confirmed' | 'waitlisted';
 
+/** 'GetClassForBranch' parameters type */
+export interface GetClassForBranchParams {
+  branchId: string;
+  classId: string;
+}
+
+/** 'GetClassForBranch' return type */
+export interface GetClassForBranchResult {
+  id: string;
+}
+
+/** 'GetClassForBranch' query type */
+export interface GetClassForBranchQuery {
+  params: GetClassForBranchParams;
+  result: GetClassForBranchResult;
+}
+
+const getClassForBranchIR: any = {"usedParamSet":{"classId":true,"branchId":true},"params":[{"name":"classId","required":true,"transform":{"type":"scalar"},"locs":[{"a":34,"b":42}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":62,"b":71}]}],"statement":"SELECT id\nFROM classes\nWHERE id = :classId!\n  AND branch_id = :branchId!"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * SELECT id
+ * FROM classes
+ * WHERE id = :classId!
+ *   AND branch_id = :branchId!
+ * ```
+ */
+export const getClassForBranch = new PreparedQuery<GetClassForBranchParams,GetClassForBranchResult>(getClassForBranchIR);
+
+
 /** 'GetClassBookings' parameters type */
 export interface GetClassBookingsParams {
   classId: string;

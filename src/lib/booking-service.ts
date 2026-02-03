@@ -334,7 +334,7 @@ export async function cancelBooking(
     )
 
     if (wasConfirmed) {
-      // Restore credits based on source (package or membership)
+      // Restore credits based on source (package)
       if (booking.package_id) {
         // Restore package credit
         await client.query(

@@ -81,12 +81,19 @@ export interface GetEquipmentTypesQuery {
   result: GetEquipmentTypesResult;
 }
 
-const getEquipmentTypesIR: any = {"usedParamSet":{"branchId":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":48,"b":57}]}],"statement":"SELECT *\nFROM equipment_types\nWHERE branch_id = :branchId!\nORDER BY name"};
+const getEquipmentTypesIR: any = {"usedParamSet":{"branchId":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":132,"b":141}]}],"statement":"SELECT\n  id,\n  branch_id,\n  name,\n  description,\n  icon,\n  requires_assignment,\n  created_at\nFROM equipment_types\nWHERE branch_id = :branchId!\nORDER BY name"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT *
+ * SELECT
+ *   id,
+ *   branch_id,
+ *   name,
+ *   description,
+ *   icon,
+ *   requires_assignment,
+ *   created_at
  * FROM equipment_types
  * WHERE branch_id = :branchId!
  * ORDER BY name
@@ -372,13 +379,44 @@ const getEquipmentByTypeIR: any = {"usedParamSet":{"equipmentTypeId":true,"branc
 export const getEquipmentByType = new PreparedQuery<GetEquipmentByTypeParams,GetEquipmentByTypeResult>(getEquipmentByTypeIR);
 
 
-/** Query 'GetAvailableEquipment' is invalid, so its result is assigned type 'never'.
- *  */
-export type GetAvailableEquipmentResult = never;
+/** 'GetAvailableEquipment' parameters type */
+export interface GetAvailableEquipmentParams {
+  branchId: string;
+}
 
-/** Query 'GetAvailableEquipment' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type GetAvailableEquipmentParams = never;
+/** 'GetAvailableEquipment' return type */
+export interface GetAvailableEquipmentResult {
+  branch_id: string;
+  condition: string | null;
+  created_at: Date | null;
+  equipment_number: string;
+  equipment_type_id: string;
+  equipment_type_name: string;
+  features: stringArray | null;
+  id: string;
+  internal_notes: string | null;
+  last_maintenance_date: Date | null;
+  location: string | null;
+  maintenance_interval_days: number | null;
+  manufacturer: string | null;
+  model: string | null;
+  name: string | null;
+  next_maintenance_due: Date | null;
+  notes: string | null;
+  purchase_date: Date | null;
+  purchase_price: string | null;
+  serial_number: string | null;
+  specifications: Json | null;
+  status: string | null;
+  total_usage_hours: string | null;
+  updated_at: Date | null;
+}
+
+/** 'GetAvailableEquipment' query type */
+export interface GetAvailableEquipmentQuery {
+  params: GetAvailableEquipmentParams;
+  result: GetAvailableEquipmentResult;
+}
 
 const getAvailableEquipmentIR: any = {"usedParamSet":{"branchId":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":139,"b":148}]}],"statement":"SELECT\n  e.*,\n  et.name as equipment_type_name\nFROM equipment e\nJOIN equipment_types et ON e.equipment_type_id = et.id\nWHERE e.branch_id = :branchId!\n  AND e.status = 'available'\n  AND NOT EXISTS (\n    SELECT 1 FROM equipment_issues ei\n    WHERE ei.equipment_id = e.id\n      AND ei.status IN ('open', 'acknowledged', 'in_progress')\n      AND ei.severity IN ('high', 'critical')\n  )\nORDER BY e.equipment_number"};
 
@@ -589,20 +627,39 @@ const recordMaintenanceDateIR: any = {"usedParamSet":{"maintenanceDate":true,"ne
 export const recordMaintenanceDate = new PreparedQuery<RecordMaintenanceDateParams,RecordMaintenanceDateResult>(recordMaintenanceDateIR);
 
 
-/** Query 'GetAvailableEquipmentForClass' is invalid, so its result is assigned type 'never'.
- *  */
-export type GetAvailableEquipmentForClassResult = never;
+/** 'GetAvailableEquipmentForClass' parameters type */
+export interface GetAvailableEquipmentForClassParams {
+  classId: string;
+  equipmentTypeId: string;
+}
 
-/** Query 'GetAvailableEquipmentForClass' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type GetAvailableEquipmentForClassParams = never;
+/** 'GetAvailableEquipmentForClass' return type */
+export interface GetAvailableEquipmentForClassResult {
+  condition: string | null;
+  equipment_id: string | null;
+  equipment_name: string | null;
+  equipment_number: string | null;
+  is_preferred: boolean | null;
+}
 
-const getAvailableEquipmentForClassIR: any = {"usedParamSet":{"classId":true,"equipmentTypeId":true},"params":[{"name":"classId","required":true,"transform":{"type":"scalar"},"locs":[{"a":48,"b":56}]},{"name":"equipmentTypeId","required":true,"transform":{"type":"scalar"},"locs":[{"a":59,"b":75}]}],"statement":"SELECT * FROM get_available_equipment_for_class(:classId!, :equipmentTypeId!)"};
+/** 'GetAvailableEquipmentForClass' query type */
+export interface GetAvailableEquipmentForClassQuery {
+  params: GetAvailableEquipmentForClassParams;
+  result: GetAvailableEquipmentForClassResult;
+}
+
+const getAvailableEquipmentForClassIR: any = {"usedParamSet":{"classId":true,"equipmentTypeId":true},"params":[{"name":"classId","required":true,"transform":{"type":"scalar"},"locs":[{"a":128,"b":136}]},{"name":"equipmentTypeId","required":true,"transform":{"type":"scalar"},"locs":[{"a":139,"b":155}]}],"statement":"SELECT\n  equipment_id,\n  equipment_number,\n  equipment_name,\n  condition,\n  is_preferred\nFROM get_available_equipment_for_class(:classId!, :equipmentTypeId!)"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT * FROM get_available_equipment_for_class(:classId!, :equipmentTypeId!)
+ * SELECT
+ *   equipment_id,
+ *   equipment_number,
+ *   equipment_name,
+ *   condition,
+ *   is_preferred
+ * FROM get_available_equipment_for_class(:classId!, :equipmentTypeId!)
  * ```
  */
 export const getAvailableEquipmentForClass = new PreparedQuery<GetAvailableEquipmentForClassParams,GetAvailableEquipmentForClassResult>(getAvailableEquipmentForClassIR);
@@ -675,13 +732,23 @@ const createEquipmentAssignmentIR: any = {"usedParamSet":{"equipmentId":true,"cl
 export const createEquipmentAssignment = new PreparedQuery<CreateEquipmentAssignmentParams,CreateEquipmentAssignmentResult>(createEquipmentAssignmentIR);
 
 
-/** Query 'AutoAssignEquipment' is invalid, so its result is assigned type 'never'.
- *  */
-export type AutoAssignEquipmentResult = never;
+/** 'AutoAssignEquipment' parameters type */
+export interface AutoAssignEquipmentParams {
+  classId: string;
+  equipmentTypeId: string;
+  userId: string;
+}
 
-/** Query 'AutoAssignEquipment' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type AutoAssignEquipmentParams = never;
+/** 'AutoAssignEquipment' return type */
+export interface AutoAssignEquipmentResult {
+  equipment_id: string | null;
+}
+
+/** 'AutoAssignEquipment' query type */
+export interface AutoAssignEquipmentQuery {
+  params: AutoAssignEquipmentParams;
+  result: AutoAssignEquipmentResult;
+}
 
 const autoAssignEquipmentIR: any = {"usedParamSet":{"classId":true,"userId":true,"equipmentTypeId":true},"params":[{"name":"classId","required":true,"transform":{"type":"scalar"},"locs":[{"a":29,"b":37}]},{"name":"userId","required":true,"transform":{"type":"scalar"},"locs":[{"a":40,"b":47}]},{"name":"equipmentTypeId","required":true,"transform":{"type":"scalar"},"locs":[{"a":50,"b":66}]}],"statement":"SELECT auto_assign_equipment(:classId!, :userId!, :equipmentTypeId!) as equipment_id"};
 
@@ -1063,13 +1130,53 @@ const getUserEquipmentPreferencesIR: any = {"usedParamSet":{"userId":true,"branc
 export const getUserEquipmentPreferences = new PreparedQuery<GetUserEquipmentPreferencesParams,GetUserEquipmentPreferencesResult>(getUserEquipmentPreferencesIR);
 
 
-/** Query 'CreateMaintenanceLog' is invalid, so its result is assigned type 'never'.
- *  */
-export type CreateMaintenanceLogResult = never;
+/** 'CreateMaintenanceLog' parameters type */
+export interface CreateMaintenanceLogParams {
+  branchId: string;
+  conditionAfter?: string | null | void;
+  conditionBefore?: string | null | void;
+  description: string;
+  documents?: Json | null | void;
+  equipmentId: string;
+  externalServiceProvider?: string | null | void;
+  laborHours?: NumberOrString | null | void;
+  maintenanceDate: DateOrString;
+  maintenanceType: string;
+  nextMaintenanceDue?: DateOrString | null | void;
+  notes?: string | null | void;
+  partsReplaced?: Json | null | void;
+  performedBy?: string | null | void;
+  photos?: Json | null | void;
+  totalCost?: NumberOrString | null | void;
+}
 
-/** Query 'CreateMaintenanceLog' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type CreateMaintenanceLogParams = never;
+/** 'CreateMaintenanceLog' return type */
+export interface CreateMaintenanceLogResult {
+  branch_id: string;
+  condition_after: string | null;
+  condition_before: string | null;
+  created_at: Date | null;
+  description: string;
+  documents: Json | null;
+  equipment_id: string;
+  external_service_provider: string | null;
+  id: string;
+  labor_hours: string | null;
+  maintenance_date: Date;
+  maintenance_type: string;
+  next_maintenance_due: Date | null;
+  notes: string | null;
+  parts_replaced: Json | null;
+  performed_by: string | null;
+  photos: Json | null;
+  total_cost: string | null;
+}
+
+/** 'CreateMaintenanceLog' query type */
+export interface CreateMaintenanceLogQuery {
+  params: CreateMaintenanceLogParams;
+  result: CreateMaintenanceLogResult;
+}
 
 const createMaintenanceLogIR: any = {"usedParamSet":{"equipmentId":true,"branchId":true,"maintenanceDate":true,"maintenanceType":true,"performedBy":true,"externalServiceProvider":true,"description":true,"partsReplaced":true,"laborHours":true,"totalCost":true,"conditionBefore":true,"conditionAfter":true,"nextMaintenanceDue":true,"photos":true,"documents":true,"notes":true},"params":[{"name":"equipmentId","required":true,"transform":{"type":"scalar"},"locs":[{"a":324,"b":336}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":341,"b":350}]},{"name":"maintenanceDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":355,"b":371}]},{"name":"maintenanceType","required":true,"transform":{"type":"scalar"},"locs":[{"a":376,"b":392}]},{"name":"performedBy","required":false,"transform":{"type":"scalar"},"locs":[{"a":397,"b":408}]},{"name":"externalServiceProvider","required":false,"transform":{"type":"scalar"},"locs":[{"a":413,"b":436}]},{"name":"description","required":true,"transform":{"type":"scalar"},"locs":[{"a":441,"b":453}]},{"name":"partsReplaced","required":false,"transform":{"type":"scalar"},"locs":[{"a":458,"b":471}]},{"name":"laborHours","required":false,"transform":{"type":"scalar"},"locs":[{"a":476,"b":486}]},{"name":"totalCost","required":false,"transform":{"type":"scalar"},"locs":[{"a":491,"b":500}]},{"name":"conditionBefore","required":false,"transform":{"type":"scalar"},"locs":[{"a":505,"b":520}]},{"name":"conditionAfter","required":false,"transform":{"type":"scalar"},"locs":[{"a":525,"b":539}]},{"name":"nextMaintenanceDue","required":false,"transform":{"type":"scalar"},"locs":[{"a":544,"b":562}]},{"name":"photos","required":false,"transform":{"type":"scalar"},"locs":[{"a":567,"b":573}]},{"name":"documents","required":false,"transform":{"type":"scalar"},"locs":[{"a":578,"b":587}]},{"name":"notes","required":false,"transform":{"type":"scalar"},"locs":[{"a":592,"b":597}]}],"statement":"INSERT INTO equipment_maintenance_logs (\n  equipment_id,\n  branch_id,\n  maintenance_date,\n  maintenance_type,\n  performed_by,\n  external_service_provider,\n  description,\n  parts_replaced,\n  labor_hours,\n  total_cost,\n  condition_before,\n  condition_after,\n  next_maintenance_due,\n  photos,\n  documents,\n  notes\n) VALUES (\n  :equipmentId!,\n  :branchId!,\n  :maintenanceDate!,\n  :maintenanceType!,\n  :performedBy,\n  :externalServiceProvider,\n  :description!,\n  :partsReplaced,\n  :laborHours,\n  :totalCost,\n  :conditionBefore,\n  :conditionAfter,\n  :nextMaintenanceDue,\n  :photos,\n  :documents,\n  :notes\n)\nRETURNING *"};
 
@@ -1117,13 +1224,44 @@ const createMaintenanceLogIR: any = {"usedParamSet":{"equipmentId":true,"branchI
 export const createMaintenanceLog = new PreparedQuery<CreateMaintenanceLogParams,CreateMaintenanceLogResult>(createMaintenanceLogIR);
 
 
-/** Query 'GetMaintenanceLogs' is invalid, so its result is assigned type 'never'.
- *  */
-export type GetMaintenanceLogsResult = never;
+/** 'GetMaintenanceLogs' parameters type */
+export interface GetMaintenanceLogsParams {
+  branchId: string;
+  limit?: NumberOrString | null | void;
+}
 
-/** Query 'GetMaintenanceLogs' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type GetMaintenanceLogsParams = never;
+/** 'GetMaintenanceLogs' return type */
+export interface GetMaintenanceLogsResult {
+  branch_id: string;
+  condition_after: string | null;
+  condition_before: string | null;
+  created_at: Date | null;
+  description: string;
+  documents: Json | null;
+  equipment_id: string;
+  equipment_name: string | null;
+  equipment_number: string;
+  equipment_type_name: string;
+  external_service_provider: string | null;
+  id: string;
+  labor_hours: string | null;
+  maintenance_date: Date;
+  maintenance_type: string;
+  next_maintenance_due: Date | null;
+  notes: string | null;
+  parts_replaced: Json | null;
+  performed_by: string | null;
+  performed_by_first_name: string | null;
+  performed_by_last_name: string | null;
+  photos: Json | null;
+  total_cost: string | null;
+}
+
+/** 'GetMaintenanceLogs' query type */
+export interface GetMaintenanceLogsQuery {
+  params: GetMaintenanceLogsParams;
+  result: GetMaintenanceLogsResult;
+}
 
 const getMaintenanceLogsIR: any = {"usedParamSet":{"branchId":true,"limit":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":386,"b":395}]},{"name":"limit","required":false,"transform":{"type":"scalar"},"locs":[{"a":438,"b":443}]}],"statement":"SELECT\n  eml.*,\n  e.equipment_number,\n  e.name as equipment_name,\n  et.name as equipment_type_name,\n  u.first_name as performed_by_first_name,\n  u.last_name as performed_by_last_name\nFROM equipment_maintenance_logs eml\nJOIN equipment e ON eml.equipment_id = e.id\nJOIN equipment_types et ON e.equipment_type_id = et.id\nLEFT JOIN \"user\" u ON eml.performed_by = u.id\nWHERE eml.branch_id = :branchId!\nORDER BY eml.maintenance_date DESC\nLIMIT :limit"};
 
@@ -1149,13 +1287,41 @@ const getMaintenanceLogsIR: any = {"usedParamSet":{"branchId":true,"limit":true}
 export const getMaintenanceLogs = new PreparedQuery<GetMaintenanceLogsParams,GetMaintenanceLogsResult>(getMaintenanceLogsIR);
 
 
-/** Query 'GetEquipmentMaintenanceHistory' is invalid, so its result is assigned type 'never'.
- *  */
-export type GetEquipmentMaintenanceHistoryResult = never;
+/** 'GetEquipmentMaintenanceHistory' parameters type */
+export interface GetEquipmentMaintenanceHistoryParams {
+  branchId: string;
+  equipmentId: string;
+}
 
-/** Query 'GetEquipmentMaintenanceHistory' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type GetEquipmentMaintenanceHistoryParams = never;
+/** 'GetEquipmentMaintenanceHistory' return type */
+export interface GetEquipmentMaintenanceHistoryResult {
+  branch_id: string;
+  condition_after: string | null;
+  condition_before: string | null;
+  created_at: Date | null;
+  description: string;
+  documents: Json | null;
+  equipment_id: string;
+  external_service_provider: string | null;
+  id: string;
+  labor_hours: string | null;
+  maintenance_date: Date;
+  maintenance_type: string;
+  next_maintenance_due: Date | null;
+  notes: string | null;
+  parts_replaced: Json | null;
+  performed_by: string | null;
+  performed_by_first_name: string | null;
+  performed_by_last_name: string | null;
+  photos: Json | null;
+  total_cost: string | null;
+}
+
+/** 'GetEquipmentMaintenanceHistory' query type */
+export interface GetEquipmentMaintenanceHistoryQuery {
+  params: GetEquipmentMaintenanceHistoryParams;
+  result: GetEquipmentMaintenanceHistoryResult;
+}
 
 const getEquipmentMaintenanceHistoryIR: any = {"usedParamSet":{"equipmentId":true,"branchId":true},"params":[{"name":"equipmentId","required":true,"transform":{"type":"scalar"},"locs":[{"a":206,"b":218}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":242,"b":251}]}],"statement":"SELECT\n  eml.*,\n  u.first_name as performed_by_first_name,\n  u.last_name as performed_by_last_name\nFROM equipment_maintenance_logs eml\nLEFT JOIN \"user\" u ON eml.performed_by = u.id\nWHERE eml.equipment_id = :equipmentId!\n  AND eml.branch_id = :branchId!\nORDER BY eml.maintenance_date DESC"};
 
@@ -1235,13 +1401,23 @@ const getUpcomingMaintenanceIR: any = {"usedParamSet":{"branchId":true,"endDate"
 export const getUpcomingMaintenance = new PreparedQuery<GetUpcomingMaintenanceParams,GetUpcomingMaintenanceResult>(getUpcomingMaintenanceIR);
 
 
-/** Query 'ScheduleMaintenance' is invalid, so its result is assigned type 'never'.
- *  */
-export type ScheduleMaintenanceResult = never;
+/** 'ScheduleMaintenance' parameters type */
+export interface ScheduleMaintenanceParams {
+  durationDays: number;
+  equipmentId: string;
+  maintenanceDate: DateOrString;
+}
 
-/** Query 'ScheduleMaintenance' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type ScheduleMaintenanceParams = never;
+/** 'ScheduleMaintenance' return type */
+export interface ScheduleMaintenanceResult {
+  success: boolean | null;
+}
+
+/** 'ScheduleMaintenance' query type */
+export interface ScheduleMaintenanceQuery {
+  params: ScheduleMaintenanceParams;
+  result: ScheduleMaintenanceResult;
+}
 
 const scheduleMaintenanceIR: any = {"usedParamSet":{"equipmentId":true,"maintenanceDate":true,"durationDays":true},"params":[{"name":"equipmentId","required":true,"transform":{"type":"scalar"},"locs":[{"a":38,"b":50}]},{"name":"maintenanceDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":53,"b":69}]},{"name":"durationDays","required":true,"transform":{"type":"scalar"},"locs":[{"a":72,"b":85}]}],"statement":"SELECT schedule_equipment_maintenance(:equipmentId!, :maintenanceDate!, :durationDays!) as success"};
 
@@ -1254,13 +1430,46 @@ const scheduleMaintenanceIR: any = {"usedParamSet":{"equipmentId":true,"maintena
 export const scheduleMaintenance = new PreparedQuery<ScheduleMaintenanceParams,ScheduleMaintenanceResult>(scheduleMaintenanceIR);
 
 
-/** Query 'CreateEquipmentIssue' is invalid, so its result is assigned type 'never'.
- *  */
-export type CreateEquipmentIssueResult = never;
+/** 'CreateEquipmentIssue' parameters type */
+export interface CreateEquipmentIssueParams {
+  branchId: string;
+  description: string;
+  equipmentId: string;
+  issueType: string;
+  photos?: Json | null | void;
+  reportedBy: string;
+  severity: string;
+  status: string;
+  title: string;
+}
 
-/** Query 'CreateEquipmentIssue' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type CreateEquipmentIssueParams = never;
+/** 'CreateEquipmentIssue' return type */
+export interface CreateEquipmentIssueResult {
+  assigned_to: string | null;
+  branch_id: string;
+  created_at: Date | null;
+  description: string;
+  equipment_id: string;
+  id: string;
+  issue_type: string | null;
+  maintenance_log_id: string | null;
+  photos: Json | null;
+  reported_at: Date | null;
+  reported_by: string;
+  resolution_notes: string | null;
+  resolved_at: Date | null;
+  resolved_by: string | null;
+  severity: string | null;
+  status: string | null;
+  title: string;
+  updated_at: Date | null;
+}
+
+/** 'CreateEquipmentIssue' query type */
+export interface CreateEquipmentIssueQuery {
+  params: CreateEquipmentIssueParams;
+  result: CreateEquipmentIssueResult;
+}
 
 const createEquipmentIssueIR: any = {"usedParamSet":{"equipmentId":true,"branchId":true,"reportedBy":true,"issueType":true,"severity":true,"title":true,"description":true,"photos":true,"status":true},"params":[{"name":"equipmentId","required":true,"transform":{"type":"scalar"},"locs":[{"a":157,"b":169}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":174,"b":183}]},{"name":"reportedBy","required":true,"transform":{"type":"scalar"},"locs":[{"a":188,"b":199}]},{"name":"issueType","required":true,"transform":{"type":"scalar"},"locs":[{"a":204,"b":214}]},{"name":"severity","required":true,"transform":{"type":"scalar"},"locs":[{"a":219,"b":228}]},{"name":"title","required":true,"transform":{"type":"scalar"},"locs":[{"a":233,"b":239}]},{"name":"description","required":true,"transform":{"type":"scalar"},"locs":[{"a":244,"b":256}]},{"name":"photos","required":false,"transform":{"type":"scalar"},"locs":[{"a":261,"b":267}]},{"name":"status","required":true,"transform":{"type":"scalar"},"locs":[{"a":272,"b":279}]}],"statement":"INSERT INTO equipment_issues (\n  equipment_id,\n  branch_id,\n  reported_by,\n  issue_type,\n  severity,\n  title,\n  description,\n  photos,\n  status\n) VALUES (\n  :equipmentId!,\n  :branchId!,\n  :reportedBy!,\n  :issueType!,\n  :severity!,\n  :title!,\n  :description!,\n  :photos,\n  :status!\n)\nRETURNING *"};
 
@@ -1294,13 +1503,45 @@ const createEquipmentIssueIR: any = {"usedParamSet":{"equipmentId":true,"branchI
 export const createEquipmentIssue = new PreparedQuery<CreateEquipmentIssueParams,CreateEquipmentIssueResult>(createEquipmentIssueIR);
 
 
-/** Query 'GetEquipmentIssues' is invalid, so its result is assigned type 'never'.
- *  */
-export type GetEquipmentIssuesResult = never;
+/** 'GetEquipmentIssues' parameters type */
+export interface GetEquipmentIssuesParams {
+  branchId: string;
+}
 
-/** Query 'GetEquipmentIssues' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type GetEquipmentIssuesParams = never;
+/** 'GetEquipmentIssues' return type */
+export interface GetEquipmentIssuesResult {
+  assigned_to: string | null;
+  assigned_to_first_name: string | null;
+  assigned_to_last_name: string | null;
+  branch_id: string;
+  created_at: Date | null;
+  description: string;
+  equipment_id: string;
+  equipment_name: string | null;
+  equipment_number: string;
+  equipment_type_name: string;
+  id: string;
+  issue_type: string | null;
+  maintenance_log_id: string | null;
+  photos: Json | null;
+  reported_at: Date | null;
+  reported_by: string;
+  reported_by_first_name: string | null;
+  reported_by_last_name: string | null;
+  resolution_notes: string | null;
+  resolved_at: Date | null;
+  resolved_by: string | null;
+  severity: string | null;
+  status: string | null;
+  title: string;
+  updated_at: Date | null;
+}
+
+/** 'GetEquipmentIssues' query type */
+export interface GetEquipmentIssuesQuery {
+  params: GetEquipmentIssuesParams;
+  result: GetEquipmentIssuesResult;
+}
 
 const getEquipmentIssuesIR: any = {"usedParamSet":{"branchId":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":497,"b":506}]}],"statement":"SELECT\n  ei.*,\n  e.equipment_number,\n  e.name as equipment_name,\n  et.name as equipment_type_name,\n  u1.first_name as reported_by_first_name,\n  u1.last_name as reported_by_last_name,\n  u2.first_name as assigned_to_first_name,\n  u2.last_name as assigned_to_last_name\nFROM equipment_issues ei\nJOIN equipment e ON ei.equipment_id = e.id\nJOIN equipment_types et ON e.equipment_type_id = et.id\nJOIN \"user\" u1 ON ei.reported_by = u1.id\nLEFT JOIN \"user\" u2 ON ei.assigned_to = u2.id\nWHERE ei.branch_id = :branchId!\n  AND ei.status IN ('open', 'acknowledged', 'in_progress')\nORDER BY ei.severity DESC, ei.reported_at"};
 
@@ -1329,13 +1570,43 @@ const getEquipmentIssuesIR: any = {"usedParamSet":{"branchId":true},"params":[{"
 export const getEquipmentIssues = new PreparedQuery<GetEquipmentIssuesParams,GetEquipmentIssuesResult>(getEquipmentIssuesIR);
 
 
-/** Query 'GetEquipmentIssuesByEquipment' is invalid, so its result is assigned type 'never'.
- *  */
-export type GetEquipmentIssuesByEquipmentResult = never;
+/** 'GetEquipmentIssuesByEquipment' parameters type */
+export interface GetEquipmentIssuesByEquipmentParams {
+  branchId: string;
+  equipmentId: string;
+}
 
-/** Query 'GetEquipmentIssuesByEquipment' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type GetEquipmentIssuesByEquipmentParams = never;
+/** 'GetEquipmentIssuesByEquipment' return type */
+export interface GetEquipmentIssuesByEquipmentResult {
+  assigned_to: string | null;
+  branch_id: string;
+  created_at: Date | null;
+  description: string;
+  equipment_id: string;
+  id: string;
+  issue_type: string | null;
+  maintenance_log_id: string | null;
+  photos: Json | null;
+  reported_at: Date | null;
+  reported_by: string;
+  reported_by_first_name: string | null;
+  reported_by_last_name: string | null;
+  resolution_notes: string | null;
+  resolved_at: Date | null;
+  resolved_by: string | null;
+  resolved_by_first_name: string | null;
+  resolved_by_last_name: string | null;
+  severity: string | null;
+  status: string | null;
+  title: string;
+  updated_at: Date | null;
+}
+
+/** 'GetEquipmentIssuesByEquipment' query type */
+export interface GetEquipmentIssuesByEquipmentQuery {
+  params: GetEquipmentIssuesByEquipmentParams;
+  result: GetEquipmentIssuesByEquipmentResult;
+}
 
 const getEquipmentIssuesByEquipmentIR: any = {"usedParamSet":{"equipmentId":true,"branchId":true},"params":[{"name":"equipmentId","required":true,"transform":{"type":"scalar"},"locs":[{"a":318,"b":330}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":353,"b":362}]}],"statement":"SELECT\n  ei.*,\n  u1.first_name as reported_by_first_name,\n  u1.last_name as reported_by_last_name,\n  u2.first_name as resolved_by_first_name,\n  u2.last_name as resolved_by_last_name\nFROM equipment_issues ei\nJOIN \"user\" u1 ON ei.reported_by = u1.id\nLEFT JOIN \"user\" u2 ON ei.resolved_by = u2.id\nWHERE ei.equipment_id = :equipmentId!\n  AND ei.branch_id = :branchId!\nORDER BY ei.reported_at DESC"};
 
@@ -1359,13 +1630,45 @@ const getEquipmentIssuesByEquipmentIR: any = {"usedParamSet":{"equipmentId":true
 export const getEquipmentIssuesByEquipment = new PreparedQuery<GetEquipmentIssuesByEquipmentParams,GetEquipmentIssuesByEquipmentResult>(getEquipmentIssuesByEquipmentIR);
 
 
-/** Query 'UpdateEquipmentIssue' is invalid, so its result is assigned type 'never'.
- *  */
-export type UpdateEquipmentIssueResult = never;
+/** 'UpdateEquipmentIssue' parameters type */
+export interface UpdateEquipmentIssueParams {
+  assignedTo?: string | null | void;
+  branchId: string;
+  issueId: string;
+  maintenanceLogId?: string | null | void;
+  resolutionNotes?: string | null | void;
+  resolvedAt?: DateOrString | null | void;
+  resolvedBy?: string | null | void;
+  status: string;
+}
 
-/** Query 'UpdateEquipmentIssue' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type UpdateEquipmentIssueParams = never;
+/** 'UpdateEquipmentIssue' return type */
+export interface UpdateEquipmentIssueResult {
+  assigned_to: string | null;
+  branch_id: string;
+  created_at: Date | null;
+  description: string;
+  equipment_id: string;
+  id: string;
+  issue_type: string | null;
+  maintenance_log_id: string | null;
+  photos: Json | null;
+  reported_at: Date | null;
+  reported_by: string;
+  resolution_notes: string | null;
+  resolved_at: Date | null;
+  resolved_by: string | null;
+  severity: string | null;
+  status: string | null;
+  title: string;
+  updated_at: Date | null;
+}
+
+/** 'UpdateEquipmentIssue' query type */
+export interface UpdateEquipmentIssueQuery {
+  params: UpdateEquipmentIssueParams;
+  result: UpdateEquipmentIssueResult;
+}
 
 const updateEquipmentIssueIR: any = {"usedParamSet":{"status":true,"assignedTo":true,"resolutionNotes":true,"resolvedBy":true,"resolvedAt":true,"maintenanceLogId":true,"issueId":true,"branchId":true},"params":[{"name":"status","required":true,"transform":{"type":"scalar"},"locs":[{"a":39,"b":46}]},{"name":"assignedTo","required":false,"transform":{"type":"scalar"},"locs":[{"a":65,"b":75}]},{"name":"resolutionNotes","required":false,"transform":{"type":"scalar"},"locs":[{"a":99,"b":114}]},{"name":"resolvedBy","required":false,"transform":{"type":"scalar"},"locs":[{"a":133,"b":143}]},{"name":"resolvedAt","required":false,"transform":{"type":"scalar"},"locs":[{"a":162,"b":172}]},{"name":"maintenanceLogId","required":false,"transform":{"type":"scalar"},"locs":[{"a":198,"b":214}]},{"name":"issueId","required":true,"transform":{"type":"scalar"},"locs":[{"a":227,"b":235}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":255,"b":264}]}],"statement":"UPDATE equipment_issues\nSET\n  status = :status!,\n  assigned_to = :assignedTo,\n  resolution_notes = :resolutionNotes,\n  resolved_by = :resolvedBy,\n  resolved_at = :resolvedAt,\n  maintenance_log_id = :maintenanceLogId\nWHERE id = :issueId!\n  AND branch_id = :branchId!\nRETURNING *"};
 
@@ -1388,32 +1691,70 @@ const updateEquipmentIssueIR: any = {"usedParamSet":{"status":true,"assignedTo":
 export const updateEquipmentIssue = new PreparedQuery<UpdateEquipmentIssueParams,UpdateEquipmentIssueResult>(updateEquipmentIssueIR);
 
 
-/** Query 'GetEquipmentUtilizationStats' is invalid, so its result is assigned type 'never'.
- *  */
-export type GetEquipmentUtilizationStatsResult = never;
+/** 'GetEquipmentUtilizationStats' parameters type */
+export interface GetEquipmentUtilizationStatsParams {
+  branchId: string;
+  endDate: DateOrString;
+  startDate: DateOrString;
+}
 
-/** Query 'GetEquipmentUtilizationStats' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type GetEquipmentUtilizationStatsParams = never;
+/** 'GetEquipmentUtilizationStats' return type */
+export interface GetEquipmentUtilizationStatsResult {
+  avg_usage_per_class: string | null;
+  equipment_id: string | null;
+  equipment_number: string | null;
+  equipment_type: string | null;
+  total_assignments: string | null;
+  total_usage_hours: string | null;
+  utilization_rate: string | null;
+}
 
-const getEquipmentUtilizationStatsIR: any = {"usedParamSet":{"branchId":true,"startDate":true,"endDate":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":46,"b":55}]},{"name":"startDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":58,"b":68}]},{"name":"endDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":71,"b":79}]}],"statement":"SELECT * FROM get_equipment_utilization_stats(:branchId!, :startDate!, :endDate!)"};
+/** 'GetEquipmentUtilizationStats' query type */
+export interface GetEquipmentUtilizationStatsQuery {
+  params: GetEquipmentUtilizationStatsParams;
+  result: GetEquipmentUtilizationStatsResult;
+}
+
+const getEquipmentUtilizationStatsIR: any = {"usedParamSet":{"branchId":true,"startDate":true,"endDate":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":182,"b":191}]},{"name":"startDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":194,"b":204}]},{"name":"endDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":207,"b":215}]}],"statement":"SELECT\n  equipment_id,\n  equipment_number,\n  equipment_type,\n  total_assignments,\n  total_usage_hours,\n  avg_usage_per_class,\n  utilization_rate\nFROM get_equipment_utilization_stats(:branchId!, :startDate!, :endDate!)"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT * FROM get_equipment_utilization_stats(:branchId!, :startDate!, :endDate!)
+ * SELECT
+ *   equipment_id,
+ *   equipment_number,
+ *   equipment_type,
+ *   total_assignments,
+ *   total_usage_hours,
+ *   avg_usage_per_class,
+ *   utilization_rate
+ * FROM get_equipment_utilization_stats(:branchId!, :startDate!, :endDate!)
  * ```
  */
 export const getEquipmentUtilizationStats = new PreparedQuery<GetEquipmentUtilizationStatsParams,GetEquipmentUtilizationStatsResult>(getEquipmentUtilizationStatsIR);
 
 
-/** Query 'GetEquipmentSummary' is invalid, so its result is assigned type 'never'.
- *  */
-export type GetEquipmentSummaryResult = never;
+/** 'GetEquipmentSummary' parameters type */
+export interface GetEquipmentSummaryParams {
+  branchId: string;
+}
 
-/** Query 'GetEquipmentSummary' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type GetEquipmentSummaryParams = never;
+/** 'GetEquipmentSummary' return type */
+export interface GetEquipmentSummaryResult {
+  available_count: string | null;
+  equipment_type: string;
+  in_use_count: string | null;
+  maintenance_count: string | null;
+  open_issues_count: string | null;
+  out_of_service_count: string | null;
+  total_equipment: string | null;
+}
+
+/** 'GetEquipmentSummary' query type */
+export interface GetEquipmentSummaryQuery {
+  params: GetEquipmentSummaryParams;
+  result: GetEquipmentSummaryResult;
+}
 
 const getEquipmentSummaryIR: any = {"usedParamSet":{"branchId":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":565,"b":574},{"a":653,"b":662}]}],"statement":"SELECT\n  et.name as equipment_type,\n  COUNT(e.id) as total_equipment,\n  COUNT(e.id) FILTER (WHERE e.status = 'available') as available_count,\n  COUNT(e.id) FILTER (WHERE e.status = 'in_use') as in_use_count,\n  COUNT(e.id) FILTER (WHERE e.status = 'maintenance') as maintenance_count,\n  COUNT(e.id) FILTER (WHERE e.status = 'out_of_service') as out_of_service_count,\n  COUNT(ei.id) FILTER (WHERE ei.status IN ('open', 'acknowledged', 'in_progress')) as open_issues_count\nFROM equipment_types et\nLEFT JOIN equipment e ON et.id = e.equipment_type_id AND e.branch_id = :branchId!\nLEFT JOIN equipment_issues ei ON e.id = ei.equipment_id\nWHERE et.branch_id = :branchId!\nGROUP BY et.id, et.name\nORDER BY et.name"};
 

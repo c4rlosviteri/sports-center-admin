@@ -75,18 +75,18 @@ export async function getClientChurnAnalysis(_branchId: string) {
 }
 
 /**
- * Get membership conversion funnel from materialized view
+ * Get package conversion funnel from materialized view
  */
-export async function getMembershipConversionFunnel(_branchId: string) {
+export async function getPackageConversionFunnel(_branchId: string) {
   throw new Error(
     'Not implemented - run migrations and regenerate PGTyped types first'
   )
 }
 
 /**
- * Get membership conversion metrics with activity tracking
+ * Get package conversion metrics with activity tracking
  */
-export async function getMembershipConversionMetrics(
+export async function getPackageConversionMetrics(
   _branchId: string,
   _daysBack: number = 30
 ) {
@@ -141,8 +141,8 @@ export async function logClientActivity(
     | 'cancellation'
     | 'attendance'
     | 'payment'
-    | 'membership_purchase'
-    | 'membership_renewal'
+    | 'package_purchase'
+    | 'package_renewal'
     | 'no_show',
   _metadata?: Record<string, unknown>
 ) {

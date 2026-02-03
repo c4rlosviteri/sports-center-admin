@@ -2,6 +2,7 @@
 
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
+import * as authQueries from '~/db/queries/auth.queries'
 import { auth } from '~/lib/auth'
 import { pool } from '~/lib/db'
 import { registerSchema } from '~/lib/schemas'
@@ -37,17 +38,14 @@ export async function getSession(): Promise<{ user: SessionUser } | null> {
   if (!session) return null
 
   // Fetch additional user data including branch info
-  const result = await pool.query(
-    `SELECT u.*, b.name as branch_name
-     FROM "user" u
-     LEFT JOIN branches b ON u.branch_id = b.id
-     WHERE u.id = $1`,
-    [session.user.id]
+  const result = await authQueries.getUserWithBranch.run(
+    { userId: session.user.id },
+    pool
   )
 
-  if (result.rows.length === 0) return null
+  if (result.length === 0) return null
 
-  const user = result.rows[0]
+  const user = result[0]
 
   return {
     user: {
@@ -59,11 +57,11 @@ export async function getSession(): Promise<{ user: SessionUser } | null> {
       role: user.role,
       branchId: user.branch_id,
       branchName: user.branch_name,
-      dateOfBirth: user.date_of_birth,
+      dateOfBirth: user.date_of_birth?.toISOString() ?? null,
       idNumber: user.id_number,
       address: user.address,
       phone: user.phone,
-      termsAcceptedAt: user.terms_accepted_at,
+      termsAcceptedAt: user.terms_accepted_at?.toISOString() ?? null,
     },
   }
 }
@@ -80,28 +78,26 @@ export async function validateInviteToken(token: string): Promise<{
     return { valid: false, status: 'invalid' }
   }
 
-  const result = await pool.query(
-    `SELECT pi.*, b.name as branch_name
-     FROM package_invitations pi
-     INNER JOIN branches b ON pi.branch_id = b.id
-     WHERE pi.code = $1`,
-    [token]
+  const result = await authQueries.getInvitationByCode.run(
+    { code: token },
+    pool
   )
 
-  if (result.rows.length === 0) {
+  if (result.length === 0) {
     return { valid: false, status: 'invalid' }
   }
 
-  const invitation = result.rows[0]
+  const invitation = result[0]
 
   if (
     !invitation.is_active ||
-    (invitation.max_uses && invitation.usage_count >= invitation.max_uses)
+    (invitation.max_uses &&
+      (invitation.usage_count ?? 0) >= invitation.max_uses)
   ) {
     return { valid: false, status: 'used' }
   }
 
-  if (new Date(invitation.expires_at) < new Date()) {
+  if (invitation.expires_at && new Date(invitation.expires_at) < new Date()) {
     return { valid: false, status: 'expired' }
   }
 
@@ -139,43 +135,41 @@ export async function registerAction(formData: FormData) {
     await client.query('BEGIN')
 
     // Validate invite token
-    const invitationResult = await client.query(
-      `SELECT pi.*
-       FROM package_invitations pi
-       WHERE pi.code = $1 AND pi.is_active = true AND (pi.max_uses IS NULL OR pi.usage_count < pi.max_uses) AND pi.expires_at > NOW()`,
-      [validatedData.inviteToken]
+    const invitationResult = await authQueries.getValidInvitationByCode.run(
+      { code: validatedData.inviteToken },
+      client
     )
 
-    if (invitationResult.rows.length === 0) {
+    if (invitationResult.length === 0) {
       throw new Error('El enlace de invitación no es válido o ha expirado')
     }
 
-    const invitation = invitationResult.rows[0]
+    const invitation = invitationResult[0]
 
     // Check if email already exists
-    const existingEmail = await client.query(
-      'SELECT id FROM "user" WHERE email = $1',
-      [validatedData.email]
+    const existingEmail = await authQueries.getUserIdByEmail.run(
+      { email: validatedData.email },
+      client
     )
-    if (existingEmail.rows.length > 0) {
+    if (existingEmail.length > 0) {
       throw new Error('Este correo electrónico ya está registrado')
     }
 
     // Check if cédula already exists
-    const existingCedula = await client.query(
-      'SELECT id FROM "user" WHERE id_number = $1',
-      [validatedData.idNumber]
+    const existingCedula = await authQueries.getUserIdByIdNumber.run(
+      { idNumber: validatedData.idNumber },
+      client
     )
-    if (existingCedula.rows.length > 0) {
+    if (existingCedula.length > 0) {
       throw new Error('Este número de cédula ya está registrado')
     }
 
     // Check if phone already exists
-    const existingPhone = await client.query(
-      'SELECT id FROM "user" WHERE phone = $1',
-      [validatedData.phone]
+    const existingPhone = await authQueries.getUserIdByPhone.run(
+      { phone: validatedData.phone },
+      client
     )
-    if (existingPhone.rows.length > 0) {
+    if (existingPhone.length > 0) {
       throw new Error('Este número de teléfono ya está registrado')
     }
 
@@ -191,38 +185,39 @@ export async function registerAction(formData: FormData) {
     const userId = crypto.randomUUID()
 
     // Create user in Better Auth's user table
-    await client.query(
-      `INSERT INTO "user" (
-        id, email, "emailVerified", name, first_name, last_name,
-        date_of_birth, id_number, address, phone, role, branch_id, terms_accepted_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())`,
-      [
-        userId,
-        validatedData.email,
-        true, // Email verified since they have invite link
-        `${validatedData.firstName} ${validatedData.lastName}`,
-        validatedData.firstName,
-        validatedData.lastName,
-        validatedData.dateOfBirth,
-        validatedData.idNumber,
-        validatedData.address,
-        validatedData.phone,
-        'client',
-        invitation.branch_id,
-      ]
+    await authQueries.insertUserWithInvite.run(
+      {
+        id: userId,
+        email: validatedData.email,
+        emailVerified: true,
+        name: `${validatedData.firstName} ${validatedData.lastName}`,
+        firstName: validatedData.firstName,
+        lastName: validatedData.lastName,
+        dateOfBirth: validatedData.dateOfBirth,
+        idNumber: validatedData.idNumber,
+        address: validatedData.address,
+        phone: validatedData.phone,
+        role: 'client',
+        branchId: invitation.branch_id,
+      },
+      client
     )
 
     // Create account entry for credential-based auth
-    await client.query(
-      `INSERT INTO "account" (id, "userId", "accountId", "providerId", password)
-       VALUES ($1, $2, $3, 'credential', $4)`,
-      [crypto.randomUUID(), userId, validatedData.email, passwordHash]
+    await authQueries.insertAccountCredential.run(
+      {
+        id: crypto.randomUUID(),
+        userId,
+        accountId: validatedData.email,
+        password: passwordHash,
+      },
+      client
     )
 
     // Mark invite as used
-    await client.query(
-      'UPDATE package_invitations SET usage_count = usage_count + 1 WHERE code = $1',
-      [validatedData.inviteToken]
+    await authQueries.incrementInvitationUsage.run(
+      { code: validatedData.inviteToken },
+      client
     )
 
     await client.query('COMMIT')
@@ -255,9 +250,10 @@ export async function logoutAction() {
 
   if (session) {
     // Delete session from database
-    await pool.query('DELETE FROM "session" WHERE "userId" = $1', [
-      session.user.id,
-    ])
+    await authQueries.deleteSessionByUserId.run(
+      { userId: session.user.id },
+      pool
+    )
   }
 
   // Clear session cookie

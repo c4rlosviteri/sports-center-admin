@@ -59,7 +59,7 @@ Created 4 new migration files with comprehensive schema changes:
 - `mv_daily_revenue` - Daily revenue summaries with trends
 - `mv_class_popularity` - Class utilization by time/day
 - `mv_client_retention` - Cohort-based retention analysis
-- `mv_membership_funnel` - Conversion funnel metrics
+- `mv_package_funnel` - Conversion funnel metrics
 
 **PostgreSQL Functions:**
 - `refresh_analytics_views()` - Refresh all materialized views
@@ -326,7 +326,7 @@ Quick reference of all completed work
 
 ### Database Objects
 - **Tables:** attendance_records, no_show_penalties, late_cancellation_fees, recurring_class_templates, holiday_exceptions, generated_classes_log, analytics_cache, client_activity_log, waitlist_notifications, waitlist_offers, notification_preferences
-- **Views:** mv_daily_revenue, mv_class_popularity, mv_client_retention, mv_membership_funnel
+- **Views:** mv_daily_revenue, mv_class_popularity, mv_client_retention, mv_package_funnel
 - **Functions:** calculate_no_show_rate, has_active_penalty, generate_classes_from_template, auto_generate_next_month_classes, refresh_analytics_views, get_class_utilization_heatmap, get_revenue_trend, offer_waitlist_spot, accept_waitlist_offer, handle_expired_waitlist_offers
 
 ---

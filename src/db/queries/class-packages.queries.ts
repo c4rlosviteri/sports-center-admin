@@ -143,12 +143,32 @@ export interface GetPackageTemplatesQuery {
   result: GetPackageTemplatesResult;
 }
 
-const getPackageTemplatesIR: any = {"usedParamSet":{"branchId":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":56,"b":65}]}],"statement":"SELECT *\nFROM class_package_templates\nWHERE branch_id = :branchId!\n  AND is_active = true\nORDER BY display_order, class_count"};
+const getPackageTemplatesIR: any = {"usedParamSet":{"branchId":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":376,"b":385}]}],"statement":"SELECT\n  id,\n  branch_id,\n  name,\n  description,\n  class_count,\n  price,\n  validity_type,\n  validity_period,\n  is_gift_eligible,\n  is_shareable,\n  allows_waitlist,\n  priority_booking,\n  allowed_class_types,\n  blackout_dates,\n  max_classes_per_day,\n  max_classes_per_week,\n  is_active,\n  display_order,\n  created_at,\n  updated_at\nFROM class_package_templates\nWHERE branch_id = :branchId!\n  AND is_active = true\nORDER BY display_order, class_count"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT *
+ * SELECT
+ *   id,
+ *   branch_id,
+ *   name,
+ *   description,
+ *   class_count,
+ *   price,
+ *   validity_type,
+ *   validity_period,
+ *   is_gift_eligible,
+ *   is_shareable,
+ *   allows_waitlist,
+ *   priority_booking,
+ *   allowed_class_types,
+ *   blackout_dates,
+ *   max_classes_per_day,
+ *   max_classes_per_week,
+ *   is_active,
+ *   display_order,
+ *   created_at,
+ *   updated_at
  * FROM class_package_templates
  * WHERE branch_id = :branchId!
  *   AND is_active = true
@@ -156,6 +176,281 @@ const getPackageTemplatesIR: any = {"usedParamSet":{"branchId":true},"params":[{
  * ```
  */
 export const getPackageTemplates = new PreparedQuery<GetPackageTemplatesParams,GetPackageTemplatesResult>(getPackageTemplatesIR);
+
+
+/** 'GetAllPackageTemplatesByBranch' parameters type */
+export interface GetAllPackageTemplatesByBranchParams {
+  branchId: string;
+}
+
+/** 'GetAllPackageTemplatesByBranch' return type */
+export interface GetAllPackageTemplatesByBranchResult {
+  allowed_class_types: stringArray | null;
+  allows_waitlist: boolean | null;
+  blackout_dates: Json | null;
+  branch_id: string;
+  class_count: number;
+  created_at: Date | null;
+  description: string | null;
+  display_order: number | null;
+  id: string;
+  is_active: boolean | null;
+  is_gift_eligible: boolean | null;
+  is_shareable: boolean | null;
+  max_classes_per_day: number | null;
+  max_classes_per_week: number | null;
+  name: string;
+  price: string;
+  priority_booking: boolean | null;
+  updated_at: Date | null;
+  validity_period: number | null;
+  validity_type: string;
+}
+
+/** 'GetAllPackageTemplatesByBranch' query type */
+export interface GetAllPackageTemplatesByBranchQuery {
+  params: GetAllPackageTemplatesByBranchParams;
+  result: GetAllPackageTemplatesByBranchResult;
+}
+
+const getAllPackageTemplatesByBranchIR: any = {"usedParamSet":{"branchId":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":376,"b":385}]}],"statement":"SELECT\n  id,\n  branch_id,\n  name,\n  description,\n  class_count,\n  price,\n  validity_type,\n  validity_period,\n  is_gift_eligible,\n  is_shareable,\n  allows_waitlist,\n  priority_booking,\n  allowed_class_types,\n  blackout_dates,\n  max_classes_per_day,\n  max_classes_per_week,\n  is_active,\n  display_order,\n  created_at,\n  updated_at\nFROM class_package_templates\nWHERE branch_id = :branchId!\nORDER BY is_active DESC, display_order, class_count"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * SELECT
+ *   id,
+ *   branch_id,
+ *   name,
+ *   description,
+ *   class_count,
+ *   price,
+ *   validity_type,
+ *   validity_period,
+ *   is_gift_eligible,
+ *   is_shareable,
+ *   allows_waitlist,
+ *   priority_booking,
+ *   allowed_class_types,
+ *   blackout_dates,
+ *   max_classes_per_day,
+ *   max_classes_per_week,
+ *   is_active,
+ *   display_order,
+ *   created_at,
+ *   updated_at
+ * FROM class_package_templates
+ * WHERE branch_id = :branchId!
+ * ORDER BY is_active DESC, display_order, class_count
+ * ```
+ */
+export const getAllPackageTemplatesByBranch = new PreparedQuery<GetAllPackageTemplatesByBranchParams,GetAllPackageTemplatesByBranchResult>(getAllPackageTemplatesByBranchIR);
+
+
+/** 'GetAllPackageTemplatesWithBranch' parameters type */
+export type GetAllPackageTemplatesWithBranchParams = void;
+
+/** 'GetAllPackageTemplatesWithBranch' return type */
+export interface GetAllPackageTemplatesWithBranchResult {
+  allowed_class_types: stringArray | null;
+  allows_waitlist: boolean | null;
+  blackout_dates: Json | null;
+  branch_id: string;
+  branch_name: string;
+  class_count: number;
+  created_at: Date | null;
+  description: string | null;
+  display_order: number | null;
+  id: string;
+  is_active: boolean | null;
+  is_gift_eligible: boolean | null;
+  is_shareable: boolean | null;
+  max_classes_per_day: number | null;
+  max_classes_per_week: number | null;
+  name: string;
+  price: string;
+  priority_booking: boolean | null;
+  updated_at: Date | null;
+  validity_period: number | null;
+  validity_type: string;
+}
+
+/** 'GetAllPackageTemplatesWithBranch' query type */
+export interface GetAllPackageTemplatesWithBranchQuery {
+  params: GetAllPackageTemplatesWithBranchParams;
+  result: GetAllPackageTemplatesWithBranchResult;
+}
+
+const getAllPackageTemplatesWithBranchIR: any = {"usedParamSet":{},"params":[],"statement":"SELECT\n  cpt.id,\n  cpt.branch_id,\n  cpt.name,\n  cpt.description,\n  cpt.class_count,\n  cpt.price,\n  cpt.validity_type,\n  cpt.validity_period,\n  cpt.is_gift_eligible,\n  cpt.is_shareable,\n  cpt.allows_waitlist,\n  cpt.priority_booking,\n  cpt.allowed_class_types,\n  cpt.blackout_dates,\n  cpt.max_classes_per_day,\n  cpt.max_classes_per_week,\n  cpt.is_active,\n  cpt.display_order,\n  cpt.created_at,\n  cpt.updated_at,\n  b.name as branch_name\nFROM class_package_templates cpt\nJOIN branches b ON cpt.branch_id = b.id\nORDER BY b.name, cpt.is_active DESC, cpt.display_order, cpt.class_count"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * SELECT
+ *   cpt.id,
+ *   cpt.branch_id,
+ *   cpt.name,
+ *   cpt.description,
+ *   cpt.class_count,
+ *   cpt.price,
+ *   cpt.validity_type,
+ *   cpt.validity_period,
+ *   cpt.is_gift_eligible,
+ *   cpt.is_shareable,
+ *   cpt.allows_waitlist,
+ *   cpt.priority_booking,
+ *   cpt.allowed_class_types,
+ *   cpt.blackout_dates,
+ *   cpt.max_classes_per_day,
+ *   cpt.max_classes_per_week,
+ *   cpt.is_active,
+ *   cpt.display_order,
+ *   cpt.created_at,
+ *   cpt.updated_at,
+ *   b.name as branch_name
+ * FROM class_package_templates cpt
+ * JOIN branches b ON cpt.branch_id = b.id
+ * ORDER BY b.name, cpt.is_active DESC, cpt.display_order, cpt.class_count
+ * ```
+ */
+export const getAllPackageTemplatesWithBranch = new PreparedQuery<GetAllPackageTemplatesWithBranchParams,GetAllPackageTemplatesWithBranchResult>(getAllPackageTemplatesWithBranchIR);
+
+
+/** 'GetPackageTemplateByIdAny' parameters type */
+export interface GetPackageTemplateByIdAnyParams {
+  templateId: string;
+}
+
+/** 'GetPackageTemplateByIdAny' return type */
+export interface GetPackageTemplateByIdAnyResult {
+  allowed_class_types: stringArray | null;
+  allows_waitlist: boolean | null;
+  blackout_dates: Json | null;
+  branch_id: string;
+  class_count: number;
+  created_at: Date | null;
+  description: string | null;
+  display_order: number | null;
+  id: string;
+  is_active: boolean | null;
+  is_gift_eligible: boolean | null;
+  is_shareable: boolean | null;
+  max_classes_per_day: number | null;
+  max_classes_per_week: number | null;
+  name: string;
+  price: string;
+  priority_booking: boolean | null;
+  updated_at: Date | null;
+  validity_period: number | null;
+  validity_type: string;
+}
+
+/** 'GetPackageTemplateByIdAny' query type */
+export interface GetPackageTemplateByIdAnyQuery {
+  params: GetPackageTemplateByIdAnyParams;
+  result: GetPackageTemplateByIdAnyResult;
+}
+
+const getPackageTemplateByIdAnyIR: any = {"usedParamSet":{"templateId":true},"params":[{"name":"templateId","required":true,"transform":{"type":"scalar"},"locs":[{"a":369,"b":380}]}],"statement":"SELECT\n  id,\n  branch_id,\n  name,\n  description,\n  class_count,\n  price,\n  validity_type,\n  validity_period,\n  is_gift_eligible,\n  is_shareable,\n  allows_waitlist,\n  priority_booking,\n  allowed_class_types,\n  blackout_dates,\n  max_classes_per_day,\n  max_classes_per_week,\n  is_active,\n  display_order,\n  created_at,\n  updated_at\nFROM class_package_templates\nWHERE id = :templateId!"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * SELECT
+ *   id,
+ *   branch_id,
+ *   name,
+ *   description,
+ *   class_count,
+ *   price,
+ *   validity_type,
+ *   validity_period,
+ *   is_gift_eligible,
+ *   is_shareable,
+ *   allows_waitlist,
+ *   priority_booking,
+ *   allowed_class_types,
+ *   blackout_dates,
+ *   max_classes_per_day,
+ *   max_classes_per_week,
+ *   is_active,
+ *   display_order,
+ *   created_at,
+ *   updated_at
+ * FROM class_package_templates
+ * WHERE id = :templateId!
+ * ```
+ */
+export const getPackageTemplateByIdAny = new PreparedQuery<GetPackageTemplateByIdAnyParams,GetPackageTemplateByIdAnyResult>(getPackageTemplateByIdAnyIR);
+
+
+/** 'GetActivePackageTemplateById' parameters type */
+export interface GetActivePackageTemplateByIdParams {
+  templateId: string;
+}
+
+/** 'GetActivePackageTemplateById' return type */
+export interface GetActivePackageTemplateByIdResult {
+  allowed_class_types: stringArray | null;
+  allows_waitlist: boolean | null;
+  blackout_dates: Json | null;
+  branch_id: string;
+  class_count: number;
+  created_at: Date | null;
+  description: string | null;
+  display_order: number | null;
+  id: string;
+  is_active: boolean | null;
+  is_gift_eligible: boolean | null;
+  is_shareable: boolean | null;
+  max_classes_per_day: number | null;
+  max_classes_per_week: number | null;
+  name: string;
+  price: string;
+  priority_booking: boolean | null;
+  updated_at: Date | null;
+  validity_period: number | null;
+  validity_type: string;
+}
+
+/** 'GetActivePackageTemplateById' query type */
+export interface GetActivePackageTemplateByIdQuery {
+  params: GetActivePackageTemplateByIdParams;
+  result: GetActivePackageTemplateByIdResult;
+}
+
+const getActivePackageTemplateByIdIR: any = {"usedParamSet":{"templateId":true},"params":[{"name":"templateId","required":true,"transform":{"type":"scalar"},"locs":[{"a":369,"b":380}]}],"statement":"SELECT\n  id,\n  branch_id,\n  name,\n  description,\n  class_count,\n  price,\n  validity_type,\n  validity_period,\n  is_gift_eligible,\n  is_shareable,\n  allows_waitlist,\n  priority_booking,\n  allowed_class_types,\n  blackout_dates,\n  max_classes_per_day,\n  max_classes_per_week,\n  is_active,\n  display_order,\n  created_at,\n  updated_at\nFROM class_package_templates\nWHERE id = :templateId!\n  AND is_active = true"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * SELECT
+ *   id,
+ *   branch_id,
+ *   name,
+ *   description,
+ *   class_count,
+ *   price,
+ *   validity_type,
+ *   validity_period,
+ *   is_gift_eligible,
+ *   is_shareable,
+ *   allows_waitlist,
+ *   priority_booking,
+ *   allowed_class_types,
+ *   blackout_dates,
+ *   max_classes_per_day,
+ *   max_classes_per_week,
+ *   is_active,
+ *   display_order,
+ *   created_at,
+ *   updated_at
+ * FROM class_package_templates
+ * WHERE id = :templateId!
+ *   AND is_active = true
+ * ```
+ */
+export const getActivePackageTemplateById = new PreparedQuery<GetActivePackageTemplateByIdParams,GetActivePackageTemplateByIdResult>(getActivePackageTemplateByIdIR);
 
 
 /** 'GetPackageTemplateById' parameters type */
@@ -194,18 +489,148 @@ export interface GetPackageTemplateByIdQuery {
   result: GetPackageTemplateByIdResult;
 }
 
-const getPackageTemplateByIdIR: any = {"usedParamSet":{"templateId":true,"branchId":true},"params":[{"name":"templateId","required":true,"transform":{"type":"scalar"},"locs":[{"a":49,"b":60}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":80,"b":89}]}],"statement":"SELECT *\nFROM class_package_templates\nWHERE id = :templateId!\n  AND branch_id = :branchId!"};
+const getPackageTemplateByIdIR: any = {"usedParamSet":{"templateId":true,"branchId":true},"params":[{"name":"templateId","required":true,"transform":{"type":"scalar"},"locs":[{"a":369,"b":380}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":400,"b":409}]}],"statement":"SELECT\n  id,\n  branch_id,\n  name,\n  description,\n  class_count,\n  price,\n  validity_type,\n  validity_period,\n  is_gift_eligible,\n  is_shareable,\n  allows_waitlist,\n  priority_booking,\n  allowed_class_types,\n  blackout_dates,\n  max_classes_per_day,\n  max_classes_per_week,\n  is_active,\n  display_order,\n  created_at,\n  updated_at\nFROM class_package_templates\nWHERE id = :templateId!\n  AND branch_id = :branchId!"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT *
+ * SELECT
+ *   id,
+ *   branch_id,
+ *   name,
+ *   description,
+ *   class_count,
+ *   price,
+ *   validity_type,
+ *   validity_period,
+ *   is_gift_eligible,
+ *   is_shareable,
+ *   allows_waitlist,
+ *   priority_booking,
+ *   allowed_class_types,
+ *   blackout_dates,
+ *   max_classes_per_day,
+ *   max_classes_per_week,
+ *   is_active,
+ *   display_order,
+ *   created_at,
+ *   updated_at
  * FROM class_package_templates
  * WHERE id = :templateId!
  *   AND branch_id = :branchId!
  * ```
  */
 export const getPackageTemplateById = new PreparedQuery<GetPackageTemplateByIdParams,GetPackageTemplateByIdResult>(getPackageTemplateByIdIR);
+
+
+/** 'UpdatePackageTemplateStatus' parameters type */
+export interface UpdatePackageTemplateStatusParams {
+  isActive: boolean;
+  templateId: string;
+}
+
+/** 'UpdatePackageTemplateStatus' return type */
+export interface UpdatePackageTemplateStatusResult {
+  allowed_class_types: stringArray | null;
+  allows_waitlist: boolean | null;
+  blackout_dates: Json | null;
+  branch_id: string;
+  class_count: number;
+  created_at: Date | null;
+  description: string | null;
+  display_order: number | null;
+  id: string;
+  is_active: boolean | null;
+  is_gift_eligible: boolean | null;
+  is_shareable: boolean | null;
+  max_classes_per_day: number | null;
+  max_classes_per_week: number | null;
+  name: string;
+  price: string;
+  priority_booking: boolean | null;
+  updated_at: Date | null;
+  validity_period: number | null;
+  validity_type: string;
+}
+
+/** 'UpdatePackageTemplateStatus' query type */
+export interface UpdatePackageTemplateStatusQuery {
+  params: UpdatePackageTemplateStatusParams;
+  result: UpdatePackageTemplateStatusResult;
+}
+
+const updatePackageTemplateStatusIR: any = {"usedParamSet":{"isActive":true,"templateId":true},"params":[{"name":"isActive","required":true,"transform":{"type":"scalar"},"locs":[{"a":49,"b":58}]},{"name":"templateId","required":true,"transform":{"type":"scalar"},"locs":[{"a":105,"b":116}]}],"statement":"UPDATE class_package_templates\nSET\n  is_active = :isActive!,\n  updated_at = CURRENT_TIMESTAMP\nWHERE id = :templateId!\nRETURNING *"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * UPDATE class_package_templates
+ * SET
+ *   is_active = :isActive!,
+ *   updated_at = CURRENT_TIMESTAMP
+ * WHERE id = :templateId!
+ * RETURNING *
+ * ```
+ */
+export const updatePackageTemplateStatus = new PreparedQuery<UpdatePackageTemplateStatusParams,UpdatePackageTemplateStatusResult>(updatePackageTemplateStatusIR);
+
+
+/** 'GetPackagePurchasesCount' parameters type */
+export interface GetPackagePurchasesCountParams {
+  templateId: string;
+}
+
+/** 'GetPackagePurchasesCount' return type */
+export interface GetPackagePurchasesCountResult {
+  count: number | null;
+}
+
+/** 'GetPackagePurchasesCount' query type */
+export interface GetPackagePurchasesCountQuery {
+  params: GetPackagePurchasesCountParams;
+  result: GetPackagePurchasesCountResult;
+}
+
+const getPackagePurchasesCountIR: any = {"usedParamSet":{"templateId":true},"params":[{"name":"templateId","required":true,"transform":{"type":"scalar"},"locs":[{"a":83,"b":94}]}],"statement":"SELECT COUNT(*)::int as count\nFROM user_class_packages\nWHERE package_template_id = :templateId!"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * SELECT COUNT(*)::int as count
+ * FROM user_class_packages
+ * WHERE package_template_id = :templateId!
+ * ```
+ */
+export const getPackagePurchasesCount = new PreparedQuery<GetPackagePurchasesCountParams,GetPackagePurchasesCountResult>(getPackagePurchasesCountIR);
+
+
+/** 'DeletePackageTemplateById' parameters type */
+export interface DeletePackageTemplateByIdParams {
+  templateId: string;
+}
+
+/** 'DeletePackageTemplateById' return type */
+export interface DeletePackageTemplateByIdResult {
+  id: string;
+}
+
+/** 'DeletePackageTemplateById' query type */
+export interface DeletePackageTemplateByIdQuery {
+  params: DeletePackageTemplateByIdParams;
+  result: DeletePackageTemplateByIdResult;
+}
+
+const deletePackageTemplateByIdIR: any = {"usedParamSet":{"templateId":true},"params":[{"name":"templateId","required":true,"transform":{"type":"scalar"},"locs":[{"a":47,"b":58}]}],"statement":"DELETE FROM class_package_templates\nWHERE id = :templateId!\nRETURNING id"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * DELETE FROM class_package_templates
+ * WHERE id = :templateId!
+ * RETURNING id
+ * ```
+ */
+export const deletePackageTemplateById = new PreparedQuery<DeletePackageTemplateByIdParams,DeletePackageTemplateByIdResult>(deletePackageTemplateByIdIR);
 
 
 /** 'UpdatePackageTemplate' parameters type */
@@ -320,6 +745,7 @@ export interface PurchasePackageResult {
   gift_redeemed_at: Date | null;
   id: string;
   is_gift: boolean | null;
+  is_shareable: boolean | null;
   package_template_id: string;
   payment_id: string | null;
   purchase_price: string;
@@ -398,6 +824,7 @@ export interface GetUserPackagesResult {
   gift_redeemed_at: Date | null;
   id: string;
   is_gift: boolean | null;
+  is_shareable: boolean | null;
   max_classes_per_day: number | null;
   max_classes_per_week: number | null;
   package_template_id: string;
@@ -466,6 +893,7 @@ export interface GetActivePackagesResult {
   gift_redeemed_at: Date | null;
   id: string;
   is_gift: boolean | null;
+  is_shareable: boolean | null;
   max_classes_per_day: number | null;
   max_classes_per_week: number | null;
   package_template_id: string;
@@ -534,6 +962,7 @@ export interface GetPackageByIdResult {
   gift_redeemed_at: Date | null;
   id: string;
   is_gift: boolean | null;
+  is_shareable: boolean | null;
   package_template_id: string;
   payment_id: string | null;
   purchase_price: string;
@@ -813,6 +1242,7 @@ export interface RestorePackageCreditResult {
   gift_redeemed_at: Date | null;
   id: string;
   is_gift: boolean | null;
+  is_shareable: boolean | null;
   package_template_id: string;
   payment_id: string | null;
   purchase_price: string;
@@ -868,6 +1298,7 @@ export interface FreezePackageResult {
   gift_redeemed_at: Date | null;
   id: string;
   is_gift: boolean | null;
+  is_shareable: boolean | null;
   package_template_id: string;
   payment_id: string | null;
   purchase_price: string;
@@ -924,6 +1355,7 @@ export interface UnfreezePackageResult {
   gift_redeemed_at: Date | null;
   id: string;
   is_gift: boolean | null;
+  is_shareable: boolean | null;
   package_template_id: string;
   payment_id: string | null;
   purchase_price: string;
@@ -982,6 +1414,7 @@ export interface RefundPackageResult {
   gift_redeemed_at: Date | null;
   id: string;
   is_gift: boolean | null;
+  is_shareable: boolean | null;
   package_template_id: string;
   payment_id: string | null;
   purchase_price: string;
@@ -1021,13 +1454,46 @@ const refundPackageIR: any = {"usedParamSet":{"refundAmount":true,"refundReason"
 export const refundPackage = new PreparedQuery<RefundPackageParams,RefundPackageResult>(refundPackageIR);
 
 
-/** Query 'SharePackage' is invalid, so its result is assigned type 'never'.
- *  */
-export type SharePackageResult = never;
+/** 'SharePackage' parameters type */
+export interface SharePackageParams {
+  branchId: string;
+  packageId: string;
+  sharedWithUserIds: stringArray;
+}
 
-/** Query 'SharePackage' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type SharePackageParams = never;
+/** 'SharePackage' return type */
+export interface SharePackageResult {
+  activated_at: Date | null;
+  branch_id: string;
+  classes_remaining: number;
+  created_at: Date | null;
+  expires_at: Date | null;
+  frozen_until: Date | null;
+  gift_from_user_id: string | null;
+  gift_message: string | null;
+  gift_redeemed_at: Date | null;
+  id: string;
+  is_gift: boolean | null;
+  is_shareable: boolean | null;
+  package_template_id: string;
+  payment_id: string | null;
+  purchase_price: string;
+  purchased_at: Date | null;
+  refund_amount: string | null;
+  refund_reason: string | null;
+  refunded_at: Date | null;
+  shared_with_user_ids: stringArray | null;
+  status: string | null;
+  total_classes: number;
+  updated_at: Date | null;
+  user_id: string;
+}
+
+/** 'SharePackage' query type */
+export interface SharePackageQuery {
+  params: SharePackageParams;
+  result: SharePackageResult;
+}
 
 const sharePackageIR: any = {"usedParamSet":{"sharedWithUserIds":true,"packageId":true,"branchId":true},"params":[{"name":"sharedWithUserIds","required":true,"transform":{"type":"scalar"},"locs":[{"a":54,"b":72}]},{"name":"packageId","required":true,"transform":{"type":"scalar"},"locs":[{"a":85,"b":95}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":115,"b":124}]}],"statement":"UPDATE user_class_packages\nSET shared_with_user_ids = :sharedWithUserIds!\nWHERE id = :packageId!\n  AND branch_id = :branchId!\n  AND is_shareable = true\nRETURNING *"};
 
@@ -1045,13 +1511,45 @@ const sharePackageIR: any = {"usedParamSet":{"sharedWithUserIds":true,"packageId
 export const sharePackage = new PreparedQuery<SharePackageParams,SharePackageResult>(sharePackageIR);
 
 
-/** Query 'CreateGiftCode' is invalid, so its result is assigned type 'never'.
- *  */
-export type CreateGiftCodeResult = never;
+/** 'CreateGiftCode' parameters type */
+export interface CreateGiftCodeParams {
+  branchId: string;
+  expiresAt?: DateOrString | null | void;
+  giftMessage?: string | null | void;
+  packageTemplateId: string;
+  paymentId?: string | null | void;
+  purchasedBy: string;
+  purchasePrice: NumberOrString;
+  recipientEmail?: string | null | void;
+  recipientName?: string | null | void;
+}
 
-/** Query 'CreateGiftCode' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type CreateGiftCodeParams = never;
+/** 'CreateGiftCode' return type */
+export interface CreateGiftCodeResult {
+  branch_id: string;
+  code: string;
+  created_at: Date | null;
+  expires_at: Date | null;
+  gift_message: string | null;
+  id: string;
+  package_template_id: string;
+  payment_id: string | null;
+  purchase_price: string;
+  purchased_at: Date | null;
+  purchased_by: string | null;
+  recipient_email: string | null;
+  recipient_name: string | null;
+  redeemed: boolean | null;
+  redeemed_at: Date | null;
+  redeemed_by: string | null;
+  user_package_id: string | null;
+}
+
+/** 'CreateGiftCode' query type */
+export interface CreateGiftCodeQuery {
+  params: CreateGiftCodeParams;
+  result: CreateGiftCodeResult;
+}
 
 const createGiftCodeIR: any = {"usedParamSet":{"packageTemplateId":true,"branchId":true,"purchasedBy":true,"purchasePrice":true,"paymentId":true,"recipientEmail":true,"recipientName":true,"giftMessage":true,"expiresAt":true},"params":[{"name":"packageTemplateId","required":true,"transform":{"type":"scalar"},"locs":[{"a":228,"b":246}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":251,"b":260}]},{"name":"purchasedBy","required":true,"transform":{"type":"scalar"},"locs":[{"a":265,"b":277}]},{"name":"purchasePrice","required":true,"transform":{"type":"scalar"},"locs":[{"a":282,"b":296}]},{"name":"paymentId","required":false,"transform":{"type":"scalar"},"locs":[{"a":301,"b":310}]},{"name":"recipientEmail","required":false,"transform":{"type":"scalar"},"locs":[{"a":315,"b":329}]},{"name":"recipientName","required":false,"transform":{"type":"scalar"},"locs":[{"a":334,"b":347}]},{"name":"giftMessage","required":false,"transform":{"type":"scalar"},"locs":[{"a":352,"b":363}]},{"name":"expiresAt","required":false,"transform":{"type":"scalar"},"locs":[{"a":368,"b":377}]}],"statement":"INSERT INTO gift_package_codes (\n  code,\n  package_template_id,\n  branch_id,\n  purchased_by,\n  purchase_price,\n  payment_id,\n  recipient_email,\n  recipient_name,\n  gift_message,\n  expires_at\n) VALUES (\n  generate_gift_code(),\n  :packageTemplateId!,\n  :branchId!,\n  :purchasedBy!,\n  :purchasePrice!,\n  :paymentId,\n  :recipientEmail,\n  :recipientName,\n  :giftMessage,\n  :expiresAt\n)\nRETURNING *"};
 
@@ -1087,13 +1585,42 @@ const createGiftCodeIR: any = {"usedParamSet":{"packageTemplateId":true,"branchI
 export const createGiftCode = new PreparedQuery<CreateGiftCodeParams,CreateGiftCodeResult>(createGiftCodeIR);
 
 
-/** Query 'GetGiftCodeByCode' is invalid, so its result is assigned type 'never'.
- *  */
-export type GetGiftCodeByCodeResult = never;
+/** 'GetGiftCodeByCode' parameters type */
+export interface GetGiftCodeByCodeParams {
+  code: string;
+}
 
-/** Query 'GetGiftCodeByCode' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type GetGiftCodeByCodeParams = never;
+/** 'GetGiftCodeByCode' return type */
+export interface GetGiftCodeByCodeResult {
+  branch_id: string;
+  class_count: number;
+  code: string;
+  created_at: Date | null;
+  expires_at: Date | null;
+  gift_message: string | null;
+  id: string;
+  package_description: string | null;
+  package_name: string;
+  package_template_id: string;
+  payment_id: string | null;
+  purchase_price: string;
+  purchased_at: Date | null;
+  purchased_by: string | null;
+  recipient_email: string | null;
+  recipient_name: string | null;
+  redeemed: boolean | null;
+  redeemed_at: Date | null;
+  redeemed_by: string | null;
+  user_package_id: string | null;
+  validity_period: number | null;
+  validity_type: string;
+}
+
+/** 'GetGiftCodeByCode' query type */
+export interface GetGiftCodeByCodeQuery {
+  params: GetGiftCodeByCodeParams;
+  result: GetGiftCodeByCodeResult;
+}
 
 const getGiftCodeByCodeIR: any = {"usedParamSet":{"code":true},"params":[{"name":"code","required":true,"transform":{"type":"scalar"},"locs":[{"a":262,"b":267}]}],"statement":"SELECT\n  gpc.*,\n  cpt.name as package_name,\n  cpt.description as package_description,\n  cpt.class_count,\n  cpt.validity_type,\n  cpt.validity_period\nFROM gift_package_codes gpc\nJOIN class_package_templates cpt ON gpc.package_template_id = cpt.id\nWHERE gpc.code = :code!"};
 
@@ -1115,13 +1642,39 @@ const getGiftCodeByCodeIR: any = {"usedParamSet":{"code":true},"params":[{"name"
 export const getGiftCodeByCode = new PreparedQuery<GetGiftCodeByCodeParams,GetGiftCodeByCodeResult>(getGiftCodeByCodeIR);
 
 
-/** Query 'RedeemGiftCode' is invalid, so its result is assigned type 'never'.
- *  */
-export type RedeemGiftCodeResult = never;
+/** 'RedeemGiftCode' parameters type */
+export interface RedeemGiftCodeParams {
+  code: string;
+  redeemedBy: string;
+  userPackageId: string;
+}
 
-/** Query 'RedeemGiftCode' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type RedeemGiftCodeParams = never;
+/** 'RedeemGiftCode' return type */
+export interface RedeemGiftCodeResult {
+  branch_id: string;
+  code: string;
+  created_at: Date | null;
+  expires_at: Date | null;
+  gift_message: string | null;
+  id: string;
+  package_template_id: string;
+  payment_id: string | null;
+  purchase_price: string;
+  purchased_at: Date | null;
+  purchased_by: string | null;
+  recipient_email: string | null;
+  recipient_name: string | null;
+  redeemed: boolean | null;
+  redeemed_at: Date | null;
+  redeemed_by: string | null;
+  user_package_id: string | null;
+}
+
+/** 'RedeemGiftCode' query type */
+export interface RedeemGiftCodeQuery {
+  params: RedeemGiftCodeParams;
+  result: RedeemGiftCodeResult;
+}
 
 const redeemGiftCodeIR: any = {"usedParamSet":{"redeemedBy":true,"userPackageId":true,"code":true},"params":[{"name":"redeemedBy","required":true,"transform":{"type":"scalar"},"locs":[{"a":65,"b":76}]},{"name":"userPackageId","required":true,"transform":{"type":"scalar"},"locs":[{"a":134,"b":148}]},{"name":"code","required":true,"transform":{"type":"scalar"},"locs":[{"a":163,"b":168}]}],"statement":"UPDATE gift_package_codes\nSET\n  redeemed = true,\n  redeemed_by = :redeemedBy!,\n  redeemed_at = CURRENT_TIMESTAMP,\n  user_package_id = :userPackageId!\nWHERE code = :code!\n  AND redeemed = false\n  AND (expires_at IS NULL OR expires_at > CURRENT_TIMESTAMP)\nRETURNING *"};
 
@@ -1143,13 +1696,40 @@ const redeemGiftCodeIR: any = {"usedParamSet":{"redeemedBy":true,"userPackageId"
 export const redeemGiftCode = new PreparedQuery<RedeemGiftCodeParams,RedeemGiftCodeResult>(redeemGiftCodeIR);
 
 
-/** Query 'GetUserGiftCodes' is invalid, so its result is assigned type 'never'.
- *  */
-export type GetUserGiftCodesResult = never;
+/** 'GetUserGiftCodes' parameters type */
+export interface GetUserGiftCodesParams {
+  branchId: string;
+  userId: string;
+}
 
-/** Query 'GetUserGiftCodes' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type GetUserGiftCodesParams = never;
+/** 'GetUserGiftCodes' return type */
+export interface GetUserGiftCodesResult {
+  branch_id: string;
+  class_count: number;
+  code: string;
+  created_at: Date | null;
+  expires_at: Date | null;
+  gift_message: string | null;
+  id: string;
+  package_name: string;
+  package_template_id: string;
+  payment_id: string | null;
+  purchase_price: string;
+  purchased_at: Date | null;
+  purchased_by: string | null;
+  recipient_email: string | null;
+  recipient_name: string | null;
+  redeemed: boolean | null;
+  redeemed_at: Date | null;
+  redeemed_by: string | null;
+  user_package_id: string | null;
+}
+
+/** 'GetUserGiftCodes' query type */
+export interface GetUserGiftCodesQuery {
+  params: GetUserGiftCodesParams;
+  result: GetUserGiftCodesResult;
+}
 
 const getUserGiftCodesIR: any = {"usedParamSet":{"userId":true,"branchId":true},"params":[{"name":"userId","required":true,"transform":{"type":"scalar"},"locs":[{"a":184,"b":191}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":215,"b":224}]}],"statement":"SELECT\n  gpc.*,\n  cpt.name as package_name,\n  cpt.class_count\nFROM gift_package_codes gpc\nJOIN class_package_templates cpt ON gpc.package_template_id = cpt.id\nWHERE gpc.purchased_by = :userId!\n  AND gpc.branch_id = :branchId!\nORDER BY gpc.purchased_at DESC"};
 
@@ -1245,6 +1825,7 @@ export interface GetExpiringPackagesResult {
   gift_redeemed_at: Date | null;
   id: string;
   is_gift: boolean | null;
+  is_shareable: boolean | null;
   last_name: string | null;
   package_name: string;
   package_template_id: string;
@@ -1310,6 +1891,7 @@ export interface ExpireOldPackagesResult {
   gift_redeemed_at: Date | null;
   id: string;
   is_gift: boolean | null;
+  is_shareable: boolean | null;
   package_template_id: string;
   payment_id: string | null;
   purchase_price: string;

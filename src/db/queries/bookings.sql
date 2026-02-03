@@ -1,3 +1,9 @@
+/* @name GetClassForBranch */
+SELECT id
+FROM classes
+WHERE id = :classId!
+  AND branch_id = :branchId!;
+
 /* @name GetClassBookings */
 SELECT
   b.id,

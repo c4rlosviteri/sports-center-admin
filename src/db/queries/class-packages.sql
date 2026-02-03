@@ -39,17 +39,179 @@ INSERT INTO class_package_templates (
 RETURNING *;
 
 /* @name GetPackageTemplates */
-SELECT *
+SELECT
+  id,
+  branch_id,
+  name,
+  description,
+  class_count,
+  price,
+  validity_type,
+  validity_period,
+  is_gift_eligible,
+  is_shareable,
+  allows_waitlist,
+  priority_booking,
+  allowed_class_types,
+  blackout_dates,
+  max_classes_per_day,
+  max_classes_per_week,
+  is_active,
+  display_order,
+  created_at,
+  updated_at
 FROM class_package_templates
 WHERE branch_id = :branchId!
   AND is_active = true
 ORDER BY display_order, class_count;
 
+/* @name GetAllPackageTemplatesByBranch */
+SELECT
+  id,
+  branch_id,
+  name,
+  description,
+  class_count,
+  price,
+  validity_type,
+  validity_period,
+  is_gift_eligible,
+  is_shareable,
+  allows_waitlist,
+  priority_booking,
+  allowed_class_types,
+  blackout_dates,
+  max_classes_per_day,
+  max_classes_per_week,
+  is_active,
+  display_order,
+  created_at,
+  updated_at
+FROM class_package_templates
+WHERE branch_id = :branchId!
+ORDER BY is_active DESC, display_order, class_count;
+
+/* @name GetAllPackageTemplatesWithBranch */
+SELECT
+  cpt.id,
+  cpt.branch_id,
+  cpt.name,
+  cpt.description,
+  cpt.class_count,
+  cpt.price,
+  cpt.validity_type,
+  cpt.validity_period,
+  cpt.is_gift_eligible,
+  cpt.is_shareable,
+  cpt.allows_waitlist,
+  cpt.priority_booking,
+  cpt.allowed_class_types,
+  cpt.blackout_dates,
+  cpt.max_classes_per_day,
+  cpt.max_classes_per_week,
+  cpt.is_active,
+  cpt.display_order,
+  cpt.created_at,
+  cpt.updated_at,
+  b.name as branch_name
+FROM class_package_templates cpt
+JOIN branches b ON cpt.branch_id = b.id
+ORDER BY b.name, cpt.is_active DESC, cpt.display_order, cpt.class_count;
+
+/* @name GetPackageTemplateByIdAny */
+SELECT
+  id,
+  branch_id,
+  name,
+  description,
+  class_count,
+  price,
+  validity_type,
+  validity_period,
+  is_gift_eligible,
+  is_shareable,
+  allows_waitlist,
+  priority_booking,
+  allowed_class_types,
+  blackout_dates,
+  max_classes_per_day,
+  max_classes_per_week,
+  is_active,
+  display_order,
+  created_at,
+  updated_at
+FROM class_package_templates
+WHERE id = :templateId!;
+
+/* @name GetActivePackageTemplateById */
+SELECT
+  id,
+  branch_id,
+  name,
+  description,
+  class_count,
+  price,
+  validity_type,
+  validity_period,
+  is_gift_eligible,
+  is_shareable,
+  allows_waitlist,
+  priority_booking,
+  allowed_class_types,
+  blackout_dates,
+  max_classes_per_day,
+  max_classes_per_week,
+  is_active,
+  display_order,
+  created_at,
+  updated_at
+FROM class_package_templates
+WHERE id = :templateId!
+  AND is_active = true;
+
 /* @name GetPackageTemplateById */
-SELECT *
+SELECT
+  id,
+  branch_id,
+  name,
+  description,
+  class_count,
+  price,
+  validity_type,
+  validity_period,
+  is_gift_eligible,
+  is_shareable,
+  allows_waitlist,
+  priority_booking,
+  allowed_class_types,
+  blackout_dates,
+  max_classes_per_day,
+  max_classes_per_week,
+  is_active,
+  display_order,
+  created_at,
+  updated_at
 FROM class_package_templates
 WHERE id = :templateId!
   AND branch_id = :branchId!;
+
+/* @name UpdatePackageTemplateStatus */
+UPDATE class_package_templates
+SET
+  is_active = :isActive!,
+  updated_at = CURRENT_TIMESTAMP
+WHERE id = :templateId!
+RETURNING *;
+
+/* @name GetPackagePurchasesCount */
+SELECT COUNT(*)::int as count
+FROM user_class_packages
+WHERE package_template_id = :templateId!;
+
+/* @name DeletePackageTemplateById */
+DELETE FROM class_package_templates
+WHERE id = :templateId!
+RETURNING id;
 
 /* @name UpdatePackageTemplate */
 UPDATE class_package_templates

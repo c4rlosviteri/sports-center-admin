@@ -10,30 +10,30 @@ Users can now **only book the number of classes available in their package**. Th
 
 ### Location: [booking-service.ts](src/lib/booking-service.ts)
 
-The `canBookClass()` function validates membership limits:
+The `canBookClass()` function validates package limits:
 
 ```typescript
-export function canBookClass(membership: MembershipInfo): {
+export function canBookClass(pkg: PackageInfo): {
   canBook: boolean
   reason?: string
 } {
   const now = new Date()
-  const endDate = new Date(membership.endDate)
+  const endDate = new Date(pkg.endDate)
 
   if (endDate < now) {
     return {
       canBook: false,
-      reason: 'Tu plan ha expirado. Por favor contacta al administrador.',
+      reason: 'Tu paquete ha expirado. Por favor contacta al administrador.',
     }
   }
 
   if (
-    membership.classesRemaining !== null &&
-    membership.classesRemaining <= 0
+    pkg.classesRemaining !== null &&
+    pkg.classesRemaining <= 0
   ) {
     return {
       canBook: false,
-      reason: 'No tienes clases disponibles en tu plan.',
+      reason: 'No tienes clases disponibles en tu paquete.',
     }
   }
 
@@ -43,7 +43,7 @@ export function canBookClass(membership: MembershipInfo): {
 
 ### When Booking Happens:
 
-1. **Check membership** - Validate plan hasn't expired
+1. **Check package** - Validate package hasn't expired
 2. **Check remaining classes** - If `classesRemaining <= 0`, reject booking
 3. **Create booking** - If confirmed, decrement `classesRemaining`
 4. **Throw error** - If validation fails, user gets clear error message
@@ -54,23 +54,23 @@ export function canBookClass(membership: MembershipInfo): {
 
 ### Location: [client-calendar.tsx](src/app/(dashboard)/client/classes/client-calendar.tsx)
 
-### 1. **Membership Status Card**
+### 1. **Package Status Card**
 
 Shows remaining classes at the top of the page:
 
 ```tsx
-{/* Membership Status */}
-{membership && (
+{/* Package Status */}
+{pkg && (
   <Card className={hasNoClassesRemaining ? 'bg-red-500/10 border-red-500/30' : 'bg-white/5'}>
     <CardContent className="pt-6">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold text-white mb-1">
-            {membership.planName || 'Plan Activo'}
+            {pkg.packageName || 'Paquete Activo'}
           </h3>
           <p className="text-gray-400 text-sm">
-            {membership.classesRemaining !== null
-              ? `${membership.classesRemaining} clases restantes`
+            {pkg.classesRemaining !== null
+              ? `${pkg.classesRemaining} clases restantes`
               : 'Clases ilimitadas'}
           </p>
         </div>
@@ -97,7 +97,7 @@ When `classesRemaining <= 0`:
     ? "bg-gray-600 hover:bg-gray-600 text-gray-400 cursor-not-allowed"
     : "bg-red-600 hover:bg-red-700 text-white"
   }
-  title={hasNoClassesRemaining ? 'No tienes clases disponibles en tu plan' : undefined}
+  title={hasNoClassesRemaining ? 'No tienes clases disponibles en tu paquete' : undefined}
 >
   {hasNoClassesRemaining
     ? 'Sin clases disponibles'
@@ -107,16 +107,16 @@ When `classesRemaining <= 0`:
 
 ### 3. **Real-time Updates**
 
-After booking or canceling, the membership data is refreshed:
+After booking or canceling, the package data is refreshed:
 
 ```typescript
 const loadData = useCallback(async (date: Date) => {
-  const [classesData, membershipData] = await Promise.all([
+  const [classesData, packageData] = await Promise.all([
     getClassesByMonth(date.getFullYear(), date.getMonth() + 1),
-    getUserActiveMembership(),  // ✅ Fetch updated membership
+    getUserActivePackage(),  // ✅ Fetch updated package
   ])
   setClasses(classesData)
-  setMembership(membershipData)
+  setPackage(packageData)
 }, [])
 ```
 
@@ -135,10 +135,10 @@ const loadData = useCallback(async (date: Date) => {
 1. ⚠️ Card turns red with alert icon
 2. ⚠️ Message: "Sin clases disponibles"
 3. ⚠️ Book button is **disabled and grayed out**
-4. ⚠️ Tooltip shows: "No tienes clases disponibles en tu plan"
-5. ⚠️ If they try to book anyway (via API), gets error: "No tienes clases disponibles en tu plan."
+4. ⚠️ Tooltip shows: "No tienes clases disponibles en tu paquete"
+5. ⚠️ If they try to book anyway (via API), gets error: "No tienes clases disponibles en tu paquete."
 
-### When User Has Unlimited Plan
+### When User Has Unlimited Package
 
 1. ✅ Shows "Clases ilimitadas"
 2. ✅ Can book without restrictions
@@ -155,15 +155,15 @@ const loadData = useCallback(async (date: Date) => {
                   │
                   ▼
 ┌─────────────────────────────────────────┐
-│  Load Membership Data                   │
-│  - Plan name                             │
+│  Load Package Data                      │
+│  - Package name                          │
 │  - Classes remaining                     │
 │  - End date                              │
 └─────────────────┬───────────────────────┘
                   │
                   ▼
 ┌─────────────────────────────────────────┐
-│  Display Membership Status Card         │
+│  Display Package Status Card            │
 │  ✅ "5 clases restantes"                │
 │  OR ⚠️ "Sin clases disponibles"         │
 └─────────────────┬───────────────────────┘
@@ -209,7 +209,7 @@ const loadData = useCallback(async (date: Date) => {
 ### When Booking is Confirmed:
 
 ```sql
-UPDATE user_memberships
+UPDATE user_class_packages
 SET classes_remaining = classes_remaining - 1
 WHERE id = $1
 ```
@@ -217,16 +217,16 @@ WHERE id = $1
 ### When Booking is Cancelled:
 
 ```sql
-UPDATE user_memberships
+UPDATE user_class_packages
 SET classes_remaining = classes_remaining + 1
 WHERE id = $1
 ```
 
 ### Edge Cases Handled:
 
-1. **Unlimited Plans** - `classesRemaining = NULL` → No decrement, no limit
+1. **Unlimited Packages** - `classesRemaining = NULL` → No decrement, no limit
 2. **Waitlist** - Only decrement when promoted to confirmed
-3. **Expired Plans** - Blocked before checking remaining classes
+3. **Expired Packages** - Blocked before checking remaining classes
 4. **Concurrent Bookings** - Database transaction ensures atomicity
 
 ---
@@ -282,4 +282,4 @@ WHERE id = $1
 
 **Package limit validation is now fully implemented!** 🎉
 
-Users can only book the number of classes included in their membership package.
+Users can only book the number of classes included in their package.

@@ -24,6 +24,7 @@ export interface GetUserActivePackageResult {
   gift_redeemed_at: Date | null;
   id: string;
   is_gift: boolean | null;
+  is_shareable: boolean | null;
   package_description: string | null;
   package_name: string;
   package_template_id: string;

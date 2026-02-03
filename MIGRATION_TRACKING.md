@@ -4,6 +4,9 @@
 
 This document tracks all database schema changes, code migrations, and the PGTyped integration process completed on 2026-01-24.
 
+> Note: Historical migration files (001-023) have been consolidated into `db/schema.sql` and removed from the working tree.
+> The details below are kept for reference and are preserved in git history.
+
 ## Migration System Setup
 
 ### Components Created
@@ -27,6 +30,8 @@ This document tracks all database schema changes, code migrations, and the PGTyp
    - Includes examples and rollback instructions
 
 ## Completed Migrations
+
+> Historical record: these migrations are consolidated into `db/schema.sql` and are not present as files in the repo.
 
 ### 000 - Create Migrations Table (2026-01-24)
 
@@ -210,7 +215,7 @@ All action files now use PGTyped instead of raw `pool.query()`:
 **Before:**
 ```typescript
 // ❌ Unsafe: Using 'any'
-const result = await pool.query('SELECT * FROM users...')
+const result = await pool.query('SELECT * FROM "user"...')
 result.rows.map((row: any) => ({ ... }))
 ```
 
@@ -225,7 +230,7 @@ result.map((row) => ({ ... }))  // row is fully typed!
 
 **Database:** `snake_case`
 ```sql
-SELECT user_id, first_name, class_name FROM users
+SELECT user_id, first_name, class_name FROM "user"
 ```
 
 **PGTyped Queries:** `snake_case` (configured via `camelCaseColumnNames: false`)

@@ -6,12 +6,12 @@ Multi-branch bike studio management platform with role-based access control (sup
 
 ### User Roles
 - **Superuser**: Manage all branches, admins, and perform all system actions
-- **Branch Admin**: Manage clients, classes, bookings, plans, and payments for their branch
+- **Branch Admin**: Manage clients, classes, bookings, packages, and payments for their branch
 - **Client**: Book classes, view bookings, and manage their profile
 
 ### Key Functionality
 - 🔐 Multi-provider authentication (Email, Google, Apple)
-- 📧 Time-limited invite links with embedded plan details (24h expiration)
+- 📧 Time-limited invite links with embedded package details (24h expiration)
 - 📅 Calendar-based class booking with real-time availability
 - ⏰ Configurable cancellation policy (default: 2 hours before class)
 - 📊 Admin dashboard with analytics (total clients, new clients, revenue)
@@ -22,12 +22,12 @@ Multi-branch bike studio management platform with role-based access control (sup
 - 📝 Comprehensive admin action logging
 - ⏱️ 30-day session persistence
 
-### Membership Plans
+### Class Packages
 - 1 class per week
 - 2 classes per week
 - 3 classes per week
 - Unlimited classes
-- Mid-period plan extensions and upgrades
+- Mid-period package extensions and upgrades
 
 ## Tech Stack
 
@@ -167,7 +167,7 @@ Example:
 ```sql
 /* @name GetUserByEmail */
 SELECT id, email, first_name, last_name
-FROM users
+FROM "user"
 WHERE email = :email!;
 ```
 
@@ -181,9 +181,9 @@ See [db/schema.sql](db/schema.sql) for the complete database schema.
 
 Key tables:
 - `branches` - Business branches
-- `users` - All users (superuser, admin, client)
-- `membership_plans` - Plan definitions
-- `user_memberships` - Active user memberships
+- `"user"` - All user accounts (superuser, admin, client)
+- `class_package_templates` - Package definitions
+- `user_class_packages` - Active user packages
 - `classes` - Scheduled classes
 - `bookings` - Class bookings and waitlist
 - `payments` - Manual payment records

@@ -29,7 +29,7 @@ async function getAdminSession() {
 }
 
 /**
- * Get all users for the admin's branch
+ * Get all user accounts for the admin's branch
  */
 export async function getAllUsers() {
   const session = await getAdminSession()
@@ -53,7 +53,7 @@ export async function getAllUsers() {
 }
 
 /**
- * Get paginated users with optional role filter
+ * Get paginated user accounts with optional role filter
  */
 export async function getUsersPaginated(options: {
   page?: number
@@ -120,10 +120,11 @@ export async function updateUserRole(
   const session = await getAdminSession()
 
   // Prevent changing superuser role
-  const userCheck = await pool.query('SELECT role FROM "user" WHERE id = $1', [
-    userId,
-  ])
-  if (userCheck.rows[0]?.role === 'superuser') {
+  const userCheck = await admin.getUserRoleById.run({ userId }, pool)
+  if (userCheck.length === 0) {
+    throw new Error('Usuario no encontrado')
+  }
+  if (userCheck[0]?.role === 'superuser') {
     throw new Error('No se puede cambiar el rol de un superusuario')
   }
 
@@ -132,33 +133,26 @@ export async function updateUserRole(
     await client.query('BEGIN')
 
     // Update user role
-    await client.query(
-      'UPDATE "user" SET role = $1, "updatedAt" = CURRENT_TIMESTAMP WHERE id = $2 AND branch_id = $3',
-      [newRole, userId, session.user.branchId]
+    await admin.updateUserRoleInBranch.run(
+      { role: newRole, userId, branchId: session.user.branchId },
+      client
     )
 
     // Handle branch assignments
     if (newRole === 'admin' && branchIds && branchIds.length > 0) {
       // Remove existing branch assignments
-      await client.query(
-        'DELETE FROM admin_branch_assignments WHERE admin_id = $1',
-        [userId]
-      )
+      await admin.deleteAdminBranchAssignments.run({ adminId: userId }, client)
 
       // Add new branch assignments
       for (let i = 0; i < branchIds.length; i++) {
-        await client.query(
-          `INSERT INTO admin_branch_assignments (admin_id, branch_id, is_primary)
-           VALUES ($1, $2, $3)`,
-          [userId, branchIds[i], i === 0] // First branch is primary
+        await admin.createAdminBranchAssignment.run(
+          { adminId: userId, branchId: branchIds[i], isPrimary: i === 0 },
+          client
         )
       }
     } else if (newRole === 'client') {
       // Remove all branch assignments when demoting to client
-      await client.query(
-        'DELETE FROM admin_branch_assignments WHERE admin_id = $1',
-        [userId]
-      )
+      await admin.deleteAdminBranchAssignments.run({ adminId: userId }, client)
     }
 
     await client.query('COMMIT')
@@ -169,7 +163,7 @@ export async function updateUserRole(
       'user',
       userId,
       `Cambió rol de usuario a ${newRole}`,
-      { newRole, previousRole: userCheck.rows[0]?.role, branchIds }
+      { newRole, previousRole: userCheck[0]?.role, branchIds }
     )
 
     revalidatePath('/admin/users')
@@ -189,28 +183,29 @@ export async function deleteUser(userId: string) {
   const session = await getAdminSession()
 
   // Prevent deleting superuser
-  const userCheck = await pool.query('SELECT role FROM "user" WHERE id = $1', [
-    userId,
-  ])
-  if (userCheck.rows[0]?.role === 'superuser') {
+  const userCheck = await admin.getUserRoleById.run({ userId }, pool)
+  if (userCheck.length === 0) {
+    throw new Error('Usuario no encontrado')
+  }
+  if (userCheck[0]?.role === 'superuser') {
     throw new Error('No se puede eliminar un superusuario')
   }
 
   // Check if user has recorded payments (would prevent deletion due to RESTRICT constraint)
-  const paymentsCheck = await pool.query(
-    'SELECT COUNT(*) as count FROM payments WHERE recorded_by = $1',
-    [userId]
+  const paymentsCheck = await admin.countPaymentsRecordedBy.run(
+    { userId },
+    pool
   )
-  if (parseInt(paymentsCheck.rows[0].count, 10) > 0) {
+  if ((paymentsCheck[0]?.count ?? 0) > 0) {
     throw new Error(
       'No se puede eliminar este usuario porque ha registrado pagos en el sistema'
     )
   }
 
-  await pool.query('DELETE FROM "user" WHERE id = $1 AND branch_id = $2', [
-    userId,
-    session.user.branchId,
-  ])
+  await admin.deleteUserInBranch.run(
+    { userId, branchId: session.user.branchId },
+    pool
+  )
 
   await logAdminAction(
     session.user.id,
@@ -218,7 +213,7 @@ export async function deleteUser(userId: string) {
     'user',
     userId,
     'Eliminó usuario',
-    { deletedRole: userCheck.rows[0]?.role }
+    { deletedRole: userCheck[0]?.role }
   )
 
   revalidatePath('/admin/users')
@@ -265,31 +260,24 @@ export async function createClass(data: {
 }) {
   const session = await getAdminSession()
 
-  const result = await pool.query(
-    `INSERT INTO classes (
-      branch_id,
-      name,
-      instructor,
-      scheduled_at,
-      duration_minutes,
-      capacity,
-      waitlist_capacity,
-      booking_hours_before
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-    RETURNING id, name, instructor, scheduled_at, duration_minutes, capacity, waitlist_capacity, booking_hours_before`,
-    [
-      session.user.branchId,
-      data.name,
-      data.instructor,
-      data.scheduledAt,
-      data.durationMinutes,
-      data.capacity,
-      data.waitlistCapacity,
-      data.bookingHoursBefore ?? null,
-    ]
+  const result = await admin.createAdminClass.run(
+    {
+      branchId: session.user.branchId,
+      name: data.name,
+      instructor: data.instructor,
+      scheduledAt: data.scheduledAt,
+      durationMinutes: data.durationMinutes,
+      capacity: data.capacity,
+      waitlistCapacity: data.waitlistCapacity,
+      bookingHoursBefore: data.bookingHoursBefore ?? null,
+    },
+    pool
   )
 
-  const classId = result.rows[0].id
+  const classId = result[0]?.id
+  if (!classId) {
+    throw new Error('No se pudo crear la clase')
+  }
 
   await logAdminAction(
     session.user.id,
@@ -307,13 +295,13 @@ export async function createClass(data: {
 
   revalidatePath('/admin/classes')
   return {
-    id: result.rows[0].id,
-    name: result.rows[0].name,
-    instructor: result.rows[0].instructor,
-    scheduledAt: result.rows[0].scheduled_at,
-    durationMinutes: result.rows[0].duration_minutes,
-    capacity: result.rows[0].capacity,
-    waitlistCapacity: result.rows[0].waitlist_capacity,
+    id: result[0].id,
+    name: result[0].name,
+    instructor: result[0].instructor,
+    scheduledAt: result[0].scheduled_at,
+    durationMinutes: result[0].duration_minutes,
+    capacity: result[0].capacity,
+    waitlistCapacity: result[0].waitlist_capacity,
   }
 }
 
@@ -334,28 +322,19 @@ export async function updateClass(
 ) {
   const session = await getAdminSession()
 
-  await pool.query(
-    `UPDATE classes
-    SET name = $1,
-        instructor = $2,
-        scheduled_at = $3,
-        duration_minutes = $4,
-        capacity = $5,
-        waitlist_capacity = $6,
-        booking_hours_before = $7,
-        updated_at = CURRENT_TIMESTAMP
-    WHERE id = $8 AND branch_id = $9`,
-    [
-      data.name,
-      data.instructor,
-      data.scheduledAt,
-      data.durationMinutes,
-      data.capacity,
-      data.waitlistCapacity,
-      data.bookingHoursBefore ?? null,
+  await admin.updateAdminClass.run(
+    {
       classId,
-      session.user.branchId,
-    ]
+      branchId: session.user.branchId,
+      name: data.name,
+      instructor: data.instructor,
+      scheduledAt: data.scheduledAt,
+      durationMinutes: data.durationMinutes,
+      capacity: data.capacity,
+      waitlistCapacity: data.waitlistCapacity,
+      bookingHoursBefore: data.bookingHoursBefore ?? null,
+    },
+    pool
   )
 
   await logAdminAction(
@@ -381,10 +360,10 @@ export async function updateClass(
 export async function deleteClass(classId: string) {
   const session = await getAdminSession()
 
-  await pool.query('DELETE FROM classes WHERE id = $1 AND branch_id = $2', [
-    classId,
-    session.user.branchId,
-  ])
+  await admin.deleteAdminClass.run(
+    { classId, branchId: session.user.branchId },
+    pool
+  )
 
   await logAdminAction(
     session.user.id,
@@ -469,30 +448,34 @@ export async function createAdminUser(formData: FormData) {
     await client.query('BEGIN')
 
     // Check if user exists
-    const existingUser = await client.query(
-      'SELECT id FROM "user" WHERE email = $1',
-      [email]
-    )
-    if (existingUser.rows.length > 0) {
+    const existingUser = await admin.getUserIdByEmail.run({ email }, client)
+    if (existingUser.length > 0) {
       throw new Error('Este correo electrónico ya está registrado')
     }
 
     const passwordHash = await hashPassword(password)
 
-    const userResult = await client.query(
-      `INSERT INTO "user" (email, first_name, last_name, phone, role, branch_id)
-       VALUES ($1, $2, $3, $4, 'admin', $5)
-       RETURNING id`,
-      [email, firstName, lastName, phone, branchId]
+    const userResult = await admin.createUserWithRole.run(
+      {
+        email,
+        firstName,
+        lastName,
+        phone: phone || null,
+        role: 'admin',
+        branchId,
+      },
+      client
     )
 
-    const userId = userResult.rows[0].id
+    const userId = userResult[0]?.id
+    if (!userId) {
+      throw new Error('No se pudo crear el usuario')
+    }
 
     // Insert password into account table (Better Auth)
-    await client.query(
-      `INSERT INTO "account" ("userId", "accountId", "providerId", password)
-       VALUES ($1, $2, 'credential', $3)`,
-      [userId, email, passwordHash]
+    await admin.createAccountCredential.run(
+      { userId, accountId: email, password: passwordHash },
+      client
     )
 
     await logAdminAction(
@@ -527,36 +510,34 @@ export async function createPayment(data: {
   const session = await getAdminSession()
 
   try {
-    const result = await pool.query(
-      `INSERT INTO payments (
-        user_id,
-        amount,
-        payment_date,
-        notes,
-        recorded_by
-      ) VALUES ($1, $2, $3, $4, $5)
-      RETURNING id, user_id, amount, payment_date, notes, recorded_by, created_at`,
-      [
-        data.userId,
-        data.amount,
-        data.paymentDate,
-        data.notes || null,
-        session.user.id,
-      ]
+    const result = await admin.createPayment.run(
+      {
+        userId: data.userId,
+        amount: data.amount,
+        paymentDate: data.paymentDate,
+        notes: data.notes || null,
+        recordedBy: session.user.id,
+      },
+      pool
     )
+
+    const created = result[0]
+    if (!created) {
+      throw new Error('No se pudo registrar el pago')
+    }
 
     await logAdminAction(
       session.user.id,
       'create',
       'payment',
-      result.rows[0].id,
+      created.id,
       `Registró pago de $${data.amount} para usuario ${data.userId}`,
       data
     )
 
     revalidatePath('/admin/payments')
     revalidatePath(`/admin/users/${data.userId}`)
-    return result.rows[0]
+    return created
   } catch (error) {
     console.error('Error creating payment:', error)
     if (error instanceof Error) {
@@ -635,23 +616,23 @@ export async function updatePayment(
 
   try {
     // Verify payment exists and belongs to a user in the admin's branch
-    const paymentCheck = await pool.query(
-      `SELECT p.id, p.user_id, u.branch_id
-       FROM payments p
-       JOIN users u ON p.user_id = u.id
-       WHERE p.id = $1 AND u.branch_id = $2`,
-      [paymentId, session.user.branchId]
+    const paymentCheck = await admin.getPaymentForAdmin.run(
+      { paymentId, branchId: session.user.branchId },
+      pool
     )
 
-    if (paymentCheck.rows.length === 0) {
+    if (paymentCheck.length === 0) {
       throw new Error('Pago no encontrado')
     }
 
-    await pool.query(
-      `UPDATE payments
-       SET amount = $1, payment_date = $2, notes = $3, updated_at = CURRENT_TIMESTAMP
-       WHERE id = $4`,
-      [data.amount, data.paymentDate, data.notes || null, paymentId]
+    await admin.updatePayment.run(
+      {
+        paymentId,
+        amount: data.amount,
+        paymentDate: data.paymentDate,
+        notes: data.notes ?? null,
+      },
+      pool
     )
 
     await logAdminAction(
@@ -682,21 +663,18 @@ export async function deletePayment(paymentId: string) {
 
   try {
     // Verify payment exists and belongs to a user in the admin's branch
-    const paymentCheck = await pool.query(
-      `SELECT p.id, p.amount, p.user_id, u.branch_id
-       FROM payments p
-       JOIN users u ON p.user_id = u.id
-       WHERE p.id = $1 AND u.branch_id = $2`,
-      [paymentId, session.user.branchId]
+    const paymentCheck = await admin.getPaymentForAdmin.run(
+      { paymentId, branchId: session.user.branchId },
+      pool
     )
 
-    if (paymentCheck.rows.length === 0) {
+    if (paymentCheck.length === 0) {
       throw new Error('Pago no encontrado')
     }
 
-    const payment = paymentCheck.rows[0]
+    const payment = paymentCheck[0]
 
-    await pool.query('DELETE FROM payments WHERE id = $1', [paymentId])
+    await admin.deletePayment.run({ paymentId }, pool)
 
     await logAdminAction(
       session.user.id,
@@ -751,22 +729,19 @@ export async function switchBranchContext(branchId: string) {
 
   // Verify admin has access to this branch
   if (session.user.role === 'admin') {
-    const accessCheck = await pool.query(
-      `SELECT 1 FROM admin_branch_assignments 
-       WHERE admin_id = $1 AND branch_id = $2`,
-      [session.user.id, branchId]
+    const accessCheck = await admin.checkAdminBranchAccess.run(
+      { adminId: session.user.id, branchId },
+      pool
     )
-    if (accessCheck.rows.length === 0) {
+    if (accessCheck.length === 0) {
       throw new Error('No tienes acceso a esta sucursal')
     }
   }
 
   // Update user's current branch
-  await pool.query(
-    `UPDATE "user"
-     SET branch_id = $1, "updatedAt" = CURRENT_TIMESTAMP
-     WHERE id = $2`,
-    [branchId, session.user.id]
+  await admin.updateUserBranch.run(
+    { branchId, userId: session.user.id },
+    pool
   )
 
   await logAdminAction(
@@ -804,12 +779,9 @@ export async function createSuperuser(formData: FormData) {
   }
 
   // Check if email already exists
-  const existingUser = await pool.query(
-    `SELECT id FROM "user" WHERE email = $1`,
-    [email]
-  )
+  const existingUser = await admin.getUserIdByEmail.run({ email }, pool)
 
-  if (existingUser.rows.length > 0) {
+  if (existingUser.length > 0) {
     throw new Error('Ya existe un usuario con este correo electrónico')
   }
 
@@ -819,20 +791,27 @@ export async function createSuperuser(formData: FormData) {
   try {
     await client.query('BEGIN')
 
-    const result = await client.query(
-      `INSERT INTO "user" (email, first_name, last_name, phone, role, branch_id)
-       VALUES ($1, $2, $3, $4, 'superuser', $5)
-       RETURNING id`,
-      [email, firstName, lastName, phone, branchId]
+    const result = await admin.createUserWithRole.run(
+      {
+        email,
+        firstName,
+        lastName,
+        phone: phone || null,
+        role: 'superuser',
+        branchId,
+      },
+      client
     )
 
-    const userId = result.rows[0].id
+    const userId = result[0]?.id
+    if (!userId) {
+      throw new Error('No se pudo crear el usuario')
+    }
 
     // Insert password into account table (Better Auth)
-    await client.query(
-      `INSERT INTO "account" ("userId", "accountId", "providerId", password)
-       VALUES ($1, $2, 'credential', $3)`,
-      [userId, email, passwordHash]
+    await admin.createAccountCredential.run(
+      { userId, accountId: email, password: passwordHash },
+      client
     )
 
     await client.query('COMMIT')
@@ -878,12 +857,9 @@ export async function createAdmin(formData: FormData) {
   }
 
   // Check if email already exists
-  const existingUser = await pool.query(
-    `SELECT id FROM "user" WHERE email = $1`,
-    [email]
-  )
+  const existingUser = await admin.getUserIdByEmail.run({ email }, pool)
 
-  if (existingUser.rows.length > 0) {
+  if (existingUser.length > 0) {
     throw new Error('Ya existe un usuario con este correo electrónico')
   }
 
@@ -894,27 +870,33 @@ export async function createAdmin(formData: FormData) {
     await client.query('BEGIN')
 
     // Create admin user
-    const userResult = await client.query(
-      `INSERT INTO "user" (email, first_name, last_name, phone, role, branch_id)
-       VALUES ($1, $2, $3, $4, 'admin', $5)
-       RETURNING id`,
-      [email, firstName, lastName, phone, branchId]
+    const userResult = await admin.createUserWithRole.run(
+      {
+        email,
+        firstName,
+        lastName,
+        phone: phone || null,
+        role: 'admin',
+        branchId,
+      },
+      client
     )
 
-    const userId = userResult.rows[0].id
+    const userId = userResult[0]?.id
+    if (!userId) {
+      throw new Error('No se pudo crear el usuario')
+    }
 
     // Insert password into account table (Better Auth)
-    await client.query(
-      `INSERT INTO "account" ("userId", "accountId", "providerId", password)
-       VALUES ($1, $2, 'credential', $3)`,
-      [userId, email, passwordHash]
+    await admin.createAccountCredential.run(
+      { userId, accountId: email, password: passwordHash },
+      client
     )
 
     // Assign admin to branch
-    await client.query(
-      `INSERT INTO admin_branch_assignments (admin_id, branch_id, is_primary)
-       VALUES ($1, $2, true)`,
-      [userId, branchId]
+    await admin.createAdminBranchAssignment.run(
+      { adminId: userId, branchId, isPrimary: true },
+      client
     )
 
     await client.query('COMMIT')

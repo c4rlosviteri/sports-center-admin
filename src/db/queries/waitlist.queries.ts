@@ -3,6 +3,8 @@ import { PreparedQuery } from '@pgtyped/runtime';
 
 export type booking_status = 'cancelled' | 'confirmed' | 'waitlisted';
 
+export type notification_type = 'booking_cancellation' | 'booking_confirmation' | 'package_expiration' | 'waitlist_promotion';
+
 export type DateOrString = Date | string;
 
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
@@ -15,7 +17,7 @@ export interface CreateWaitlistNotificationParams {
   branchId: string;
   classId: string;
   metadata?: Json | null | void;
-  notificationType: string;
+  notificationType: notification_type;
   responseDeadline?: DateOrString | null | void;
   sentVia: string;
   status: string;
@@ -30,7 +32,7 @@ export interface CreateWaitlistNotificationResult {
   created_at: Date | null;
   id: string;
   metadata: Json | null;
-  notification_type: string;
+  notification_type: notification_type;
   responded_at: Date | null;
   response_action: string | null;
   response_deadline: Date | null;
@@ -97,7 +99,7 @@ export interface GetWaitlistNotificationsResult {
   instructor: string | null;
   last_name: string | null;
   metadata: Json | null;
-  notification_type: string;
+  notification_type: notification_type;
   phone: string | null;
   responded_at: Date | null;
   response_action: string | null;
@@ -156,7 +158,7 @@ export interface GetUserWaitlistNotificationsResult {
   id: string;
   instructor: string | null;
   metadata: Json | null;
-  notification_type: string;
+  notification_type: notification_type;
   responded_at: Date | null;
   response_action: string | null;
   response_deadline: Date | null;
@@ -210,7 +212,7 @@ export interface UpdateNotificationStatusResult {
   created_at: Date | null;
   id: string;
   metadata: Json | null;
-  notification_type: string;
+  notification_type: notification_type;
   responded_at: Date | null;
   response_action: string | null;
   response_deadline: Date | null;
@@ -778,12 +780,23 @@ export interface GetNotificationPreferencesQuery {
   result: GetNotificationPreferencesResult;
 }
 
-const getNotificationPreferencesIR: any = {"usedParamSet":{"userId":true},"params":[{"name":"userId","required":true,"transform":{"type":"scalar"},"locs":[{"a":55,"b":62}]}],"statement":"SELECT *\nFROM notification_preferences\nWHERE user_id = :userId!"};
+const getNotificationPreferencesIR: any = {"usedParamSet":{"userId":true},"params":[{"name":"userId","required":true,"transform":{"type":"scalar"},"locs":[{"a":280,"b":287}]}],"statement":"SELECT\n  id,\n  user_id,\n  email_enabled,\n  sms_enabled,\n  push_enabled,\n  waitlist_notification_enabled,\n  booking_confirmation_enabled,\n  cancellation_notification_enabled,\n  reminder_notification_enabled,\n  created_at,\n  updated_at\nFROM notification_preferences\nWHERE user_id = :userId!"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT *
+ * SELECT
+ *   id,
+ *   user_id,
+ *   email_enabled,
+ *   sms_enabled,
+ *   push_enabled,
+ *   waitlist_notification_enabled,
+ *   booking_confirmation_enabled,
+ *   cancellation_notification_enabled,
+ *   reminder_notification_enabled,
+ *   created_at,
+ *   updated_at
  * FROM notification_preferences
  * WHERE user_id = :userId!
  * ```
@@ -1013,13 +1026,32 @@ const getClassWaitlistStatusIR: any = {"usedParamSet":{"classId":true,"branchId"
 export const getClassWaitlistStatus = new PreparedQuery<GetClassWaitlistStatusParams,GetClassWaitlistStatusResult>(getClassWaitlistStatusIR);
 
 
-/** Query 'GetWaitlistQueue' is invalid, so its result is assigned type 'never'.
- *  */
-export type GetWaitlistQueueResult = never;
+/** 'GetWaitlistQueue' parameters type */
+export interface GetWaitlistQueueParams {
+  branchId: string;
+  classId: string;
+}
 
-/** Query 'GetWaitlistQueue' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type GetWaitlistQueueParams = never;
+/** 'GetWaitlistQueue' return type */
+export interface GetWaitlistQueueResult {
+  active_offer_id: string;
+  booked_at: Date | null;
+  booking_id: string;
+  email: string;
+  first_name: string | null;
+  last_name: string | null;
+  offer_expires_at: Date;
+  offer_status: string | null;
+  phone: string | null;
+  user_id: string;
+  waitlist_position: number | null;
+}
+
+/** 'GetWaitlistQueue' query type */
+export interface GetWaitlistQueueQuery {
+  params: GetWaitlistQueueParams;
+  result: GetWaitlistQueueResult;
+}
 
 const getWaitlistQueueIR: any = {"usedParamSet":{"classId":true,"branchId":true},"params":[{"name":"classId","required":true,"transform":{"type":"scalar"},"locs":[{"a":393,"b":401}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":423,"b":432}]}],"statement":"SELECT\n  b.id as booking_id,\n  b.user_id,\n  b.waitlist_position,\n  b.booked_at,\n  u.first_name,\n  u.last_name,\n  u.email,\n  u.phone,\n  wo.id as active_offer_id,\n  wo.status as offer_status,\n  wo.expires_at as offer_expires_at\nFROM bookings b\nJOIN \"user\" u ON b.user_id = u.id\nLEFT JOIN waitlist_offers wo ON\n  b.id = wo.booking_id\n  AND wo.status IN ('pending', 'accepted')\nWHERE b.class_id = :classId!\n  AND b.branch_id = :branchId!\n  AND b.status = 'waitlisted'\nORDER BY b.waitlist_position ASC, b.booked_at ASC"};
 

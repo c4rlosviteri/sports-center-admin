@@ -114,12 +114,27 @@ export interface GetRecurringTemplatesQuery {
   result: GetRecurringTemplatesResult;
 }
 
-const getRecurringTemplatesIR: any = {"usedParamSet":{"branchId":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":58,"b":67}]}],"statement":"SELECT *\nFROM recurring_class_templates\nWHERE branch_id = :branchId!\n  AND is_active = true\nORDER BY day_of_week ASC, start_time ASC"};
+const getRecurringTemplatesIR: any = {"usedParamSet":{"branchId":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":259,"b":268}]}],"statement":"SELECT\n  id,\n  branch_id,\n  name,\n  instructor,\n  day_of_week,\n  start_time,\n  duration_minutes,\n  capacity,\n  waitlist_capacity,\n  is_active,\n  start_date,\n  end_date,\n  created_at,\n  updated_at,\n  created_by\nFROM recurring_class_templates\nWHERE branch_id = :branchId!\n  AND is_active = true\nORDER BY day_of_week ASC, start_time ASC"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT *
+ * SELECT
+ *   id,
+ *   branch_id,
+ *   name,
+ *   instructor,
+ *   day_of_week,
+ *   start_time,
+ *   duration_minutes,
+ *   capacity,
+ *   waitlist_capacity,
+ *   is_active,
+ *   start_date,
+ *   end_date,
+ *   created_at,
+ *   updated_at,
+ *   created_by
  * FROM recurring_class_templates
  * WHERE branch_id = :branchId!
  *   AND is_active = true
@@ -160,12 +175,27 @@ export interface GetRecurringTemplateByIdQuery {
   result: GetRecurringTemplateByIdResult;
 }
 
-const getRecurringTemplateByIdIR: any = {"usedParamSet":{"templateId":true,"branchId":true},"params":[{"name":"templateId","required":true,"transform":{"type":"scalar"},"locs":[{"a":51,"b":62}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":82,"b":91}]}],"statement":"SELECT *\nFROM recurring_class_templates\nWHERE id = :templateId!\n  AND branch_id = :branchId!"};
+const getRecurringTemplateByIdIR: any = {"usedParamSet":{"templateId":true,"branchId":true},"params":[{"name":"templateId","required":true,"transform":{"type":"scalar"},"locs":[{"a":252,"b":263}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":283,"b":292}]}],"statement":"SELECT\n  id,\n  branch_id,\n  name,\n  instructor,\n  day_of_week,\n  start_time,\n  duration_minutes,\n  capacity,\n  waitlist_capacity,\n  is_active,\n  start_date,\n  end_date,\n  created_at,\n  updated_at,\n  created_by\nFROM recurring_class_templates\nWHERE id = :templateId!\n  AND branch_id = :branchId!"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT *
+ * SELECT
+ *   id,
+ *   branch_id,
+ *   name,
+ *   instructor,
+ *   day_of_week,
+ *   start_time,
+ *   duration_minutes,
+ *   capacity,
+ *   waitlist_capacity,
+ *   is_active,
+ *   start_date,
+ *   end_date,
+ *   created_at,
+ *   updated_at,
+ *   created_by
  * FROM recurring_class_templates
  * WHERE id = :templateId!
  *   AND branch_id = :branchId!
@@ -331,13 +361,35 @@ const deleteRecurringTemplateIR: any = {"usedParamSet":{"templateId":true,"branc
 export const deleteRecurringTemplate = new PreparedQuery<DeleteRecurringTemplateParams,DeleteRecurringTemplateResult>(deleteRecurringTemplateIR);
 
 
-/** Query 'CreateHolidayException' is invalid, so its result is assigned type 'never'.
- *  */
-export type CreateHolidayExceptionResult = never;
+/** 'CreateHolidayException' parameters type */
+export interface CreateHolidayExceptionParams {
+  affectsAllClasses: boolean;
+  branchId: string;
+  createdBy: string;
+  description?: string | null | void;
+  exceptionDate: DateOrString;
+  name: string;
+}
 
-/** Query 'CreateHolidayException' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type CreateHolidayExceptionParams = never;
+/** 'CreateHolidayException' return type */
+export interface CreateHolidayExceptionResult {
+  affects_all_classes: boolean | null;
+  branch_id: string;
+  created_at: Date | null;
+  created_by: string | null;
+  description: string | null;
+  exception_date: Date;
+  id: string;
+  is_closure: boolean | null;
+  name: string;
+  notes: string | null;
+}
+
+/** 'CreateHolidayException' query type */
+export interface CreateHolidayExceptionQuery {
+  params: CreateHolidayExceptionParams;
+  result: CreateHolidayExceptionResult;
+}
 
 const createHolidayExceptionIR: any = {"usedParamSet":{"branchId":true,"exceptionDate":true,"name":true,"description":true,"affectsAllClasses":true,"createdBy":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":136,"b":145}]},{"name":"exceptionDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":150,"b":164}]},{"name":"name","required":true,"transform":{"type":"scalar"},"locs":[{"a":169,"b":174}]},{"name":"description","required":false,"transform":{"type":"scalar"},"locs":[{"a":179,"b":190}]},{"name":"affectsAllClasses","required":true,"transform":{"type":"scalar"},"locs":[{"a":195,"b":213}]},{"name":"createdBy","required":true,"transform":{"type":"scalar"},"locs":[{"a":218,"b":228}]}],"statement":"INSERT INTO holiday_exceptions (\n  branch_id,\n  exception_date,\n  name,\n  description,\n  affects_all_classes,\n  created_by\n) VALUES (\n  :branchId!,\n  :exceptionDate!,\n  :name!,\n  :description,\n  :affectsAllClasses!,\n  :createdBy!\n)\nRETURNING *"};
 
@@ -390,12 +442,20 @@ export interface GetHolidayExceptionsQuery {
   result: GetHolidayExceptionsResult;
 }
 
-const getHolidayExceptionsIR: any = {"usedParamSet":{"branchId":true,"startDate":true,"endDate":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":51,"b":60}]},{"name":"startDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":86,"b":96}]},{"name":"endDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":122,"b":130}]}],"statement":"SELECT *\nFROM holiday_exceptions\nWHERE branch_id = :branchId!\n  AND exception_date >= :startDate!\n  AND exception_date <= :endDate!\nORDER BY exception_date ASC"};
+const getHolidayExceptionsIR: any = {"usedParamSet":{"branchId":true,"startDate":true,"endDate":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":144,"b":153}]},{"name":"startDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":179,"b":189}]},{"name":"endDate","required":true,"transform":{"type":"scalar"},"locs":[{"a":215,"b":223}]}],"statement":"SELECT\n  id,\n  branch_id,\n  name,\n  exception_date,\n  is_closure,\n  notes,\n  created_at,\n  created_by\nFROM holiday_exceptions\nWHERE branch_id = :branchId!\n  AND exception_date >= :startDate!\n  AND exception_date <= :endDate!\nORDER BY exception_date ASC"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT *
+ * SELECT
+ *   id,
+ *   branch_id,
+ *   name,
+ *   exception_date,
+ *   is_closure,
+ *   notes,
+ *   created_at,
+ *   created_by
  * FROM holiday_exceptions
  * WHERE branch_id = :branchId!
  *   AND exception_date >= :startDate!
@@ -430,12 +490,20 @@ export interface GetUpcomingHolidaysQuery {
   result: GetUpcomingHolidaysResult;
 }
 
-const getUpcomingHolidaysIR: any = {"usedParamSet":{"branchId":true,"limit":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":51,"b":60}]},{"name":"limit","required":false,"transform":{"type":"scalar"},"locs":[{"a":133,"b":138}]}],"statement":"SELECT *\nFROM holiday_exceptions\nWHERE branch_id = :branchId!\n  AND exception_date >= CURRENT_DATE\nORDER BY exception_date ASC\nLIMIT :limit"};
+const getUpcomingHolidaysIR: any = {"usedParamSet":{"branchId":true,"limit":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":144,"b":153}]},{"name":"limit","required":false,"transform":{"type":"scalar"},"locs":[{"a":226,"b":231}]}],"statement":"SELECT\n  id,\n  branch_id,\n  name,\n  exception_date,\n  is_closure,\n  notes,\n  created_at,\n  created_by\nFROM holiday_exceptions\nWHERE branch_id = :branchId!\n  AND exception_date >= CURRENT_DATE\nORDER BY exception_date ASC\nLIMIT :limit"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT *
+ * SELECT
+ *   id,
+ *   branch_id,
+ *   name,
+ *   exception_date,
+ *   is_closure,
+ *   notes,
+ *   created_at,
+ *   created_by
  * FROM holiday_exceptions
  * WHERE branch_id = :branchId!
  *   AND exception_date >= CURRENT_DATE
@@ -454,9 +522,11 @@ export interface DeleteHolidayExceptionParams {
 
 /** 'DeleteHolidayException' return type */
 export interface DeleteHolidayExceptionResult {
+  affects_all_classes: boolean | null;
   branch_id: string;
   created_at: Date | null;
   created_by: string | null;
+  description: string | null;
   exception_date: Date;
   id: string;
   is_closure: boolean | null;
@@ -484,13 +554,33 @@ const deleteHolidayExceptionIR: any = {"usedParamSet":{"exceptionId":true,"branc
 export const deleteHolidayException = new PreparedQuery<DeleteHolidayExceptionParams,DeleteHolidayExceptionResult>(deleteHolidayExceptionIR);
 
 
-/** Query 'GetGenerationLog' is invalid, so its result is assigned type 'never'.
- *  */
-export type GetGenerationLogResult = never;
+/** 'GetGenerationLog' parameters type */
+export interface GetGenerationLogParams {
+  branchId: string;
+  limit?: NumberOrString | null | void;
+}
 
-/** Query 'GetGenerationLog' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type GetGenerationLogParams = never;
+/** 'GetGenerationLog' return type */
+export interface GetGenerationLogResult {
+  branch_id: string;
+  classes_generated: number;
+  end_date: Date;
+  generated_at: Date | null;
+  generated_by: string | null;
+  generated_by_name: string | null;
+  generation_date: Date | null;
+  id: string;
+  notes: string | null;
+  start_date: Date;
+  template_id: string | null;
+  template_name: string;
+}
+
+/** 'GetGenerationLog' query type */
+export interface GetGenerationLogQuery {
+  params: GetGenerationLogParams;
+  result: GetGenerationLogResult;
+}
 
 const getGenerationLogIR: any = {"usedParamSet":{"branchId":true,"limit":true},"params":[{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":265,"b":274}]},{"name":"limit","required":false,"transform":{"type":"scalar"},"locs":[{"a":313,"b":318}]}],"statement":"SELECT\n  gcl.*,\n  rct.name as template_name,\n  u.first_name || ' ' || u.last_name as generated_by_name\nFROM generated_classes_log gcl\nJOIN recurring_class_templates rct ON gcl.template_id = rct.id\nLEFT JOIN \"user\" u ON gcl.generated_by = u.id\nWHERE gcl.branch_id = :branchId!\nORDER BY gcl.generated_at DESC\nLIMIT :limit"};
 
@@ -512,13 +602,33 @@ const getGenerationLogIR: any = {"usedParamSet":{"branchId":true,"limit":true},"
 export const getGenerationLog = new PreparedQuery<GetGenerationLogParams,GetGenerationLogResult>(getGenerationLogIR);
 
 
-/** Query 'GetGenerationLogByTemplate' is invalid, so its result is assigned type 'never'.
- *  */
-export type GetGenerationLogByTemplateResult = never;
+/** 'GetGenerationLogByTemplate' parameters type */
+export interface GetGenerationLogByTemplateParams {
+  branchId: string;
+  limit?: NumberOrString | null | void;
+  templateId: string;
+}
 
-/** Query 'GetGenerationLogByTemplate' is invalid, so its parameters are assigned type 'never'.
- *  */
-export type GetGenerationLogByTemplateParams = never;
+/** 'GetGenerationLogByTemplate' return type */
+export interface GetGenerationLogByTemplateResult {
+  branch_id: string;
+  classes_generated: number;
+  end_date: Date;
+  generated_at: Date | null;
+  generated_by: string | null;
+  generated_by_name: string | null;
+  generation_date: Date | null;
+  id: string;
+  notes: string | null;
+  start_date: Date;
+  template_id: string | null;
+}
+
+/** 'GetGenerationLogByTemplate' query type */
+export interface GetGenerationLogByTemplateQuery {
+  params: GetGenerationLogByTemplateParams;
+  result: GetGenerationLogByTemplateResult;
+}
 
 const getGenerationLogByTemplateIR: any = {"usedParamSet":{"templateId":true,"branchId":true,"limit":true},"params":[{"name":"templateId","required":true,"transform":{"type":"scalar"},"locs":[{"a":175,"b":186}]},{"name":"branchId","required":true,"transform":{"type":"scalar"},"locs":[{"a":210,"b":219}]},{"name":"limit","required":false,"transform":{"type":"scalar"},"locs":[{"a":258,"b":263}]}],"statement":"SELECT\n  gcl.*,\n  u.first_name || ' ' || u.last_name as generated_by_name\nFROM generated_classes_log gcl\nLEFT JOIN \"user\" u ON gcl.generated_by = u.id\nWHERE gcl.template_id = :templateId!\n  AND gcl.branch_id = :branchId!\nORDER BY gcl.generated_at DESC\nLIMIT :limit"};
 
