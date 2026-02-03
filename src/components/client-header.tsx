@@ -3,6 +3,7 @@
 import { Menu, X } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
+import { useSWRConfig } from 'swr'
 import { logoutAction } from '~/actions/auth'
 
 interface ClientHeaderProps {
@@ -22,6 +23,14 @@ const navigationLinks = [
 
 export function ClientHeader({ user, currentPage }: ClientHeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { cache } = useSWRConfig()
+
+  const handleLogout = () => {
+    if (!cache) return
+    for (const key of cache.keys()) {
+      cache.delete(key)
+    }
+  }
 
   return (
     <nav className="sticky top-0 z-50 border-b border-white/10 bg-black/90 backdrop-blur-md">
@@ -65,7 +74,7 @@ export function ClientHeader({ user, currentPage }: ClientHeaderProps) {
             </span>
 
             {/* Logout Button */}
-            <form action={logoutAction}>
+            <form action={logoutAction} onSubmit={handleLogout}>
               <button
                 type="submit"
                 className="text-sm text-gray-400 hover:text-white transition-colors px-3 py-2 rounded-md hover:bg-white/5"

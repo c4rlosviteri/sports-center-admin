@@ -5,8 +5,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import { deletePayment } from '~/actions/admin'
-import { usePayments } from '~/hooks/use-payments'
+import { usePaymentMutations, usePayments } from '~/hooks/use-payments'
 import { useUsers } from '~/hooks/use-users'
 import { CreatePaymentDialog } from './create-payment-dialog'
 import { EditPaymentDialog } from './edit-payment-dialog'
@@ -30,6 +29,8 @@ export function PaymentsPageContent() {
     isLoading: paymentsLoading,
     mutate: mutatePayments,
   } = usePayments()
+  const { handleDelete: handleDeletePayment } =
+    usePaymentMutations(mutatePayments)
   const { data: users = [], isLoading: usersLoading } = useUsers()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
@@ -53,8 +54,7 @@ export function PaymentsPageContent() {
   const confirmDeletePayment = async () => {
     if (!deleteConfirm.payment) return
     try {
-      await deletePayment(deleteConfirm.payment.id)
-      mutatePayments()
+      await handleDeletePayment(deleteConfirm.payment.id)
     } catch (error) {
       console.error('Error deleting payment:', error)
       toast.error(

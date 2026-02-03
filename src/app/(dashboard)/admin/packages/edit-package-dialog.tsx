@@ -23,7 +23,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
-import { updatePackageTemplate } from '~/actions/packages'
+import {
+  updatePackageTemplate,
+  type PackageTemplateInput,
+} from '~/actions/packages'
 
 type ValidityType = 'unlimited' | 'days' | 'months'
 
@@ -57,11 +60,16 @@ interface FormData {
 interface EditPackageDialogProps {
   package: Package
   onSuccess?: () => void
+  onUpdate?: (
+    packageId: string,
+    input: Partial<PackageTemplateInput>
+  ) => Promise<unknown>
 }
 
 export function EditPackageDialog({
   package: pkg,
   onSuccess,
+  onUpdate,
 }: EditPackageDialogProps) {
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -98,7 +106,8 @@ export function EditPackageDialog({
     setIsSubmitting(true)
 
     try {
-      await updatePackageTemplate(pkg.id, {
+      const updater = onUpdate ?? updatePackageTemplate
+      await updater(pkg.id, {
         name: formData.name,
         description: formData.description || undefined,
         classCount: formData.classCount,

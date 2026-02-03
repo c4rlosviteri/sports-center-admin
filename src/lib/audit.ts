@@ -9,8 +9,17 @@ export async function logAdminAction(
   entityType: string,
   entityId: string | null,
   description: string,
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 ) {
+  const serializeMetadata = (value: Record<string, unknown> | undefined) => {
+    try {
+      return JSON.stringify(value ?? {})
+    } catch (error) {
+      console.error('Failed to serialize audit metadata:', error)
+      return '{}'
+    }
+  }
+
   try {
     await pool.query(
       `INSERT INTO admin_action_logs (admin_id, action_type, entity_type, entity_id, description, metadata)
@@ -21,7 +30,7 @@ export async function logAdminAction(
         entityType,
         entityId,
         description,
-        JSON.stringify(metadata || {}),
+        serializeMetadata(metadata),
       ]
     )
   } catch (error) {

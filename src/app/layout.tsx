@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Toaster } from 'sonner'
 import './globals.css'
+import { SWRProvider } from './swr-provider'
 
 export const metadata: Metadata = {
   title: 'Biciantro - Indoor Cycling',
@@ -15,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body>
-        {children}
+        <SWRProvider>{children}</SWRProvider>
         <Toaster
           position="top-center"
           closeButton

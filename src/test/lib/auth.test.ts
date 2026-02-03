@@ -136,8 +136,11 @@ describe('invite token functions', () => {
       const decoded = await verifyInviteToken(token)
 
       expect(decoded).toBeTruthy()
-      expect(decoded!.expiresAt).toBeGreaterThan(now)
-      expect(decoded!.expiresAt).toBeLessThanOrEqual(now + 25 * 60 * 60 * 1000) // 25 hours max
+      if (!decoded) {
+        throw new Error('Expected decoded token to be available')
+      }
+      expect(decoded.expiresAt).toBeGreaterThan(now)
+      expect(decoded.expiresAt).toBeLessThanOrEqual(now + 25 * 60 * 60 * 1000) // 25 hours max
     })
   })
 
@@ -190,7 +193,7 @@ describe('invite token functions', () => {
       }
 
       const token = await generateInviteToken(payload)
-      const tamperedToken = token.slice(0, -5) + 'xxxxx'
+      const tamperedToken = `${token.slice(0, -5)}xxxxx`
 
       const decoded = await verifyInviteToken(tamperedToken)
       expect(decoded).toBeNull()

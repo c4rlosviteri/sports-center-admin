@@ -12,7 +12,8 @@
       "src/routeTree.gen.ts",
       "src/routes/demo/**",
       "src/components/Header.tsx",
-      "src/routes/index.tsx"
+      "src/routes/index.tsx",
+      "src/db/queries/**/*.queries.ts"
     ]
   },
   "formatter": {
@@ -41,5 +42,25 @@
       "trailingCommas": "es5",
       "arrowParentheses": "always"
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["src/db/queries/**/*.queries.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": "off"
+        }
+      }
+    },
+    {
+      "includes": ["src/test/**/*", "**/*.test.ts", "**/*.test.tsx"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
+          }
+        }
+      }
+    }
+  ]
 }

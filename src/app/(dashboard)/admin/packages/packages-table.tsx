@@ -26,13 +26,17 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { deletePackageTemplate, togglePackageStatus } from '~/actions/packages'
-import { usePackages } from '~/hooks/use-packages'
+import { usePackageMutations, usePackages } from '~/hooks/use-packages'
 import { EditPackageDialog } from './edit-package-dialog'
 import { SharePackageDialog } from './share-package-dialog'
 
 export function PackagesTable() {
   const { data: packages = [], isLoading, mutate } = usePackages()
+  const {
+    handleDelete: handleDeletePackage,
+    handleToggleStatus: handleTogglePackageStatus,
+    handleUpdate: handleUpdatePackage,
+  } = usePackageMutations(mutate)
   const [isTogglingStatus, setIsTogglingStatus] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState<string | null>(null)
 
@@ -42,9 +46,8 @@ export function PackagesTable() {
   const handleToggleStatus = async (packageId: string, newStatus: boolean) => {
     setIsTogglingStatus(packageId)
     try {
-      await togglePackageStatus(packageId, newStatus)
+      await handleTogglePackageStatus(packageId, newStatus)
       toast.success(newStatus ? 'Paquete activado' : 'Paquete desactivado')
-      mutate()
     } catch (error) {
       console.error('Error toggling status:', error)
       toast.error('Error al cambiar el estado del paquete')
@@ -56,9 +59,8 @@ export function PackagesTable() {
   const handleDelete = async (packageId: string) => {
     setIsDeleting(packageId)
     try {
-      await deletePackageTemplate(packageId)
+      await handleDeletePackage(packageId)
       toast.success('Paquete eliminado')
-      mutate()
     } catch (error) {
       console.error('Error deleting package:', error)
       toast.error(
@@ -207,7 +209,10 @@ export function PackagesTable() {
                     <SharePackageDialog
                       package={{ id: pkg.id, name: pkg.name }}
                     />
-                    <EditPackageDialog package={pkg} onSuccess={mutate} />
+                    <EditPackageDialog
+                      package={pkg}
+                      onUpdate={handleUpdatePackage}
+                    />
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button

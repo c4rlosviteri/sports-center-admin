@@ -16,7 +16,10 @@ export function useClientClasses(year: number, month: number) {
 }
 
 export function useClassBookings(classId: string | null) {
-  return useSWR(classId ? ['class-bookings', classId] : null, () =>
-    getClassBookings(classId!)
-  )
+  return useSWR(classId ? ['class-bookings', classId] : null, () => {
+    if (!classId) {
+      throw new Error('Class ID is required to fetch bookings')
+    }
+    return getClassBookings(classId)
+  })
 }

@@ -5,7 +5,6 @@
  * Usage: npx tsx scripts/migrate.ts
  */
 
-import { checkMigrationNeeded, migratePlansToPackages } from '../src/actions/migrate-plans'
 import { runAllPendingMigrations } from '../src/lib/migrations'
 
 async function main() {
@@ -25,30 +24,6 @@ async function main() {
     if (dbResult.errors.length > 0) {
       console.error('\nDatabase migration errors:')
       dbResult.errors.forEach((err) => console.error(`  - ${err}`))
-    }
-
-    // Check and run plan migration if needed
-    console.log('\nChecking plan migration status...')
-    const migrationCheck = await checkMigrationNeeded()
-
-    if (migrationCheck.needsMigration) {
-      console.log(
-        `Found ${migrationCheck.plansCount} plans and ${migrationCheck.usersCount} users to migrate`
-      )
-      console.log('Running plan-to-package migration...')
-
-      const planResult = await migratePlansToPackages()
-
-      console.log(
-        `✓ Migrated ${planResult.plansMigrated} plans and ${planResult.usersMigrated} users`
-      )
-
-      if (planResult.errors.length > 0) {
-        console.error('\nPlan migration errors:')
-        planResult.errors.forEach((err) => console.error(`  - ${err}`))
-      }
-    } else {
-      console.log('✓ No plan migration needed')
     }
 
     console.log('\n✓ Migration process completed')

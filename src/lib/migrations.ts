@@ -1,7 +1,7 @@
 'use server'
 
 import * as path from 'node:path'
-import * as fs from 'fs'
+import * as fs from 'node:fs'
 import { pool } from '~/lib/db'
 
 interface Migration {
@@ -151,7 +151,7 @@ export async function getPendingMigrations(): Promise<Migration[]> {
     // Skip if already applied
     if (appliedVersions.has(m.version)) return false
     // Only allow versions >= 002 (001 is consolidated in schema.sql)
-    if (parseInt(m.version) < 2) return false
+    if (parseInt(m.version, 10) < 2) return false
     return true
   })
 }
@@ -176,7 +176,7 @@ function loadMigrationFiles(migrationsDir: string): Migration[] {
       if (!match) return null
 
       const [, version, name] = match
-      const versionNum = parseInt(version)
+      const versionNum = parseInt(version, 10)
 
       // Skip versions < 002 (001 is the consolidated schema)
       if (versionNum < 2) return null
@@ -300,7 +300,7 @@ export async function getMigrationStatus(): Promise<{
     const result = await pool.query(
       "SELECT COUNT(*) FROM schema_migrations WHERE success = true AND version >= '002'"
     )
-    appliedCount = parseInt(result.rows[0].count)
+    appliedCount = parseInt(result.rows[0].count, 10)
   }
 
   return {

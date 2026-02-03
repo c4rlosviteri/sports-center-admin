@@ -3,6 +3,7 @@
 import { Menu, X } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
+import { useSWRConfig } from 'swr'
 import { logoutAction } from '~/actions/auth'
 import { BranchSwitcher } from '~/components/branch-switcher'
 
@@ -67,6 +68,12 @@ export function AdminHeader({
   const userRole = user.role as 'admin' | 'superuser'
   const isSuperuser = userRole === 'superuser'
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { mutate } = useSWRConfig()
+
+  const handleLogout = () => {
+    // Clear all SWR cache entries
+    mutate(() => true, undefined, { revalidate: false })
+  }
 
   // Filter navigation links based on user role
   const visibleLinks = navigationLinks.filter((link) =>
@@ -127,7 +134,7 @@ export function AdminHeader({
             </span>
 
             {/* Logout Button */}
-            <form action={logoutAction}>
+            <form action={logoutAction} onSubmit={handleLogout}>
               <button
                 type="submit"
                 className="text-sm text-gray-400 hover:text-white transition-colors px-3 py-2 rounded-md hover:bg-white/5"

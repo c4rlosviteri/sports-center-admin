@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import * as authQueries from '~/db/queries/auth.queries'
 import { auth } from '~/lib/auth'
 import { pool } from '~/lib/db'
-import { registerSchema } from '~/lib/schemas'
+import { registerSchema, type UserRole } from '~/lib/schemas'
 
 /**
  * Session user type with branch info
@@ -16,7 +16,7 @@ export interface SessionUser {
   name: string | null
   firstName: string | null
   lastName: string | null
-  role: string
+  role: UserRole
   branchId: string | null
   branchName: string | null
   dateOfBirth: string | null

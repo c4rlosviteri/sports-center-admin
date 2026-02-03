@@ -3,7 +3,6 @@
 import { MoreVertical, Pencil, Power, Settings, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { deleteBranch, toggleBranchStatus } from '~/actions/branches'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import {
@@ -29,13 +28,17 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table'
-import { useBranches } from '~/hooks/use-branches'
+import { useBranches, useBranchMutations } from '~/hooks/use-branches'
 import { formatDateDDMMYYYY } from '~/lib/date-utils'
 import { BranchSettingsDialog } from './branch-settings-dialog'
 import { EditBranchDialog } from './edit-branch-dialog'
 
 export function BranchesTable() {
   const { data: branches = [], isLoading, mutate } = useBranches()
+  const {
+    handleDelete: handleDeleteBranch,
+    handleToggleStatus: handleToggleBranchStatus,
+  } = useBranchMutations(mutate)
   const [loadingId, setLoadingId] = useState<string | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [branchToDelete, setBranchToDelete] = useState<{
@@ -52,9 +55,8 @@ export function BranchesTable() {
   const handleToggleStatus = async (branchId: string) => {
     setLoadingId(branchId)
     try {
-      await toggleBranchStatus(branchId)
+      await handleToggleBranchStatus(branchId)
       toast.success('Estado actualizado')
-      mutate()
     } catch (error) {
       console.error('Error toggling branch status:', error)
       toast.error(
@@ -75,13 +77,8 @@ export function BranchesTable() {
 
     setLoadingId(branchToDelete.id)
     try {
-      const result = await deleteBranch(branchToDelete.id)
-      if (!result.success) {
-        toast.error(result.message || 'Error al eliminar sucursal')
-      } else {
-        toast.success('Sucursal eliminada')
-        mutate()
-      }
+      await handleDeleteBranch(branchToDelete.id)
+      toast.success('Sucursal eliminada')
     } catch (error) {
       console.error('Error deleting branch:', error)
       toast.error(
