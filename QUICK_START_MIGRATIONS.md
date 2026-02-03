@@ -234,5 +234,4 @@ git commit -m "Add favorite classes feature"
 ## Reference
 
 - **Full Documentation:** [db/MIGRATIONS.md](db/MIGRATIONS.md)
-- **Change Tracking:** [MIGRATION_TRACKING.md](MIGRATION_TRACKING.md)
 - **Migration Template:** [db/migrations/TEMPLATE.sql](db/migrations/TEMPLATE.sql)
